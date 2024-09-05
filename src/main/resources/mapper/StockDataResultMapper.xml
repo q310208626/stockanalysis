@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.person.lsj.stock.dao.StockDataResultMapper">
+    <insert id="add" useGeneratedKeys="true" keyProperty="resultId">
+        INSERT INTO stock_data_result_sum
+            (task_id, collect_date, accuracy_rate)
+        values (#{taskId}, #{collectDate}, #{accuracyRate})
+    </insert>
+
+    <insert id="addBatch" useGeneratedKeys="true" keyProperty="resultId">
+        INSERT INTO stock_data_result_sum
+        (task_id,collect_date,accuracy_rate) values
+        <foreach collection="stockDataResultList" item="item" separator=",">
+            (#{item.taskId},#{item.collectDate},#{item.accuracyRate})
+        </foreach>
+    </insert>
+
+    <select id="queryById" resultMap="stockDataResultMap">
+        SELECT 
+            <include refid="column_list"></include>
+        FROM stock_data_result_sum
+        WHERE result_id = #{resultId}
+    </select>
+
+    <select id="queryBytaskIdAndDate" resultMap="stockDataResultMap">
+        SELECT
+            <include refid="column_list_with_details"></include>
+        FROM stock_data_result_sum s
+        LEFT JOIN stock_data_result_details d on d.result_id = s.result_id
+        WHERE s.task_id = #{taskId}
+        AND s.collect_date = #{collectDate}
+    </select>
+
+    <select id="queryByDate" resultMap="stockDataResultMap">
+        SELECT
+            <include refid="column_list_with_details"></include>
+        FROM stock_data_result_sum s
+                 LEFT JOIN stock_data_result_details d on d.result_id = s.result_id
+        WHERE s.collect_date = #{collectDate}
+    </select>
+
+    <select id="queryCollectDateDesc">
+        SELECT collect_date
+        FROM stock_data_result_sum
+        order by collect_date desc
+    </select>
+
+    <update id="updateOne">
+        UPDATE stock_data_result_sum
+        SET accuracy_rate = #{accuracyRate}
+        WHERE result_id = #{resultId}
+    </update>
+
+    <update id="updateBatch">
+        UPDATE stock_data_result_sum
+        <trim prefix="set" suffixOverrides=",">
+            <trim prefix="accuracy_rate = case result_id" suffix="end,">
+                <foreach collection="list" item="item">
+                    WHEN #{item.resultId} THEN #{item.accuracyRate}
+                </foreach>
+            </trim>
+        </trim>
+        <where>
+            result_id in
+            <foreach collection="list" item="item" open="(" close=")" separator=",">
+                #{item.resultId}
+            </foreach>
+        </where>
+    </update>
+
+    <resultMap id="stockDataResultMap" type="com.person.lsj.stock.bean.dongfang.result.StockDataResultSum">
+        <result property="resultId" column="result_id"></result>
+        <result property="taskId" column="task_id"></result>
+        <result property="collectDate" column="collect_date"></result>
+        <result property="accuracyRate" column="accuracy_rate"></result>
+        <collection property="stockDataResultDetailsList"
+                    ofType="com.person.lsj.stock.bean.dongfang.result.StockDataResultDetails"
+                    resultMap="com.person.lsj.stock.dao.StockDataResultDetailsMapper.stockDataResultDetailsMap">
+        </collection>
+    </resultMap>
+
+    <sql id="column_list">
+        result_id, task_id, collect_date, accuracy_rate
+    </sql>
+
+    <sql id="column_list_with_details">
+        s.result_id, s.task_id, s.collect_date, s.accuracy_rate, d.details_id, d.stock_code, d.result,d.open,d.close,d.increase
+    </sql>
+</mapper>

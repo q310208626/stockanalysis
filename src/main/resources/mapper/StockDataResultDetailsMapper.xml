@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.person.lsj.stock.dao.StockDataResultDetailsMapper">
+    <insert id="add" useGeneratedKeys="true" keyProperty="detailsId">
+        INSERT INTO stock_data_result_details(<include refid="column_list_add"/>)
+        VALUES (<include refid="column_variable_add"/>);
+    </insert>
+
+    <insert id="addBatch" parameterType="java.util.List" useGeneratedKeys="true" keyProperty="detailsId">
+        INSERT INTO stock_data_result_details(<include refid="column_list_add"/>)
+        VALUES
+        <foreach collection="stockDataResultDetailsList" item="item" separator=",">
+            (<include refid="column_variable_list_add"/>)
+        </foreach>
+    </insert>
+
+    <select id="query" resultMap="stockDataResultDetailsMap">
+        SELECT <include refid="column_list_query"/>
+        FROM stock_data_result_details
+        WHERE details_id = #{detailsId}
+    </select>
+
+    <select id="queryBatch" resultMap="stockDataResultDetailsMap">
+        SELECT <include refid="column_list_query"/> FROM
+        stock_data_result_details
+        WHERE details_id in
+        <foreach collection="detailsIds" item="detailsId" open="(" separator="," close=")">
+            #{detailsId}
+        </foreach>
+    </select>
+
+    <update id="update">
+        UPDATE stock_data_result_details
+        SET result  = #{result},
+            open    = #{open},
+            close=#{close},
+            increase=#{increase}
+        WHERE details_id = #{detailsId}
+    </update>
+
+    <update id="updateBatch">
+        UPDATE stock_data_result_details
+        <trim prefix="SET" suffixOverrides=",">
+            <trim prefix="result = case details_id" suffix="end,">
+                <foreach collection="list" item="item">
+                    WHEN #{item.detailsId} THEN #{item.result}
+                </foreach>
+            </trim>
+            <trim prefix="open = case details_id" suffix="end,">
+                <foreach collection="list" item="item">
+                    WHEN #{item.detailsId} THEN #{item.open}
+                </foreach>
+            </trim>
+            <trim prefix="close = case details_id" suffix="end,">
+                <foreach collection="list" item="item">
+                    WHEN #{item.detailsId} THEN #{item.close}
+                </foreach>
+            </trim>
+            <trim prefix="increase = case details_id" suffix="end,">
+                <foreach collection="list" item="item">
+                    WHEN #{item.detailsId} THEN #{item.increase}
+                </foreach>
+            </trim>
+        </trim>
+        <where>
+            details_id in
+            <foreach collection="list" item="item" open="(" close=")" separator=",">
+                #{item.detailsId}
+            </foreach>
+        </where>
+    </update>
+
+    <resultMap id="stockDataResultDetailsMap" type="com.person.lsj.stock.bean.dongfang.result.StockDataResultDetails">
+        <id property="detailsId" column="details_id"></id>
+        <result property="resultId" column="result_id"></result>
+        <result property="stockCode" column="stock_code"></result>
+        <result property="result" column="result"></result>
+        <result property="open" column="open"></result>
+        <result property="close" column="close"></result>
+        <result property="increase" column="increase"></result>
+    </resultMap>
+
+    <sql id="column_list_query">
+        details_id, result_id, stock_code, result, open, close, increase
+    </sql>
+
+    <sql id="column_list_add">
+        result_id, stock_code, result, open, close, increase
+    </sql>
+
+    <sql id="column_variable">
+        #{resultId}, #{stockCode}, #{result},#{open},#{close},#{increase}
+    </sql>
+
+    <sql id="column_variable_add">
+        #{resultId}, #{stockCode}, #{result},#{open},#{close},#{increase}
+    </sql>
+
+    <sql id="column_variable_list">
+        #{item.resultId}, #{item.stockCode}, #{item.result},#{item.open},#{item.close},#{item.increase}
+    </sql>
+
+    <sql id="column_variable_list_add">
+        #{item.resultId}, #{item.stockCode}, #{item.result},#{item.open},#{item.close},#{item.increase}
+    </sql>
+</mapper>

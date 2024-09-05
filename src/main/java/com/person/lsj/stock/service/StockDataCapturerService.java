@@ -1,0 +1,75 @@
+package com.person.lsj.stock.service;
+
+
+import com.person.lsj.stock.bean.dongfang.data.StockDetailsData;
+import com.person.lsj.stock.bean.dongfang.moneyflow.StockMoneyFlowBean;
+import com.person.lsj.stock.bean.dongfang.result.StockDataResultDetails;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Map;
+
+
+public interface StockDataCapturerService {
+    String getToken();
+
+    int getTotalPage();
+
+    /**
+     * 获取所有的stockCode
+     * @return
+     */
+    List<String> getAllStockCodes();
+
+    /**
+     * 获取某页的stockCode
+     * @param page
+     * @return
+     */
+    List<String> getStockCode(int page);
+
+    /**
+     * 获取3天内资金上升的stockCode
+     *
+     * @param stockCodes
+     * @return List stockCode
+     */
+    List<String> getStockMoneyFlowUp(List<String> stockCodes);
+
+    /**
+     * 获取资金数据
+     *
+     * @param stockCodes
+     * @return List stockCode
+     */
+    List<StockMoneyFlowBean> getStockMoneyFlowData(List<String> stockCodes);
+
+    /**
+     * 判断当前stockCode的v6曲线是否符合设置的标准
+     *
+     * @param stockCodes
+     * @return List<String>
+     */
+    List<String> getStockV6Detail(List<String> stockCodes);
+
+    /**
+     * 获取stockCode列表对应的120天v6详情数据
+     *
+     * @param stockCodes
+     * @return Map<String, StockDetailsData>
+     */
+    Map<String, StockDetailsData> getStockCodesV6Detail(List<String> stockCodes);
+
+    /**
+     * 用于设置昨天的任务数据
+     *
+     * @param stockDataResultDetailsList
+     */
+    void setStockResultDetails(List<StockDataResultDetails> stockDataResultDetailsList);
+
+    /**
+     * 获取上一个工作日
+     * @return
+     */
+    LocalDate getLastWorkDay();
+}
