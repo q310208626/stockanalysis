@@ -28,4 +28,10 @@ public interface StockDataResultService {
      * @return
      */
     LocalDate getLatestWorkDay();
+
+    /**
+     * 获取倒数第二个工作日
+     * @return
+     */
+    LocalDate getSecondToLastDay();
 }

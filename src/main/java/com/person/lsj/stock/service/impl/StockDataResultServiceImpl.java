@@ -173,4 +173,15 @@ public class StockDataResultServiceImpl implements StockDataResultService {
         LocalDate latestWorkDate = localDates.getFirst();
         return latestWorkDate;
     }
+
+    @Override
+    public LocalDate getSecondToLastDay() {
+        List<LocalDate> localDates = stockDataResultMapper.queryCollectDateDesc();
+        if (CollectionUtils.isEmpty(localDates) || localDates.size() < 2) {
+            return null;
+        }
+
+        LocalDate latestWorkDate = localDates.get(1);
+        return latestWorkDate;
+    }
 }

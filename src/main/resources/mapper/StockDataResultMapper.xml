@@ -40,7 +40,7 @@
     </select>
 
     <select id="queryCollectDateDesc">
-        SELECT collect_date
+        SELECT distinct(collect_date)
         FROM stock_data_result_sum
         order by collect_date desc
     </select>
