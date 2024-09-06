@@ -4,16 +4,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.person.lsj.stock.bean.dongfang.HomePageBean;
 import com.person.lsj.stock.bean.dongfang.StockField;
+import com.person.lsj.stock.bean.dongfang.data.StockCurDetailsData;
 import com.person.lsj.stock.bean.dongfang.data.StockDataEntity;
 import com.person.lsj.stock.bean.dongfang.data.StockDetailsData;
 import com.person.lsj.stock.bean.dongfang.moneyflow.StockMoneyFlowBean;
 import com.person.lsj.stock.bean.dongfang.moneyflow.StockMoneyFlowData;
 import com.person.lsj.stock.bean.dongfang.moneyflow.StockMoneyFlowDeserializer;
 import com.person.lsj.stock.bean.dongfang.result.StockDataResultDetails;
-import com.person.lsj.stock.bean.dongfang.task.GetStockCodeList;
-import com.person.lsj.stock.bean.dongfang.task.GetStockCodeMoneyData;
-import com.person.lsj.stock.bean.dongfang.task.GetStockCodeV6Details;
-import com.person.lsj.stock.bean.dongfang.task.JudgeCurStockDetailsTask;
+import com.person.lsj.stock.bean.dongfang.task.*;
 import com.person.lsj.stock.constant.Constant;
 import com.person.lsj.stock.constant.StockStatus;
 import com.person.lsj.stock.service.StockDataCapturerService;
@@ -58,6 +56,9 @@ public class DongFangStockDataCapturerServiceImpl implements StockDataCapturerSe
 
     // get Stock Details
     private static final String STOCK_DETAILS_URL = STOCK_DETAILS_HOST + "/api/qt/stock/kline/get";
+
+    // get cur Stock Details
+    private static final String STOCK_CUR_DETAILS_URL = STOCK_HOST + "/api/qt/stock/get";
 
     private static final Header userAgentHeader = new BasicHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.6422.112 Safari/537.36");
 
@@ -324,6 +325,49 @@ public class DongFangStockDataCapturerServiceImpl implements StockDataCapturerSe
 
             for (FutureTask<StockDetailsData> futureTask : futureTaskList) {
                 StockDetailsData stockDetailsData = futureTask.get(20, TimeUnit.MILLISECONDS);
+                stockDetailsDataMap.put(stockDetailsData.getStockCode(), stockDetailsData);
+            }
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        } catch (TimeoutException e) {
+            throw new RuntimeException(e);
+        }
+        return stockDetailsDataMap;
+    }
+
+    @Override
+    public Map<String, StockCurDetailsData> getStockCodesCurDayDetail(List<String> stockCodes) {
+        if (CollectionUtils.isEmpty(stockCodes)) {
+            return Map.of();
+        }
+
+        Map<String, StockCurDetailsData> stockDetailsDataMap = new HashMap<>();
+        try {
+            URIBuilder uriBuilder = new URIBuilder(STOCK_CUR_DETAILS_URL);
+            uriBuilder.addParameter("fields", "f43,f44,f45,f46,f47,f57,f58,f170");
+            uriBuilder.addParameter("invt", "2");
+            uriBuilder.addParameter("fltt", "1");
+            uriBuilder.addParameter("wbp2u", "|0|0|0|web");
+            uriBuilder.addParameter("dect", "1");
+
+            List<FutureTask<StockCurDetailsData>> futureTaskList = new ArrayList<>();
+            CountDownLatch countDownLatch = new CountDownLatch(stockCodes.size());
+            for (String stockCode : stockCodes) {
+                uriBuilder.setParameter("secid", stockCode.startsWith("0") ? "0." + stockCode : "1." + stockCode);
+                HttpGet httpGet = new HttpGet(uriBuilder.build());
+                FutureTask<StockCurDetailsData> futureTask = new FutureTask<>(new GetStockCodeCurDayDetails(stockCode, httpGet, countDownLatch));
+                futureTaskList.add(futureTask);
+                threadPool.submit(futureTask);
+            }
+
+            countDownLatch.await();
+
+            for (FutureTask<StockCurDetailsData> futureTask : futureTaskList) {
+                StockCurDetailsData stockDetailsData = futureTask.get(20, TimeUnit.MILLISECONDS);
                 stockDetailsDataMap.put(stockDetailsData.getStockCode(), stockDetailsData);
             }
         } catch (URISyntaxException e) {

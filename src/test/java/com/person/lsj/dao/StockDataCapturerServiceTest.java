@@ -1,6 +1,7 @@
 package com.person.lsj.dao;
 
 import com.person.lsj.stock.ApplicationStarter;
+import com.person.lsj.stock.bean.dongfang.data.StockCurDetailsData;
 import com.person.lsj.stock.bean.dongfang.data.StockDetailsData;
 import com.person.lsj.stock.bean.dongfang.moneyflow.StockMoneyFlowBean;
 import com.person.lsj.stock.service.StockDataCapturerService;
@@ -57,5 +58,13 @@ public class StockDataCapturerServiceTest {
         stockCodeList.add("600021");
         Map<String, StockDetailsData> stockCodesV6Detail = stockDataCapturerService.getStockCodesV6Detail(stockCodeList);
         Assert.assertNotNull(stockCodesV6Detail);
+    }
+
+    @Test
+    public void getStockCodesCurDetails() {
+        ArrayList<String> stockCodeList = new ArrayList<>();
+        stockCodeList.add("600426");
+        Map<String, StockCurDetailsData> stockCodesCurDayDetail = stockDataCapturerService.getStockCodesCurDayDetail(stockCodeList);
+        Assert.assertNotNull(stockCodesCurDayDetail);
     }
 }
