@@ -7,7 +7,6 @@ import com.person.lsj.stock.filter.StockDetailsDataFilterChain;
 import com.person.lsj.stock.scheduler.task.StockDataFilterTasks;
 import com.person.lsj.stock.service.StockDataCapturerService;
 import com.person.lsj.stock.service.StockDataResultService;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.log4j.Logger;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.Job;
@@ -16,10 +15,8 @@ import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -41,6 +38,10 @@ public class NewStockDataCaptureJob implements Job {
     public void execute(JobExecutionContext context) throws JobExecutionException {
         LOGGER.debug("NewStockDataCaptureJob start[" + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME) + "]");
         List<String> allStockCodes = stockDataCapturerService.getAllStockCodes();
+        if (CollectionUtils.isEmpty(allStockCodes)) {
+            LOGGER.debug("NewStockDataCaptureJob End With Empty Stock Codes");
+            return;
+        }
 
         // get money flow data
         List<StockMoneyFlowBean> stockMoneyFlowDataList = stockDataCapturerService.getStockMoneyFlowData(allStockCodes);
@@ -52,7 +53,7 @@ public class NewStockDataCaptureJob implements Job {
             List<String> targetStockCodeList = targetMoneyFlowBeanList.stream().map(x -> x.getStockCode()).collect(Collectors.toList());
             for (int i = targetMoneyFlowBeanList.size() - 1; i >= 0; i--) {
                 StockMoneyFlowBean stockMoneyFlowBean = targetMoneyFlowBeanList.get(i);
-                if(stockMoneyFlowBean.getStockCode() == null){
+                if (stockMoneyFlowBean.getStockCode() == null) {
                     System.out.println("stockCode is null" + i + ":" + stockMoneyFlowBean.getStockCode());
                 }
             }
@@ -65,5 +66,6 @@ public class NewStockDataCaptureJob implements Job {
 
         Map<String, StockDataResultSum> stockFilterTasksResultMap = stockDataFilterTasks.getStockFilterTasksResultMap();
         stockDataResultService.addStockDataResult(stockFilterTasksResultMap);
+        LOGGER.debug("NewStockDataCaptureJob End Normally");
     }
 }
