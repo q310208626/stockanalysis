@@ -64,6 +64,14 @@ public interface StockDataCapturerService {
     Map<String, StockDetailsData> getStockCodesV6Detail(List<String> stockCodes);
 
     /**
+     * 获取stockCode列表对应的名称
+     *
+     * @param stockCodes
+     * @return Map<String, String>
+     */
+    Map<String, String> getStockCodesNames(List<String> stockCodes);
+
+    /**
      * 获取当前stockCode列表的详情数据
      *
      * @param stockCodes

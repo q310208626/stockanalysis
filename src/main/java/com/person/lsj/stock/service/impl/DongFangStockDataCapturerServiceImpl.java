@@ -14,6 +14,7 @@ import com.person.lsj.stock.bean.dongfang.result.StockDataResultDetails;
 import com.person.lsj.stock.bean.dongfang.task.*;
 import com.person.lsj.stock.constant.Constant;
 import com.person.lsj.stock.constant.StockStatus;
+import com.person.lsj.stock.service.RedisOpsService;
 import com.person.lsj.stock.service.StockDataCapturerService;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
@@ -23,6 +24,7 @@ import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.message.BasicHeader;
 import org.apache.hc.core5.net.URIBuilder;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -68,6 +70,9 @@ public class DongFangStockDataCapturerServiceImpl implements StockDataCapturerSe
     private static int TARGET_3DAY_MONEY_FLOW_INCREMENT = 10000000;
 
     private ThreadPoolExecutor threadPool = new ThreadPoolExecutor(Constant.CPU_CORE_COUNT * 2, Constant.CPU_CORE_COUNT * 2, 10, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(5000));
+
+    @Autowired
+    private RedisOpsService redisOpsService;
 
     @Override
     public String getToken() {
@@ -337,6 +342,51 @@ public class DongFangStockDataCapturerServiceImpl implements StockDataCapturerSe
             throw new RuntimeException(e);
         }
         return stockDetailsDataMap;
+    }
+
+    @Override
+    public Map<String, String> getStockCodesNames(List<String> stockCodes) {
+        if (CollectionUtils.isEmpty(stockCodes)) {
+            return Map.of();
+        }
+
+        Map<String, String> stocksName = new HashMap<>();
+        try {
+            URIBuilder uriBuilder = new URIBuilder(STOCK_DETAILS_URL);
+            uriBuilder.addParameter("fields1", "f1,f2,f3,f4,f5,f6");
+            uriBuilder.addParameter("fields2", "f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61");
+            uriBuilder.addParameter("klt", "101");
+            uriBuilder.addParameter("fqt", "1");
+            uriBuilder.addParameter("end", "20500101");
+
+            // 获取30天的数据
+            uriBuilder.addParameter("lmt", "120");
+            List<FutureTask<StockDetailsData>> futureTaskList = new ArrayList<>();
+            CountDownLatch countDownLatch = new CountDownLatch(stockCodes.size());
+            for (String stockCode : stockCodes) {
+                uriBuilder.setParameter("secid", stockCode.startsWith("0") ? "0." + stockCode : "1." + stockCode);
+                HttpGet httpGet = new HttpGet(uriBuilder.build());
+                FutureTask<StockDetailsData> futureTask = new FutureTask<>(new GetStockCodeName(stockCode, httpGet, countDownLatch, redisOpsService));
+                futureTaskList.add(futureTask);
+                threadPool.submit(futureTask);
+            }
+
+            countDownLatch.await();
+
+            for (FutureTask<StockDetailsData> futureTask : futureTaskList) {
+                StockDetailsData stockDetailsData = futureTask.get(20, TimeUnit.MILLISECONDS);
+                stocksName.put(stockDetailsData.getStockCode(), stockDetailsData.getStockName());
+            }
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        } catch (TimeoutException e) {
+            throw new RuntimeException(e);
+        }
+        return stocksName;
     }
 
     @Override

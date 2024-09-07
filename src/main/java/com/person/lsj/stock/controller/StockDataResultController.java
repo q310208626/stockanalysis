@@ -1,7 +1,5 @@
 package com.person.lsj.stock.controller;
 
-import com.person.lsj.stock.bean.dongfang.data.StockCurDetailsData;
-import com.person.lsj.stock.bean.dongfang.data.StockDetailsData;
 import com.person.lsj.stock.bean.dongfang.result.StockDataResultDetails;
 import com.person.lsj.stock.bean.dongfang.result.StockDataResultSum;
 import com.person.lsj.stock.service.StockDataCapturerService;
@@ -13,7 +11,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -41,12 +38,11 @@ public class StockDataResultController {
         for (StockDataResultSum stockDataResultSum : stockDataResultSumList) {
             List<StockDataResultDetails> stockDataResultDetailsList = stockDataResultSum.getStockDataResultDetailsList();
             List<String> stockCodeList = stockDataResultDetailsList.stream().map(x -> x.getStockCode()).collect(Collectors.toList());
-            Map<String, StockDetailsData> stockCodesV6Detail = stockDataCapturerService.getStockCodesV6Detail(stockCodeList);
+            Map<String, String> stockCodesNames = stockDataCapturerService.getStockCodesNames(stockCodeList);
 
             for (StockDataResultDetails stockDataResultDetails : stockDataResultDetailsList) {
                 String stockCode = stockDataResultDetails.getStockCode();
-                StockDetailsData stockDetailsData = stockCodesV6Detail.get(stockCode);
-                String stockName = stockDetailsData.getStockName();
+                String stockName = stockCodesNames.get(stockCode);
                 stockDataResultDetails.setStockName(stockName);
             }
         }
@@ -72,12 +68,11 @@ public class StockDataResultController {
         for (StockDataResultSum stockDataResultSum : stockDataResultSumList) {
             List<StockDataResultDetails> stockDataResultDetailsList = stockDataResultSum.getStockDataResultDetailsList();
             List<String> stockCodeList = stockDataResultDetailsList.stream().map(x -> x.getStockCode()).collect(Collectors.toList());
-            Map<String, StockDetailsData> stockCodesV6Detail = stockDataCapturerService.getStockCodesV6Detail(stockCodeList);
+            Map<String, String> stockCodesNames = stockDataCapturerService.getStockCodesNames(stockCodeList);
 
             for (StockDataResultDetails stockDataResultDetails : stockDataResultDetailsList) {
                 String stockCode = stockDataResultDetails.getStockCode();
-                StockDetailsData stockDetailsData = stockCodesV6Detail.get(stockCode);
-                String stockName = stockDetailsData.getStockName();
+                String stockName = stockCodesNames.get(stockCode);
                 stockDataResultDetails.setStockName(stockName);
             }
         }

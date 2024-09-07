@@ -8,6 +8,10 @@ spring:
     password: stockanalysis
     driver-class-name: com.mysql.jdbc.Driver
     url: jdbc:mysql://localhost:3306/stockanalysis?serverTimezone=UTC&allowPublicKeyRetrieval=true&useSSL=false&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+  data:
+    redis:
+      host: localhost
+      port: 6379
 
 mybatis:
   mapper-locations: classpath:/mapper/*Mapper.xml
