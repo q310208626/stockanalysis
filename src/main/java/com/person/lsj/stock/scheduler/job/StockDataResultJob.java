@@ -104,7 +104,7 @@ public class StockDataResultJob implements Job {
 
                 int result = RESULT.FAIL.result;
                 if (today.isEqual(stockDataEntityTime)) {
-                    if (stockDataEntity.getClose() > stockDataEntity.getOpen()) {
+                    if (stockDataEntity.getIncreasePercentage() > 0) {
                         upCount++;
                         result = RESULT.SUCC.result;
                     }
