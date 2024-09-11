@@ -19,8 +19,16 @@ public class MacdStockDetailsDataFilter implements StockDetailsDataFilter {
     // eg.  [*,1,1,1,1] represent: last day is up or down, second~fifth to last day is down
     private TREND[] daysJudgeRule;
 
+    // diff is large then dea,default is small then dea
+    private TREND diffLargeThenDea;
+
     public MacdStockDetailsDataFilter(TREND[] daysJudgeRule) {
+        this(daysJudgeRule, TREND.TEND_DOWN);
+    }
+
+    public MacdStockDetailsDataFilter(TREND[] daysJudgeRule, TREND diffLargeThenDea) {
         this.daysJudgeRule = daysJudgeRule;
+        this.diffLargeThenDea = diffLargeThenDea;
     }
 
     @Override
@@ -64,7 +72,9 @@ public class MacdStockDetailsDataFilter implements StockDetailsDataFilter {
                 }
 
                 // judge current day macdDEA is large than macdDiff
-                if (stockDataEntity.getMacdDea() < stockDataEntity.getMacdDif()) {
+                if (diffLargeThenDea.equals(TREND.TEND_DOWN) && (stockDataEntity.getMacdDea() < stockDataEntity.getMacdDif())) {
+                    matchJudgeRule = false;
+                } else if (diffLargeThenDea.equals(TREND.TEND_UP) && (stockDataEntity.getMacdDea() > stockDataEntity.getMacdDif())) {
                     matchJudgeRule = false;
                 }
 
@@ -87,7 +97,18 @@ public class MacdStockDetailsDataFilter implements StockDetailsDataFilter {
     @Override
     public String getFilterRuleMsg() {
         StringBuffer filterRuleMsg = new StringBuffer();
-        filterRuleMsg.append("判断当天 macdDEA 高于 macdDiff, ");
+        if (!diffLargeThenDea.equals(TREND.TEND_RANDOM)) {
+            filterRuleMsg.append("判断当天 macdDEA ");
+            if (diffLargeThenDea.equals(TREND.TEND_UP)) {
+                filterRuleMsg.append("小于");
+            } else {
+                filterRuleMsg.append("大于");
+            }
+            filterRuleMsg.append(" macdDiff, ");
+        } else {
+            filterRuleMsg.append("判断当天 macd, ");
+        }
+
         if (daysJudgeRule != null && daysJudgeRule.length > 0) {
             filterRuleMsg.append("判断[").append(daysJudgeRule.length).append("]天");
             for (int i = 0; i < daysJudgeRule.length; i++) {

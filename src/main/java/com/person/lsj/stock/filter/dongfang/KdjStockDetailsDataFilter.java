@@ -74,7 +74,7 @@ public class KdjStockDetailsDataFilter implements StockDetailsDataFilter {
                 }
 
                 // the last day kdjJ data must be keep within the target absolute value
-                if (1 == curReverseDayNum && !(Math.abs(stockDataEntity.getKdjJ()) <= TARGET_ABS_KDJ)) {
+                if (1 == curReverseDayNum && !(Math.abs(stockDataEntity.getKdjJ()) <= targetAbsKdj)) {
                     matchJudgeRule = false;
                 }
 
