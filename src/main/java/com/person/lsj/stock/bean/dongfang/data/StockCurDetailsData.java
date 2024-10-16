@@ -6,11 +6,11 @@ import lombok.Data;
 public class StockCurDetailsData {
     private String stockCode;
     private String stockName;
-    private float close;
-    private float cur;
-    private float high;
-    private float low;
-    private float open;
+    private String close;
+    private String cur;
+    private String high;
+    private String low;
+    private String open;
     private int volume;
-    private int increasePercentage;
+    private String increasePercentage;
 }

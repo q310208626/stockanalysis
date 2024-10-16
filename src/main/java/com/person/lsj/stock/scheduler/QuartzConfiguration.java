@@ -1,5 +1,6 @@
 package com.person.lsj.stock.scheduler;
 
+import com.person.lsj.stock.scheduler.job.CurrentDayDataResultJob;
 import com.person.lsj.stock.scheduler.job.NewStockDataCaptureJob;
 import com.person.lsj.stock.scheduler.job.StockDataResultJob;
 import org.quartz.*;
@@ -29,6 +30,16 @@ public class QuartzConfiguration {
                 .build();
     }
 
+    @Bean(name = "currentDayDataResultJobTrigger")
+    public Trigger currentDayDataResultJobTrigger() {
+        return TriggerBuilder
+                .newTrigger()
+                .forJob(currentDayDataResultJob())
+                .withIdentity("currentDayDataResultJob")
+                .withSchedule(CronScheduleBuilder.cronSchedule("0 0/30 10-15 * * ? *"))
+                .build();
+    }
+
     @Bean(name = "newStockDataCaptureJob")
     public JobDetail newStockDataCaptureJob() {
         return JobBuilder
@@ -43,6 +54,15 @@ public class QuartzConfiguration {
         return JobBuilder
                 .newJob(StockDataResultJob.class)
                 .withIdentity("stockDataResultJob")
+                .storeDurably()
+                .build();
+    }
+
+    @Bean(name = "currentDayDataResultJob")
+    public JobDetail currentDayDataResultJob() {
+        return JobBuilder
+                .newJob(CurrentDayDataResultJob.class)
+                .withIdentity("currentDayDataResultJob")
                 .storeDurably()
                 .build();
     }

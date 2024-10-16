@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
 
 public class StockCurDetailsDeserializer extends JsonDeserializer<StockCurDetailsData> {
     private static final String CUR_PRICE = "f43";
@@ -17,6 +18,8 @@ public class StockCurDetailsDeserializer extends JsonDeserializer<StockCurDetail
     private static final String STOCKCODE = "f57";
     private static final String STOCKNAME = "f58";
     private static final String INCREASE_PERCENTAGE = "f170";
+
+    private DecimalFormat df = new DecimalFormat(".00");
 
     @Override
     public StockCurDetailsData deserialize(JsonParser jsonParser, DeserializationContext ctxt) throws IOException, JacksonException {
@@ -42,22 +45,22 @@ public class StockCurDetailsDeserializer extends JsonDeserializer<StockCurDetail
 
         if (dataNode.get(CUR_PRICE) != null) {
             String curPrice = dataNode.get(CUR_PRICE).asText();
-            stockCurDetailsData.setCur(Float.valueOf(curPrice));
+            stockCurDetailsData.setCur(df.format(Float.valueOf(curPrice) / 100));
         }
 
         if (dataNode.get(HIGH_PRICE) != null) {
             String highPrice = dataNode.get(HIGH_PRICE).asText();
-            stockCurDetailsData.setHigh(Float.valueOf(highPrice));
+            stockCurDetailsData.setHigh(df.format(Float.valueOf(highPrice) / 100));
         }
 
         if (dataNode.get(LOW_PRICE) != null) {
             String lowPrice = dataNode.get(LOW_PRICE).asText();
-            stockCurDetailsData.setLow(Float.valueOf(lowPrice));
+            stockCurDetailsData.setLow(df.format(Float.valueOf(lowPrice) / 100));
         }
 
         if (dataNode.get(OPEN_PRICE) != null) {
             String openPrice = dataNode.get(OPEN_PRICE).asText();
-            stockCurDetailsData.setOpen(Float.valueOf(openPrice));
+            stockCurDetailsData.setOpen(df.format(Float.valueOf(openPrice) / 100));
         }
 
         if (dataNode.get(VOLUME) != null) {
@@ -67,7 +70,7 @@ public class StockCurDetailsDeserializer extends JsonDeserializer<StockCurDetail
 
         if (dataNode.get(INCREASE_PERCENTAGE) != null) {
             String increasePercentage = dataNode.get(INCREASE_PERCENTAGE).asText();
-            stockCurDetailsData.setIncreasePercentage(Integer.valueOf(increasePercentage));
+            stockCurDetailsData.setIncreasePercentage(df.format(Float.valueOf(increasePercentage) / 100));
         }
 
         return stockCurDetailsData;

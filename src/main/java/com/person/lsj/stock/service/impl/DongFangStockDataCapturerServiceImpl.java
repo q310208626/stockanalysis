@@ -391,6 +391,7 @@ public class DongFangStockDataCapturerServiceImpl implements StockDataCapturerSe
 
     @Override
     public Map<String, StockCurDetailsData> getStockCodesCurDayDetail(List<String> stockCodes) {
+        LOGGER.debug("Enter getStockCodesCurDayDetail");
         if (CollectionUtils.isEmpty(stockCodes)) {
             return Map.of();
         }
@@ -429,6 +430,7 @@ public class DongFangStockDataCapturerServiceImpl implements StockDataCapturerSe
         } catch (TimeoutException e) {
             throw new RuntimeException(e);
         }
+        LOGGER.debug("Exit getStockCodesCurDayDetail");
         return stockDetailsDataMap;
     }
 

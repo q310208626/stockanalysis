@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Component
-public class StockDataFilterTasksFatoryBean implements FactoryBean<StockDataFilterTasks> , ApplicationContextAware {
+public class StockDataFilterTasksFatoryBean implements FactoryBean<StockDataFilterTasks>, ApplicationContextAware {
 
     private ApplicationContext applicationContext;
 
@@ -22,7 +22,7 @@ public class StockDataFilterTasksFatoryBean implements FactoryBean<StockDataFilt
         String[] filterChainNames = applicationContext.getBeanNamesForType(StockDetailsDataFilterChain.class);
 
         StockDataFilterTasks stockDataFilterTasks = new StockDataFilterTasks();
-        Map<String,StockDetailsDataFilterChain> stockDetailsDataFilterChainMap = new HashMap<>();
+        Map<String, StockDetailsDataFilterChain> stockDetailsDataFilterChainMap = new HashMap<>();
         Map<String, StockDataResultSum> stockFilterTasksResultMap = new HashMap<>();
 
         if (ArrayUtils.isNotEmpty(filterChainNames)) {
@@ -46,5 +46,10 @@ public class StockDataFilterTasksFatoryBean implements FactoryBean<StockDataFilt
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         this.applicationContext = applicationContext;
+    }
+
+    @Override
+    public boolean isSingleton() {
+        return false;
     }
 }
