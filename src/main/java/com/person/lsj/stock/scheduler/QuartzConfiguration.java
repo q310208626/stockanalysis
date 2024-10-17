@@ -1,11 +1,16 @@
 package com.person.lsj.stock.scheduler;
 
+import com.person.lsj.stock.bean.dongfang.result.StockDataResultSum;
+import com.person.lsj.stock.constant.JobConstants;
 import com.person.lsj.stock.scheduler.job.CurrentDayDataResultJob;
 import com.person.lsj.stock.scheduler.job.NewStockDataCaptureJob;
 import com.person.lsj.stock.scheduler.job.StockDataResultJob;
 import org.quartz.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Configuration
 public class QuartzConfiguration {
@@ -15,7 +20,7 @@ public class QuartzConfiguration {
         return TriggerBuilder
                 .newTrigger()
                 .forJob(newStockDataCaptureJob())
-                .withIdentity("newStockDataCaptureJob")
+                .withIdentity(JobConstants.JOB_NAME_NEW_STOCK_DATA_CAPTURE_JOB)
                 .withSchedule(CronScheduleBuilder.cronSchedule("0 5 15 * * ? *"))
                 .build();
     }
@@ -25,7 +30,7 @@ public class QuartzConfiguration {
         return TriggerBuilder
                 .newTrigger()
                 .forJob(stockDataResultJob())
-                .withIdentity("stockDataResultJob")
+                .withIdentity(JobConstants.JOB_NAME_STOCK_DATA_RESULT_JOB)
                 .withSchedule(CronScheduleBuilder.cronSchedule("0 5 15 * * ? *"))
                 .build();
     }
@@ -35,7 +40,7 @@ public class QuartzConfiguration {
         return TriggerBuilder
                 .newTrigger()
                 .forJob(currentDayDataResultJob())
-                .withIdentity("currentDayDataResultJob")
+                .withIdentity(JobConstants.JOB_NAME_CURRENT_DAY_DATA_RESULT)
                 .withSchedule(CronScheduleBuilder.cronSchedule("0 0/30 10-15 * * ? *"))
                 .build();
     }
@@ -44,7 +49,7 @@ public class QuartzConfiguration {
     public JobDetail newStockDataCaptureJob() {
         return JobBuilder
                 .newJob(NewStockDataCaptureJob.class)
-                .withIdentity("newStockDataCaptureJob")
+                .withIdentity(JobConstants.JOB_NAME_NEW_STOCK_DATA_CAPTURE_JOB)
                 .storeDurably()
                 .build();
     }
@@ -53,16 +58,24 @@ public class QuartzConfiguration {
     public JobDetail stockDataResultJob() {
         return JobBuilder
                 .newJob(StockDataResultJob.class)
-                .withIdentity("stockDataResultJob")
+                .withIdentity(JobConstants.JOB_NAME_STOCK_DATA_RESULT_JOB)
                 .storeDurably()
                 .build();
     }
 
     @Bean(name = "currentDayDataResultJob")
     public JobDetail currentDayDataResultJob() {
+        Map<String, StockDataResultSum> stockFilterTasksResultMap = new HashMap<String, StockDataResultSum>();
+        Map<String, String> jobDetailsMap = new HashMap<>();
+
+        JobDataMap jobDataMap = new JobDataMap();
+        jobDataMap.put(JobConstants.RESULT_MAP, stockFilterTasksResultMap);
+        jobDataMap.put(JobConstants.JOB_DETAILS_MAP, jobDetailsMap);
+
         return JobBuilder
                 .newJob(CurrentDayDataResultJob.class)
-                .withIdentity("currentDayDataResultJob")
+                .withIdentity(JobConstants.JOB_NAME_CURRENT_DAY_DATA_RESULT)
+                .setJobData(jobDataMap)
                 .storeDurably()
                 .build();
     }

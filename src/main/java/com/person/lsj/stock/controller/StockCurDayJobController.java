@@ -1,28 +1,24 @@
 package com.person.lsj.stock.controller;
 
 import com.person.lsj.stock.bean.dongfang.result.StockDataResultSum;
+import com.person.lsj.stock.constant.JobConstants;
 import com.person.lsj.stock.service.StockDataCapturerService;
 import org.apache.log4j.Logger;
 import org.quartz.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.util.CastUtils;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/curDayJob")
 public class StockCurDayJobController {
     private static Logger LOGGER = Logger.getLogger(StockCurDayJobController.class);
-
-    private static final String JOB_NAME = "currentDayDataResultJob";
-
-    private static final String RESULT_MAP = "RESULT_MAP";
 
     private static final Integer STATE_FREE = 0;
 
@@ -36,19 +32,10 @@ public class StockCurDayJobController {
     @Autowired
     private Scheduler scheduler;
 
-    private DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-
-    private Map<String, StockDataResultSum> stockFilterTasksResultMap = new HashMap<String, StockDataResultSum>();
-
-    private LocalDateTime executeTime = null;
-
     @GetMapping("/trigger")
     public String triggerJob() {
         try {
-            JobKey jobKey = new JobKey(JOB_NAME, null);
-            JobDataMap jobDataMap = new JobDataMap();
-            jobDataMap.put(RESULT_MAP, stockFilterTasksResultMap);
-
+            JobKey jobKey = JobKey.jobKey(JobConstants.JOB_NAME_CURRENT_DAY_DATA_RESULT);
             synchronized (this) {
                 // job is running, return
                 for (JobExecutionContext currentlyExecutingJob : scheduler.getCurrentlyExecutingJobs()) {
@@ -57,8 +44,7 @@ public class StockCurDayJobController {
                     }
                 }
 
-                executeTime = LocalDateTime.now();
-                scheduler.triggerJob(jobKey, jobDataMap);
+                scheduler.triggerJob(jobKey);
             }
         } catch (SchedulerException e) {
             LOGGER.error(e.getMessage(), e);
@@ -69,18 +55,30 @@ public class StockCurDayJobController {
 
     @GetMapping("/result")
     public CurDayJobResult getCurDayJobResult() {
-        if (CollectionUtils.isEmpty(stockFilterTasksResultMap) || executeTime == null) {
-            return null;
-        }
+        try {
+            Optional<JobDetail> jobDetail = Optional.of(scheduler.getJobDetail(JobKey.jobKey(JobConstants.JOB_NAME_CURRENT_DAY_DATA_RESULT)));
+            if (!jobDetail.isPresent()) {
+                return null;
+            }
 
-        CurDayJobResult curDayJobResult = new CurDayJobResult();
-        curDayJobResult.setExecuteTime(executeTime.format(dateTimeFormatter));
-        curDayJobResult.setStockFilterTasksResultMap(stockFilterTasksResultMap);
+            // get job results
+            Map<String, StockDataResultSum> stockDataResultSumMap =
+                    (Map<String, StockDataResultSum>) jobDetail.get().getJobDataMap().get(JobConstants.RESULT_MAP);
+            Map<String, String> jobDetailsMap =
+                    CastUtils.cast(jobDetail.get().getJobDataMap().get(JobConstants.JOB_DETAILS_MAP));
+            String executeTime = jobDetailsMap.get(JobConstants.JOB_DETAILS_KEY_EXE_TIME);
 
-        if (CollectionUtils.isEmpty(stockFilterTasksResultMap)) {
+            CurDayJobResult curDayJobResult = new CurDayJobResult();
+            if (CollectionUtils.isEmpty(stockDataResultSumMap)) {
+                return curDayJobResult;
+            }
+            curDayJobResult.setExecuteTime(executeTime);
+            curDayJobResult.setStockFilterTasksResultMap(stockDataResultSumMap);
+
             return curDayJobResult;
+        } catch (SchedulerException e) {
+            throw new RuntimeException(e);
         }
-        return curDayJobResult;
     }
 
     class CurDayJobResult {
@@ -108,7 +106,7 @@ public class StockCurDayJobController {
     public String getJobState() {
         String state = STATE_FREE.toString();
         try {
-            JobKey jobKey = new JobKey(JOB_NAME, null);
+            JobKey jobKey = JobKey.jobKey(JobConstants.JOB_NAME_CURRENT_DAY_DATA_RESULT);
 
             // job is running, return
             for (JobExecutionContext currentlyExecutingJob : scheduler.getCurrentlyExecutingJobs()) {

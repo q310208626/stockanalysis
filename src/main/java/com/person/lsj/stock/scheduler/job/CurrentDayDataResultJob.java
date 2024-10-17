@@ -4,6 +4,8 @@ import com.person.lsj.stock.bean.dongfang.data.StockCurDetailsData;
 import com.person.lsj.stock.bean.dongfang.data.StockDetailsData;
 import com.person.lsj.stock.bean.dongfang.moneyflow.StockMoneyFlowBean;
 import com.person.lsj.stock.bean.dongfang.result.StockDataResultSum;
+import com.person.lsj.stock.constant.CustomDateFormat;
+import com.person.lsj.stock.constant.JobConstants;
 import com.person.lsj.stock.filter.StockDetailsDataFilterChain;
 import com.person.lsj.stock.scheduler.task.StockDataFilterTasks;
 import com.person.lsj.stock.service.StockDataCapturerService;
@@ -22,8 +24,6 @@ import java.util.stream.Collectors;
 public class CurrentDayDataResultJob implements Job {
     private static Logger LOGGER = Logger.getLogger(NewStockDataCaptureJob.class);
 
-    private static final String RESULT_MAP = "RESULT_MAP";
-
     @Autowired
     private StockDataCapturerService stockDataCapturerService;
 
@@ -33,7 +33,7 @@ public class CurrentDayDataResultJob implements Job {
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
         LOGGER.debug("NewStockDataCaptureJob start[" + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME) + "]");
-        JobDataMap jobDataMap = context.getTrigger().getJobDataMap();
+        JobDataMap jobDataMap = context.getMergedJobDataMap();
         List<String> allStockCodes = stockDataCapturerService.getAllStockCodes();
         if (CollectionUtils.isEmpty(allStockCodes)) {
             LOGGER.debug("NewStockDataCaptureJob End With Empty Stock Codes");
@@ -84,9 +84,15 @@ public class CurrentDayDataResultJob implements Job {
                         x.setIncrease(Float.valueOf(stockCurDetailsData.getIncreasePercentage()));
                     });
         }
-        Map<String, StockDataResultSum> outerStockFilterTasksResultMap = (Map<String, StockDataResultSum>) jobDataMap.get(RESULT_MAP);
+
+        // set result
+        Map<String, StockDataResultSum> outerStockFilterTasksResultMap = (Map<String, StockDataResultSum>) jobDataMap.get(JobConstants.RESULT_MAP);
         outerStockFilterTasksResultMap.clear();
         outerStockFilterTasksResultMap.putAll(stockFilterTasksResultMap);
+
+        //set job details
+        Map<String, String> jobDetailsMap = (Map<String, String>) jobDataMap.get(JobConstants.JOB_DETAILS_MAP);
+        jobDetailsMap.put(JobConstants.JOB_DETAILS_KEY_EXE_TIME, LocalDateTime.now().format(DateTimeFormatter.ofPattern(CustomDateFormat.DATE_TIME_FORMAT)));
         LOGGER.debug("NewStockDataCaptureJob End Normally");
     }
 }
