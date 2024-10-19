@@ -92,4 +92,12 @@ public interface StockDataCapturerService {
      * @return
      */
     LocalDate getLastWorkDay();
+
+    /**
+     * 获取股票状态
+     *
+     * @param stockCode
+     * @return status
+     */
+    Integer getStockStatus(String stockCode);
 }

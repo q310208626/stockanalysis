@@ -18,6 +18,7 @@ public class StockCurDetailsDeserializer extends JsonDeserializer<StockCurDetail
     private static final String STOCKCODE = "f57";
     private static final String STOCKNAME = "f58";
     private static final String INCREASE_PERCENTAGE = "f170";
+    private static final String STOCK_STATUS = "f292";
 
     private DecimalFormat df = new DecimalFormat(".00");
 
@@ -71,6 +72,11 @@ public class StockCurDetailsDeserializer extends JsonDeserializer<StockCurDetail
         if (dataNode.get(INCREASE_PERCENTAGE) != null) {
             String increasePercentage = dataNode.get(INCREASE_PERCENTAGE).asText();
             stockCurDetailsData.setIncreasePercentage(df.format(Float.valueOf(increasePercentage) / 100));
+        }
+
+        if (dataNode.get(STOCK_STATUS) != null) {
+            String stockStatus = dataNode.get(STOCK_STATUS).asText();
+            stockCurDetailsData.setStockStatus(Integer.valueOf(stockStatus));
         }
 
         return stockCurDetailsData;

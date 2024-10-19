@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.person.lsj.stock.bean.dongfang.HomePageBean;
 import com.person.lsj.stock.bean.dongfang.StockField;
 import com.person.lsj.stock.bean.dongfang.data.StockCurDetailsData;
+import com.person.lsj.stock.bean.dongfang.data.StockCurDetailsDeserializer;
 import com.person.lsj.stock.bean.dongfang.data.StockDataEntity;
 import com.person.lsj.stock.bean.dongfang.data.StockDetailsData;
 import com.person.lsj.stock.bean.dongfang.moneyflow.StockMoneyFlowBean;
@@ -571,5 +572,51 @@ public class DongFangStockDataCapturerServiceImpl implements StockDataCapturerSe
             }
         }
         return lastWorkDay;
+    }
+
+    @Override
+    public Integer getStockStatus(String stockCode) {
+        LOGGER.debug("Enter getStockStatus");
+        stockCode = Optional.ofNullable(stockCode).orElse("600028");
+        int stockStatus = StockStatus.CLOSED.status;
+
+        try {
+            URIBuilder uriBuilder = new URIBuilder(STOCK_CUR_DETAILS_URL);
+            uriBuilder.addParameter("fields", "f292");
+            uriBuilder.addParameter("invt", "2");
+            uriBuilder.addParameter("fltt", "1");
+            uriBuilder.addParameter("wbp2u", "|0|0|0|web");
+            uriBuilder.addParameter("dect", "1");
+
+            uriBuilder.setParameter("secid", stockCode.startsWith("0") ? "0." + stockCode : "1." + stockCode);
+            HttpGet httpGet = new HttpGet(uriBuilder.build());
+            try (CloseableHttpClient httpClient = HttpClients.createDefault();
+                 CloseableHttpResponse response = httpClient.execute(httpGet);
+                 InputStreamReader inputStreamReader = new InputStreamReader(response.getEntity().getContent());
+                 BufferedReader bufferedReader = new BufferedReader(inputStreamReader);) {
+
+                StringBuffer contentBuffer = new StringBuffer();
+                String content = null;
+                while ((content = bufferedReader.readLine()) != null) {
+                    contentBuffer.append(content);
+                }
+
+                ObjectMapper mapper = new ObjectMapper();
+                SimpleModule module = new SimpleModule();
+                module.addDeserializer(StockCurDetailsData.class, new StockCurDetailsDeserializer());
+                mapper.registerModule(module);
+                StockCurDetailsData stockCurDetailsData = mapper.readValue(contentBuffer.toString(), StockCurDetailsData.class);
+                stockStatus = stockCurDetailsData.getStockStatus();
+
+            } catch (IOException e) {
+                LOGGER.error(e.getMessage());
+            }
+
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+
+        LOGGER.debug("Exit getStockStatus");
+        return stockStatus;
     }
 }

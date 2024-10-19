@@ -5,6 +5,8 @@ import com.person.lsj.stock.bean.dongfang.data.StockDetailsData;
 import com.person.lsj.stock.bean.dongfang.result.StockDataResultDetails;
 import com.person.lsj.stock.bean.dongfang.result.StockDataResultSum;
 import com.person.lsj.stock.constant.Constant;
+import com.person.lsj.stock.constant.CustomDateFormat;
+import com.person.lsj.stock.constant.StockStatus;
 import com.person.lsj.stock.enumeration.RESULT;
 import com.person.lsj.stock.filter.StockDetailsDataFilterChain;
 import com.person.lsj.stock.scheduler.task.StockDataFilterTasks;
@@ -49,7 +51,14 @@ public class StockDataResultJob implements Job {
 
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
-        LOGGER.debug("NewStockDataCaptureJob start[" + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME) + "]");
+        LOGGER.debug("StockDataResultJob start[" + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME) + "]");
+
+        // judege market status, if close, dont continue the task
+        Integer stockStatus = stockDataCapturerService.getStockStatus(null);
+        if (StockStatus.CLOSED.status == stockStatus.intValue()) {
+            LOGGER.info("StockDataResultJob stop due to market is closed [" + LocalDateTime.now().format(DateTimeFormatter.ofPattern(CustomDateFormat.DATE_TIME_FORMAT)) + "]");
+            return;
+        }
 
         Map<String, StockDetailsDataFilterChain> stockFilterTasksMap = stockDataFilterTasks.getStockFilterTasksMap();
         Set<String> taskIdSet = stockFilterTasksMap.keySet();
@@ -88,6 +97,7 @@ public class StockDataResultJob implements Job {
             stockDataResultSum.setAccuracyRate(accuracyRate);
         }
         stockDataResultService.updateStockDataResults(stockDataResultSumList);
+        LOGGER.debug("StockDataResultJob end[" + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME) + "]");
     }
 
     private static float setDetailsResult(List<StockDataResultDetails> stockDataResultDetailsList, Map<String, StockDetailsData> stockCodesV6Detail, LocalDate today) {

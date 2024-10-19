@@ -13,4 +13,5 @@ public class StockCurDetailsData {
     private String open;
     private int volume;
     private String increasePercentage;
+    private int stockStatus;
 }

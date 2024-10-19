@@ -67,4 +67,10 @@ public class StockDataCapturerServiceTest {
         Map<String, StockCurDetailsData> stockCodesCurDayDetail = stockDataCapturerService.getStockCodesCurDayDetail(stockCodeList);
         Assert.assertNotNull(stockCodesCurDayDetail);
     }
+
+    @Test
+    public void getStockStatus() {
+        Integer stockStatus = stockDataCapturerService.getStockStatus(null);
+        Assert.assertNull(stockStatus);
+    }
 }
