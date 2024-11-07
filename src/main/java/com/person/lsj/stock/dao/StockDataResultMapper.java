@@ -1,11 +1,12 @@
 package com.person.lsj.stock.dao;
 
 import com.person.lsj.stock.bean.dongfang.result.StockDataResultSum;
+import org.apache.ibatis.annotations.Mapper;
 
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.List;
 
+@Mapper
 public interface StockDataResultMapper {
     public void add(StockDataResultSum stockDataResult);
 

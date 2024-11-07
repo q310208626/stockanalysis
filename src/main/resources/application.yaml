@@ -13,6 +13,7 @@ spring:
       host: localhost
       port: 6379
       password: sorrylinshaojia
+      connect-timeout: 3000
 
 mybatis:
   mapper-locations: classpath:/mapper/*Mapper.xml

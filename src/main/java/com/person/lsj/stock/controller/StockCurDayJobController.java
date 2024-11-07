@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.CastUtils;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -32,7 +33,7 @@ public class StockCurDayJobController {
     @Autowired
     private Scheduler scheduler;
 
-    @GetMapping("/trigger")
+    @PostMapping("/trigger")
     public String triggerJob() {
         try {
             JobKey jobKey = JobKey.jobKey(JobConstants.JOB_NAME_CURRENT_DAY_DATA_RESULT);
