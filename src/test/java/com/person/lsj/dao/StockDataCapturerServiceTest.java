@@ -1,6 +1,7 @@
 package com.person.lsj.dao;
 
 import com.person.lsj.stock.ApplicationStarter;
+import com.person.lsj.stock.bean.dongfang.data.StockBoardBean;
 import com.person.lsj.stock.bean.dongfang.data.StockCurDetailsData;
 import com.person.lsj.stock.bean.dongfang.data.StockDetailsData;
 import com.person.lsj.stock.bean.dongfang.moneyflow.StockMoneyFlowBean;
@@ -14,7 +15,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -72,5 +72,17 @@ public class StockDataCapturerServiceTest {
     public void getStockStatus() {
         Integer stockStatus = stockDataCapturerService.getStockStatus(null);
         Assert.assertNull(stockStatus);
+    }
+
+    @Test
+    public void getStockBoards(){
+        List<StockBoardBean> allStockBoards = stockDataCapturerService.getAllStockBoards();
+        Assert.assertNotNull(allStockBoards);
+    }
+
+    @Test
+    public void getStockBoardsV6Details(){
+        Map<String, StockDetailsData> stockBoardsV6Details = stockDataCapturerService.getStockBoardsV6Details();
+        Assert.assertNotNull(stockBoardsV6Details);
     }
 }

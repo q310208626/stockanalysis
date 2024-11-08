@@ -4,10 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.person.lsj.stock.bean.dongfang.HomePageBean;
 import com.person.lsj.stock.bean.dongfang.StockField;
-import com.person.lsj.stock.bean.dongfang.data.StockCurDetailsData;
-import com.person.lsj.stock.bean.dongfang.data.StockCurDetailsDeserializer;
-import com.person.lsj.stock.bean.dongfang.data.StockDataEntity;
-import com.person.lsj.stock.bean.dongfang.data.StockDetailsData;
+import com.person.lsj.stock.bean.dongfang.data.*;
 import com.person.lsj.stock.bean.dongfang.moneyflow.StockMoneyFlowBean;
 import com.person.lsj.stock.bean.dongfang.moneyflow.StockMoneyFlowData;
 import com.person.lsj.stock.bean.dongfang.moneyflow.StockMoneyFlowDeserializer;
@@ -254,7 +251,7 @@ public class DongFangStockDataCapturerServiceImpl implements StockDataCapturerSe
             uriBuilder.addParameter("fields2", "f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61,f62,f63,f64,f65");
             for (String stockCode : stockCodes) {
                 LOGGER.debug("start get money flow msg:" + stockCode);
-                uriBuilder.setParameter("secid", stockCode.startsWith("0") ? "0." + stockCode : "1." + stockCode);
+                uriBuilder.setParameter("secid", getRequestSecid(stockCode));
                 HttpGet httpGet = new HttpGet(uriBuilder.build());
                 threadPool.execute(new JudgeCurStockMoneyFlowTask(moneyUpStockCodes, stockCode, httpGet));
                 LOGGER.debug("end money flow msg:" + stockCode);
@@ -287,7 +284,7 @@ public class DongFangStockDataCapturerServiceImpl implements StockDataCapturerSe
 
             for (String stockCode : stockCodes) {
                 LOGGER.debug("Start getStockV6Detail:" + stockCode);
-                uriBuilder.setParameter("secid", stockCode.startsWith("0") ? "0." + stockCode : "1." + stockCode);
+                uriBuilder.setParameter("secid", getRequestSecid(stockCode));
                 HttpGet httpGet = new HttpGet(uriBuilder.build());
                 threadPool.submit(new JudgeCurStockDetailsTask(detailsGoodStockCodes, stockCode, httpGet));
             }
@@ -320,7 +317,7 @@ public class DongFangStockDataCapturerServiceImpl implements StockDataCapturerSe
             List<FutureTask<StockDetailsData>> futureTaskList = new ArrayList<>();
             CountDownLatch countDownLatch = new CountDownLatch(stockCodes.size());
             for (String stockCode : stockCodes) {
-                uriBuilder.setParameter("secid", stockCode.startsWith("0") ? "0." + stockCode : "1." + stockCode);
+                uriBuilder.setParameter("secid", getRequestSecid(stockCode));
                 HttpGet httpGet = new HttpGet(uriBuilder.build());
                 FutureTask<StockDetailsData> futureTask = new FutureTask<>(new GetStockCodeV6Details(stockCode, httpGet, countDownLatch));
                 futureTaskList.add(futureTask);
@@ -345,6 +342,17 @@ public class DongFangStockDataCapturerServiceImpl implements StockDataCapturerSe
         return stockDetailsDataMap;
     }
 
+    // 获取请求参数Secid
+    private static String getRequestSecid(String stockCode) {
+        if (stockCode.startsWith("0")) {
+            return "0." + stockCode;
+        } else if (stockCode.startsWith("BK")) {
+            return "90." + stockCode;
+        } else {
+            return "1." + stockCode;
+        }
+    }
+
     @Override
     public Map<String, String> getStockCodesNames(List<String> stockCodes) {
         if (CollectionUtils.isEmpty(stockCodes)) {
@@ -365,7 +373,7 @@ public class DongFangStockDataCapturerServiceImpl implements StockDataCapturerSe
             List<FutureTask<StockDetailsData>> futureTaskList = new ArrayList<>();
             CountDownLatch countDownLatch = new CountDownLatch(stockCodes.size());
             for (String stockCode : stockCodes) {
-                uriBuilder.setParameter("secid", stockCode.startsWith("0") ? "0." + stockCode : "1." + stockCode);
+                uriBuilder.setParameter("secid", getRequestSecid(stockCode));
                 HttpGet httpGet = new HttpGet(uriBuilder.build());
                 FutureTask<StockDetailsData> futureTask = new FutureTask<>(new GetStockCodeName(stockCode, httpGet, countDownLatch, redisOpsService));
                 futureTaskList.add(futureTask);
@@ -409,7 +417,7 @@ public class DongFangStockDataCapturerServiceImpl implements StockDataCapturerSe
             List<FutureTask<StockCurDetailsData>> futureTaskList = new ArrayList<>();
             CountDownLatch countDownLatch = new CountDownLatch(stockCodes.size());
             for (String stockCode : stockCodes) {
-                uriBuilder.setParameter("secid", stockCode.startsWith("0") ? "0." + stockCode : "1." + stockCode);
+                uriBuilder.setParameter("secid", getRequestSecid(stockCode));
                 HttpGet httpGet = new HttpGet(uriBuilder.build());
                 FutureTask<StockCurDetailsData> futureTask = new FutureTask<>(new GetStockCodeCurDayDetails(stockCode, httpGet, countDownLatch));
                 futureTaskList.add(futureTask);
@@ -520,7 +528,7 @@ public class DongFangStockDataCapturerServiceImpl implements StockDataCapturerSe
             List<FutureTask<StockMoneyFlowBean>> futureTaskArrayList = new ArrayList<>();
             for (String stockCode : stockCodes) {
                 LOGGER.debug("start get money flow msg:" + stockCode);
-                uriBuilder.setParameter("secid", stockCode.startsWith("0") ? "0." + stockCode : "1." + stockCode);
+                uriBuilder.setParameter("secid", getRequestSecid(stockCode));
                 HttpGet httpGet = new HttpGet(uriBuilder.build());
                 FutureTask<StockMoneyFlowBean> stockMoneyFlowBeanFutureTask = new FutureTask<>(new GetStockCodeMoneyData(stockCode, httpGet, countDownLatch));
                 futureTaskArrayList.add(stockMoneyFlowBeanFutureTask);
@@ -588,7 +596,7 @@ public class DongFangStockDataCapturerServiceImpl implements StockDataCapturerSe
             uriBuilder.addParameter("wbp2u", "|0|0|0|web");
             uriBuilder.addParameter("dect", "1");
 
-            uriBuilder.setParameter("secid", stockCode.startsWith("0") ? "0." + stockCode : "1." + stockCode);
+            uriBuilder.setParameter("secid", getRequestSecid(stockCode));
             HttpGet httpGet = new HttpGet(uriBuilder.build());
             try (CloseableHttpClient httpClient = HttpClients.createDefault();
                  CloseableHttpResponse response = httpClient.execute(httpGet);
@@ -618,5 +626,72 @@ public class DongFangStockDataCapturerServiceImpl implements StockDataCapturerSe
 
         LOGGER.debug("Exit getStockStatus");
         return stockStatus;
+    }
+
+    @Override
+    public List<StockBoardBean> getAllStockBoards() {
+        LOGGER.debug("Enter getAllStockBoards");
+        int totalPage = getTotalPage();
+        List<StockBoardBean> stockBoardBeans = new ArrayList<>();
+        try {
+            CountDownLatch countDownLatch = new CountDownLatch(totalPage);
+            Future<List<StockBoardBean>> future = threadPool.submit(new GetStockBoards());
+            List<StockBoardBean> stockBoardBeans1 = future.get();
+            stockBoardBeans.addAll(stockBoardBeans1);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
+        }
+        LOGGER.debug("Exit getAllStockBoards");
+        return stockBoardBeans;
+    }
+
+    @Override
+    public Map<String, StockDetailsData> getStockBoardsV6Details() {
+        List<StockBoardBean> allStockBoards = getAllStockBoards();
+
+        if (CollectionUtils.isEmpty(allStockBoards)) {
+            return Map.of();
+        }
+
+        Map<String, StockDetailsData> stockDetailsDataMap = new HashMap<>();
+        try {
+            URIBuilder uriBuilder = new URIBuilder(STOCK_DETAILS_URL);
+            uriBuilder.addParameter("fields1", "f1,f2,f3,f4,f5,f6");
+            uriBuilder.addParameter("fields2", "f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61");
+            uriBuilder.addParameter("klt", "101");
+            uriBuilder.addParameter("fqt", "1");
+            uriBuilder.addParameter("end", "20500101");
+
+            // 获取30天的数据
+            uriBuilder.addParameter("lmt", "120");
+            List<FutureTask<StockDetailsData>> futureTaskList = new ArrayList<>();
+            CountDownLatch countDownLatch = new CountDownLatch(allStockBoards.size());
+            for (StockBoardBean stockBoardBean : allStockBoards) {
+                String boardCode = stockBoardBean.getBoardCode();
+                uriBuilder.setParameter("secid", getRequestSecid(boardCode));
+                HttpGet httpGet = new HttpGet(uriBuilder.build());
+                FutureTask<StockDetailsData> futureTask = new FutureTask<>(new GetStockCodeV6Details(boardCode, httpGet, countDownLatch));
+                futureTaskList.add(futureTask);
+                threadPool.submit(futureTask);
+            }
+
+            countDownLatch.await();
+
+            for (FutureTask<StockDetailsData> futureTask : futureTaskList) {
+                StockDetailsData stockDetailsData = futureTask.get(20, TimeUnit.MILLISECONDS);
+                stockDetailsDataMap.put(stockDetailsData.getStockCode(), stockDetailsData);
+            }
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        } catch (TimeoutException e) {
+            throw new RuntimeException(e);
+        }
+        return stockDetailsDataMap;
     }
 }

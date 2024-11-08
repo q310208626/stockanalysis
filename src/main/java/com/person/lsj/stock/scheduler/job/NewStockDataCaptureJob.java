@@ -3,6 +3,7 @@ package com.person.lsj.stock.scheduler.job;
 import com.person.lsj.stock.bean.dongfang.data.StockDetailsData;
 import com.person.lsj.stock.bean.dongfang.moneyflow.StockMoneyFlowBean;
 import com.person.lsj.stock.bean.dongfang.result.StockDataResultSum;
+import com.person.lsj.stock.constant.Constant;
 import com.person.lsj.stock.constant.StockStatus;
 import com.person.lsj.stock.filter.StockDetailsDataFilterChain;
 import com.person.lsj.stock.scheduler.task.StockDataFilterTasks;
@@ -56,6 +57,12 @@ public class NewStockDataCaptureJob implements Job {
         List<StockMoneyFlowBean> stockMoneyFlowDataList = stockDataCapturerService.getStockMoneyFlowData(allStockCodes);
         for (String taskId : stockDataFilterTasks.getStockFilterTasksMap().keySet()) {
             StockDetailsDataFilterChain stockDetailsDataFilterChain = stockDataFilterTasks.getStockFilterTasksMap().get(taskId);
+
+            // check if task for stock code
+            if (stockDetailsDataFilterChain.getFlag() != Constant.TASK_FLAG_STOCK_CODE) {
+                continue;
+            }
+
             // money flow filter
             stockDetailsDataFilterChain.setStockMoneyFlowBeanList(stockMoneyFlowDataList);
             List<StockMoneyFlowBean> targetMoneyFlowBeanList = stockDetailsDataFilterChain.doFilterMoneyFlow();
@@ -71,7 +78,7 @@ public class NewStockDataCaptureJob implements Job {
             Map<String, StockDetailsData> stockCodesV6DetailMap = stockDataCapturerService.getStockCodesV6Detail(targetStockCodeList);
             stockDetailsDataFilterChain.setStockDetailsDataMap(stockCodesV6DetailMap);
         }
-        stockDataFilterTasks.processTasks();
+        stockDataFilterTasks.processTasks(Constant.TASK_FLAG_STOCK_CODE);
 
         Map<String, StockDataResultSum> stockFilterTasksResultMap = stockDataFilterTasks.getStockFilterTasksResultMap();
         stockDataResultService.addStockDataResult(stockFilterTasksResultMap);

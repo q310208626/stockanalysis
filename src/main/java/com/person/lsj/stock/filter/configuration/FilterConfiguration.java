@@ -1,5 +1,6 @@
 package com.person.lsj.stock.filter.configuration;
 
+import com.person.lsj.stock.constant.Constant;
 import com.person.lsj.stock.enumeration.TREND;
 import com.person.lsj.stock.filter.StockDetailsDataFilter;
 import com.person.lsj.stock.filter.StockDetailsDataFilterChain;
@@ -123,6 +124,100 @@ public class FilterConfiguration {
         StockDetailsDataFilterChain stockDetailsDataFilterChain = new StockDetailsDataFilterChain(filters);
         stockDetailsDataFilterChain.setTaskId("Task_0007");
         stockDetailsDataFilterChain.setMoneyFlowDataFilter(moneyFlowDataFilter);
+        return stockDetailsDataFilterChain;
+    }
+
+    @Bean(name = "stockBoardMacdJudgeFilterChain1")
+    public StockDetailsDataFilterChain stockBoardMacdJudgeFilterChain1() {
+        MacdStockDetailsDataFilter macdStockDetailsDataFilter = new MacdStockDetailsDataFilter(new TREND[]{TREND.TEND_UP, TREND.TEND_DOWN, TREND.TEND_DOWN}, TREND.TEND_RANDOM);
+        List<StockDetailsDataFilter> filters = new ArrayList<StockDetailsDataFilter>();
+        filters.add(macdStockDetailsDataFilter);
+
+        StockDetailsDataFilterChain stockDetailsDataFilterChain = new StockDetailsDataFilterChain(filters);
+        stockDetailsDataFilterChain.setTaskId("Task_boards_0001");
+        stockDetailsDataFilterChain.setFlag(Constant.TASK_FLAG_STOCK_BOARD);
+        return stockDetailsDataFilterChain;
+    }
+
+    @Bean(name = "stockBoardMacdJudgeFilterChain2")
+    public StockDetailsDataFilterChain stockBoardMacdJudgeFilterChain2() {
+
+        MacdStockDetailsDataFilter macdStockDetailsDataFilter = new MacdStockDetailsDataFilter(new TREND[]{TREND.TEND_UP, TREND.TEND_DOWN}, TREND.TEND_RANDOM);
+        List<StockDetailsDataFilter> filters = new ArrayList<StockDetailsDataFilter>();
+        filters.add(macdStockDetailsDataFilter);
+
+        StockDetailsDataFilterChain stockDetailsDataFilterChain = new StockDetailsDataFilterChain(filters);
+        stockDetailsDataFilterChain.setTaskId("Task_boards_0002");
+        stockDetailsDataFilterChain.setFlag(Constant.TASK_FLAG_STOCK_BOARD);
+        return stockDetailsDataFilterChain;
+    }
+
+    @Bean(name = "stockBoardMacdJudgeFilterChain3")
+    public StockDetailsDataFilterChain stockBoardMacdJudgeFilterChain3() {
+
+        MacdStockDetailsDataFilter macdStockDetailsDataFilter = new MacdStockDetailsDataFilter(new TREND[]{TREND.TEND_UP, TREND.TEND_UP}, TREND.TEND_DOWN);
+        List<StockDetailsDataFilter> filters = new ArrayList<StockDetailsDataFilter>();
+        filters.add(macdStockDetailsDataFilter);
+
+        StockDetailsDataFilterChain stockDetailsDataFilterChain = new StockDetailsDataFilterChain(filters);
+        stockDetailsDataFilterChain.setTaskId("Task_boards_0003");
+        stockDetailsDataFilterChain.setFlag(Constant.TASK_FLAG_STOCK_BOARD);
+        return stockDetailsDataFilterChain;
+    }
+
+    @Bean(name = "stockBoardMacdAndKdjJudgeFilterChain")
+    public StockDetailsDataFilterChain stockBoardMacdAndKdjJudgeFilterChain() {
+        MacdStockDetailsDataFilter macdStockDetailsDataFilter = new MacdStockDetailsDataFilter(new TREND[]{TREND.TEND_UP, TREND.TEND_DOWN, TREND.TEND_DOWN}, TREND.TEND_DOWN);
+        KdjStockDetailsDataFilter kdjStockDetailsDataFilter = new KdjStockDetailsDataFilter(25, new TREND[]{TREND.TEND_RANDOM, TREND.TEND_DOWN, TREND.TEND_DOWN});
+        List<StockDetailsDataFilter> filters = new ArrayList<StockDetailsDataFilter>();
+        filters.add(macdStockDetailsDataFilter);
+        filters.add(kdjStockDetailsDataFilter);
+
+        StockDetailsDataFilterChain stockDetailsDataFilterChain = new StockDetailsDataFilterChain(filters);
+        stockDetailsDataFilterChain.setTaskId("Task_boards_0004");
+        stockDetailsDataFilterChain.setFlag(Constant.TASK_FLAG_STOCK_BOARD);
+        return stockDetailsDataFilterChain;
+    }
+
+    @Bean(name = "stockBoardMacdAndKdjJudgeFilterChain2")
+    public StockDetailsDataFilterChain stockBoardMacdAndKdjJudgeFilterChain2() {
+        MacdStockDetailsDataFilter macdStockDetailsDataFilter = new MacdStockDetailsDataFilter(new TREND[]{TREND.TEND_UP, TREND.TEND_DOWN, TREND.TEND_DOWN}, TREND.TEND_DOWN);
+        KdjStockDetailsDataFilter kdjStockDetailsDataFilter = new KdjStockDetailsDataFilter(50, new TREND[]{TREND.TEND_RANDOM, TREND.TEND_DOWN, TREND.TEND_DOWN});
+        List<StockDetailsDataFilter> filters = new ArrayList<StockDetailsDataFilter>();
+        filters.add(macdStockDetailsDataFilter);
+        filters.add(kdjStockDetailsDataFilter);
+
+        StockDetailsDataFilterChain stockDetailsDataFilterChain = new StockDetailsDataFilterChain(filters);
+        stockDetailsDataFilterChain.setTaskId("Task_boards_0005");
+        stockDetailsDataFilterChain.setFlag(Constant.TASK_FLAG_STOCK_BOARD);
+        return stockDetailsDataFilterChain;
+    }
+
+    @Bean(name = "stockBoardMacdAndKdjJudgeFilterChain3")
+    public StockDetailsDataFilterChain stockBoardMacdAndKdjJudgeFilterChain3() {
+        MacdStockDetailsDataFilter macdStockDetailsDataFilter = new MacdStockDetailsDataFilter(new TREND[]{TREND.TEND_UP, TREND.TEND_UP}, TREND.TEND_DOWN);
+        KdjStockDetailsDataFilter kdjStockDetailsDataFilter = new KdjStockDetailsDataFilter(25, new TREND[]{TREND.TEND_RANDOM, TREND.TEND_DOWN, TREND.TEND_DOWN});
+        List<StockDetailsDataFilter> filters = new ArrayList<StockDetailsDataFilter>();
+        filters.add(macdStockDetailsDataFilter);
+        filters.add(kdjStockDetailsDataFilter);
+
+        StockDetailsDataFilterChain stockDetailsDataFilterChain = new StockDetailsDataFilterChain(filters);
+        stockDetailsDataFilterChain.setTaskId("Task_boards_0006");
+        stockDetailsDataFilterChain.setFlag(Constant.TASK_FLAG_STOCK_BOARD);
+        return stockDetailsDataFilterChain;
+    }
+
+    @Bean(name = "stockBoardMacdAndKdjJudgeFilterChain4")
+    public StockDetailsDataFilterChain stockBoardMacdAndKdjJudgeFilterChain4() {
+        MacdStockDetailsDataFilter macdStockDetailsDataFilter = new MacdStockDetailsDataFilter(new TREND[]{TREND.TEND_UP, TREND.TEND_UP}, TREND.TEND_DOWN);
+        KdjStockDetailsDataFilter kdjStockDetailsDataFilter = new KdjStockDetailsDataFilter(50, new TREND[]{TREND.TEND_RANDOM, TREND.TEND_DOWN, TREND.TEND_DOWN});
+        List<StockDetailsDataFilter> filters = new ArrayList<StockDetailsDataFilter>();
+        filters.add(macdStockDetailsDataFilter);
+        filters.add(kdjStockDetailsDataFilter);
+
+        StockDetailsDataFilterChain stockDetailsDataFilterChain = new StockDetailsDataFilterChain(filters);
+        stockDetailsDataFilterChain.setTaskId("Task_boards_0007");
+        stockDetailsDataFilterChain.setFlag(Constant.TASK_FLAG_STOCK_BOARD);
         return stockDetailsDataFilterChain;
     }
 }

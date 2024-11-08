@@ -1,6 +1,7 @@
 package com.person.lsj.stock.service;
 
 
+import com.person.lsj.stock.bean.dongfang.data.StockBoardBean;
 import com.person.lsj.stock.bean.dongfang.data.StockCurDetailsData;
 import com.person.lsj.stock.bean.dongfang.data.StockDetailsData;
 import com.person.lsj.stock.bean.dongfang.moneyflow.StockMoneyFlowBean;
@@ -100,4 +101,18 @@ public interface StockDataCapturerService {
      * @return status
      */
     Integer getStockStatus(String stockCode);
+
+    /**
+     * 获取板块列表
+     *
+     * @return List<StockBoardBean>
+     */
+    List<StockBoardBean> getAllStockBoards();
+
+    /**
+     * 获取板块120天v6数据
+     *
+     * @return Map<String, StockDetailsData>
+     */
+    Map<String, StockDetailsData> getStockBoardsV6Details();
 }

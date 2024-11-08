@@ -15,6 +15,8 @@ public class StockDetailsDataFilterChain {
     private MoneyFlowDataFilter moneyFlowDataFilter;
     private List<StockMoneyFlowBean> stockMoneyFlowBeanList;
 
+    // 0-for stock code  1-for stock board
+    private int flag = 0;
 
     public StockDetailsDataFilterChain(List<StockDetailsDataFilter> stockDetailsDataFilters) {
         this.stockDetailsDataFilters = stockDetailsDataFilters;
@@ -98,5 +100,13 @@ public class StockDetailsDataFilterChain {
 
     public void setStockDetailsDataFilters(List<StockDetailsDataFilter> stockDetailsDataFilters) {
         this.stockDetailsDataFilters = stockDetailsDataFilters;
+    }
+
+    public int getFlag() {
+        return flag;
+    }
+
+    public void setFlag(int flag) {
+        this.flag = flag;
     }
 }

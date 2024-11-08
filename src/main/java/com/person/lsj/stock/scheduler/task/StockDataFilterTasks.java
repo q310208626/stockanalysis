@@ -1,8 +1,8 @@
 package com.person.lsj.stock.scheduler.task;
 
-import com.person.lsj.stock.bean.dongfang.result.StockDataResultSum;
-import com.person.lsj.stock.bean.dongfang.result.StockDataResultDetails;
 import com.person.lsj.stock.bean.dongfang.data.StockDetailsData;
+import com.person.lsj.stock.bean.dongfang.result.StockDataResultDetails;
+import com.person.lsj.stock.bean.dongfang.result.StockDataResultSum;
 import com.person.lsj.stock.enumeration.RESULT;
 import com.person.lsj.stock.filter.StockDetailsDataFilterChain;
 import org.springframework.util.CollectionUtils;
@@ -22,7 +22,7 @@ public class StockDataFilterTasks {
     /**
      * process tasks base on filter chain
      */
-    public void processTasks() {
+    public void processTasks(int targetTask) {
         if (CollectionUtils.isEmpty(stockFilterTasksMap)) {
             return;
         }
@@ -32,13 +32,16 @@ public class StockDataFilterTasks {
             Map.Entry<String, StockDetailsDataFilterChain> dataFilterChainEntry = iterator.next();
             String taskId = dataFilterChainEntry.getKey();
             StockDetailsDataFilterChain stockDetailsDataFilterChain = dataFilterChainEntry.getValue();
+            if (stockDetailsDataFilterChain.getFlag() != targetTask) {
+                continue;
+            }
             Map<String, StockDetailsData> stockDetailsDataMap = stockDetailsDataFilterChain.doFilter();
             addToResultMap(taskId, stockDetailsDataMap);
         }
     }
 
     private void addToResultMap(String taskId, Map<String, StockDetailsData> stockDetailsDataMap) {
-        if (CollectionUtils.isEmpty(stockFilterTasksMap) || CollectionUtils.isEmpty(stockDetailsDataMap)) {
+        if (CollectionUtils.isEmpty(stockFilterTasksMap)) {
             return;
         }
 
@@ -46,6 +49,10 @@ public class StockDataFilterTasks {
         StockDataResultSum StockDataResultSum = new StockDataResultSum();
         StockDataResultSum.setTaskId(taskId);
         StockDataResultSum.setCollectDate(LocalDate.now());
+        if (CollectionUtils.isEmpty(stockDetailsDataMap)) {
+            stockFilterTasksResultMap.put(taskId, StockDataResultSum);
+            return;
+        }
 
         Set<String> stockCodes = stockDetailsDataMap.keySet();
         for (String stockCode : stockCodes) {
