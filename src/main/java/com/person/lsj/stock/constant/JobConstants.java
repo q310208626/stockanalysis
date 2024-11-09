@@ -11,7 +11,9 @@ public interface JobConstants {
     // job name
     String JOB_NAME_CURRENT_DAY_DATA_RESULT = "currentDayDataResultJob";
 
-    String JOB_NAME_CURRENT_DAY_BOARD_RESULT_JOB = "currentStockBoardResultJob";
+    String JOB_NAME_CURRENT_DAY_BOARD_INDUSTRY_RESULT_JOB = "currentStockBoardIndustryResultJob";
+
+    String JOB_NAME_CURRENT_DAY_BOARD_CONCEPT_RESULT_JOB = "currentStockBoardConceptResultJob";
 
     String JOB_NAME_NEW_STOCK_DATA_CAPTURE_JOB = "newStockDataCaptureJob";
 

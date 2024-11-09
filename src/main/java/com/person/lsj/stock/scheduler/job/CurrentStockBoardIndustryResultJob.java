@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class CurrentStockBoardResultJob implements Job {
+public class CurrentStockBoardIndustryResultJob implements Job {
     private static Logger LOGGER = Logger.getLogger(NewStockDataCaptureJob.class);
 
     @Autowired
@@ -33,11 +33,11 @@ public class CurrentStockBoardResultJob implements Job {
 
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
-        LOGGER.debug("CurrentStockBoardResultJob start[" + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME) + "]");
+        LOGGER.debug("CurrentStockBoardIndustryResultJob start[" + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME) + "]");
         JobDataMap jobDataMap = context.getMergedJobDataMap();
 
         // get money flow data
-        Map<String, StockDetailsData> stockBoardsV6Details = stockDataCapturerService.getStockBoardsV6Details();
+        Map<String, StockDetailsData> stockBoardsV6Details = stockDataCapturerService.getStockBoardsV6Details(Constant.BOARD_TYPE_INDUSTRY);
         Map<String, StockDetailsDataFilterChain> stockFilterTasksMap = stockDataFilterTasks.getStockFilterTasksMap();
         for (String taskId : stockDataFilterTasks.getStockFilterTasksMap().keySet()) {
             StockDetailsDataFilterChain stockDetailsDataFilterChain = stockFilterTasksMap.get(taskId);
@@ -82,6 +82,6 @@ public class CurrentStockBoardResultJob implements Job {
         //set job details
         Map<String, String> jobDetailsMap = (Map<String, String>) jobDataMap.get(JobConstants.JOB_DETAILS_MAP);
         jobDetailsMap.put(JobConstants.JOB_DETAILS_KEY_EXE_TIME, LocalDateTime.now().format(DateTimeFormatter.ofPattern(CustomDateFormat.DATE_TIME_FORMAT)));
-        LOGGER.debug("CurrentStockBoardResultJob End Normally");
+        LOGGER.debug("CurrentStockBoardIndustryResultJob End Normally");
     }
 }

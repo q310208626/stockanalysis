@@ -5,6 +5,7 @@ import com.person.lsj.stock.bean.dongfang.data.StockBoardBean;
 import com.person.lsj.stock.bean.dongfang.data.StockCurDetailsData;
 import com.person.lsj.stock.bean.dongfang.data.StockDetailsData;
 import com.person.lsj.stock.bean.dongfang.moneyflow.StockMoneyFlowBean;
+import com.person.lsj.stock.constant.Constant;
 import com.person.lsj.stock.service.StockDataCapturerService;
 import org.junit.Assert;
 import org.junit.Test;
@@ -76,13 +77,13 @@ public class StockDataCapturerServiceTest {
 
     @Test
     public void getStockBoards(){
-        List<StockBoardBean> allStockBoards = stockDataCapturerService.getAllStockBoards();
+        List<StockBoardBean> allStockBoards = stockDataCapturerService.getAllStockBoards(Constant.BOARD_TYPE_INDUSTRY);
         Assert.assertNotNull(allStockBoards);
     }
 
     @Test
     public void getStockBoardsV6Details(){
-        Map<String, StockDetailsData> stockBoardsV6Details = stockDataCapturerService.getStockBoardsV6Details();
+        Map<String, StockDetailsData> stockBoardsV6Details = stockDataCapturerService.getStockBoardsV6Details(Constant.BOARD_TYPE_INDUSTRY);
         Assert.assertNotNull(stockBoardsV6Details);
     }
 }

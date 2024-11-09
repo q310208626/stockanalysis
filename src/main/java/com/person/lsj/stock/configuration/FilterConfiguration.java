@@ -1,4 +1,4 @@
-package com.person.lsj.stock.filter.configuration;
+package com.person.lsj.stock.configuration;
 
 import com.person.lsj.stock.constant.Constant;
 import com.person.lsj.stock.enumeration.TREND;

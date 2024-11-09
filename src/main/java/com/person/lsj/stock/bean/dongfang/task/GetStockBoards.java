@@ -3,6 +3,7 @@ package com.person.lsj.stock.bean.dongfang.task;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.person.lsj.stock.bean.dongfang.data.StockBoardBean;
+import com.person.lsj.stock.constant.Constant;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
@@ -16,6 +17,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
 
 public class GetStockBoards implements Callable<List<StockBoardBean>> {
     private static Logger LOGGER = Logger.getLogger(GetStockBoards.class);
@@ -25,7 +27,23 @@ public class GetStockBoards implements Callable<List<StockBoardBean>> {
     // get StockCodeList
     private static final String HOME_PAGE_URL = STOCK_HOST + "/api/qt/clist/get";
 
-    private static int PAGE_SIZE = 100;
+    private static int PAGE_SIZE = 20;
+
+    private int boardType = Constant.BOARD_TYPE_INDUSTRY;
+
+    private int page;
+
+    private CountDownLatch countDownLatch;
+
+    public GetStockBoards(int page, CountDownLatch countDownLatch) {
+        this(Constant.BOARD_TYPE_INDUSTRY, page, countDownLatch);
+    }
+
+    public GetStockBoards(int boardType, int page, CountDownLatch countDownLatch) {
+        this.boardType = boardType;
+        this.page = page;
+        this.countDownLatch = countDownLatch;
+    }
 
     @Override
     public List<StockBoardBean> call() throws Exception {
@@ -46,10 +64,14 @@ public class GetStockBoards implements Callable<List<StockBoardBean>> {
         builder.addParameter("dect", "1");
         builder.addParameter("wbp2u", "|0|0|0|web");
         builder.addParameter("fid", "f3");
-        builder.addParameter("fs", "m:90+t:2+f:!50");
+        if (boardType == Constant.BOARD_TYPE_INDUSTRY) {
+            builder.addParameter("fs", "m:90+t:2+f:!50");
+        } else {
+            builder.addParameter("fs", "m:90+t:3+f:!50");
+        }
 
         // curPageNum
-        builder.addParameter("pn", String.valueOf(1));
+        builder.addParameter("pn", String.valueOf(page));
 
         // f292 状态 dealTradeStae 6停牌 7退市
         builder.addParameter("fields", "f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f12,f13,f14,f15,f16,f17,f18,f20,f21,f23,f24,f25,f26,f22,f33,f11,f62,f128,f136,f115,f152,f124,f107,f104,f105,f140,f141,f207,f208,f209,f222");
@@ -77,6 +99,8 @@ public class GetStockBoards implements Callable<List<StockBoardBean>> {
             }
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            countDownLatch.countDown();
         }
         LOGGER.debug("End get StockBoardBeans");
         return stockBoardBeans;

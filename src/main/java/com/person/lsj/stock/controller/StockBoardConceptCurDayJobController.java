@@ -17,8 +17,8 @@ import java.util.Map;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/stockBoard")
-public class StockBoardCurDayJobController {
+@RequestMapping("/stockBoardConcept")
+public class StockBoardConceptCurDayJobController {
     private static Logger LOGGER = Logger.getLogger(StockCurDayJobController.class);
 
     private static final Integer STATE_FREE = 0;
@@ -36,7 +36,7 @@ public class StockBoardCurDayJobController {
     @PostMapping("/trigger")
     public String triggerJob() {
         try {
-            JobKey jobKey = JobKey.jobKey(JobConstants.JOB_NAME_CURRENT_DAY_BOARD_INDUSTRY_RESULT_JOB);
+            JobKey jobKey = JobKey.jobKey(JobConstants.JOB_NAME_CURRENT_DAY_BOARD_CONCEPT_RESULT_JOB);
             synchronized (this) {
                 // job is running, return
                 for (JobExecutionContext currentlyExecutingJob : scheduler.getCurrentlyExecutingJobs()) {
@@ -57,7 +57,7 @@ public class StockBoardCurDayJobController {
     @GetMapping("/result")
     public CurDayJobResult getCurDayJobResult() {
         try {
-            Optional<JobDetail> jobDetail = Optional.of(scheduler.getJobDetail(JobKey.jobKey(JobConstants.JOB_NAME_CURRENT_DAY_BOARD_INDUSTRY_RESULT_JOB)));
+            Optional<JobDetail> jobDetail = Optional.of(scheduler.getJobDetail(JobKey.jobKey(JobConstants.JOB_NAME_CURRENT_DAY_BOARD_CONCEPT_RESULT_JOB)));
             if (!jobDetail.isPresent()) {
                 return null;
             }
@@ -107,7 +107,7 @@ public class StockBoardCurDayJobController {
     public String getJobState() {
         String state = STATE_FREE.toString();
         try {
-            JobKey jobKey = JobKey.jobKey(JobConstants.JOB_NAME_CURRENT_DAY_BOARD_INDUSTRY_RESULT_JOB);
+            JobKey jobKey = JobKey.jobKey(JobConstants.JOB_NAME_CURRENT_DAY_BOARD_CONCEPT_RESULT_JOB);
 
             // job is running, return
             for (JobExecutionContext currentlyExecutingJob : scheduler.getCurrentlyExecutingJobs()) {
@@ -121,5 +121,4 @@ public class StockBoardCurDayJobController {
 
         return state;
     }
-
 }

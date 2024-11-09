@@ -1,11 +1,8 @@
-package com.person.lsj.stock.scheduler;
+package com.person.lsj.stock.configuration;
 
 import com.person.lsj.stock.bean.dongfang.result.StockDataResultSum;
 import com.person.lsj.stock.constant.JobConstants;
-import com.person.lsj.stock.scheduler.job.CurrentDayDataResultJob;
-import com.person.lsj.stock.scheduler.job.CurrentStockBoardResultJob;
-import com.person.lsj.stock.scheduler.job.NewStockDataCaptureJob;
-import com.person.lsj.stock.scheduler.job.StockDataResultJob;
+import com.person.lsj.stock.scheduler.job.*;
 import org.quartz.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -46,12 +43,23 @@ public class QuartzConfiguration {
                 .build();
     }
 
-    @Bean(name = "currentStockBoardResultJobTrigger")
-    public Trigger currentStockBoardResultJobTrigger() {
+    @Bean(name = "currentStockBoardIndustryResultJobTrigger")
+    public Trigger currentStockBoardIndustryResultJobTrigger() {
         return TriggerBuilder
                 .newTrigger()
-                .forJob(currentStockBoardResultJob())
-                .withIdentity(JobConstants.JOB_NAME_CURRENT_DAY_BOARD_RESULT_JOB)
+                .forJob(currentStockBoardIndustryResultJob())
+                .withIdentity(JobConstants.JOB_NAME_CURRENT_DAY_BOARD_INDUSTRY_RESULT_JOB)
+                .withSchedule(CronScheduleBuilder.cronSchedule("0 0/10 10-15 * * ? *"))
+//                .startNow()
+                .build();
+    }
+
+    @Bean(name = "currentStockBoardConceptResultJobTrigger")
+    public Trigger currentStockBoardConceptResultJobTrigger() {
+        return TriggerBuilder
+                .newTrigger()
+                .forJob(currentStockBoardConceptResultJob())
+                .withIdentity(JobConstants.JOB_NAME_CURRENT_DAY_BOARD_CONCEPT_RESULT_JOB)
                 .withSchedule(CronScheduleBuilder.cronSchedule("0 0/10 10-15 * * ? *"))
 //                .startNow()
                 .build();
@@ -92,8 +100,8 @@ public class QuartzConfiguration {
                 .build();
     }
 
-    @Bean(name = "currentStockBoardResultJob")
-    public JobDetail currentStockBoardResultJob() {
+    @Bean(name = "currentStockBoardIndustryResultJob")
+    public JobDetail currentStockBoardIndustryResultJob() {
         Map<String, StockDataResultSum> stockFilterTasksResultMap = new HashMap<String, StockDataResultSum>();
         Map<String, String> jobDetailsMap = new HashMap<>();
 
@@ -102,8 +110,25 @@ public class QuartzConfiguration {
         jobDataMap.put(JobConstants.JOB_DETAILS_MAP, jobDetailsMap);
 
         return JobBuilder
-                .newJob(CurrentStockBoardResultJob.class)
-                .withIdentity(JobConstants.JOB_NAME_CURRENT_DAY_BOARD_RESULT_JOB)
+                .newJob(CurrentStockBoardIndustryResultJob.class)
+                .withIdentity(JobConstants.JOB_NAME_CURRENT_DAY_BOARD_INDUSTRY_RESULT_JOB)
+                .setJobData(jobDataMap)
+                .storeDurably()
+                .build();
+    }
+
+    @Bean(name = "currentStockBoarddConceptResultJob")
+    public JobDetail currentStockBoardConceptResultJob() {
+        Map<String, StockDataResultSum> stockFilterTasksResultMap = new HashMap<String, StockDataResultSum>();
+        Map<String, String> jobDetailsMap = new HashMap<>();
+
+        JobDataMap jobDataMap = new JobDataMap();
+        jobDataMap.put(JobConstants.RESULT_MAP, stockFilterTasksResultMap);
+        jobDataMap.put(JobConstants.JOB_DETAILS_MAP, jobDetailsMap);
+
+        return JobBuilder
+                .newJob(CurrentStockBoardConceptResultJob.class)
+                .withIdentity(JobConstants.JOB_NAME_CURRENT_DAY_BOARD_CONCEPT_RESULT_JOB)
                 .setJobData(jobDataMap)
                 .storeDurably()
                 .build();

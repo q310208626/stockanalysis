@@ -103,16 +103,26 @@ public interface StockDataCapturerService {
     Integer getStockStatus(String stockCode);
 
     /**
+     * 获取板块总页数
+     *
+     * @param boardType 板块类型
+     * @return
+     */
+    public int getBoardsTotalPage(int boardType);
+
+    /**
      * 获取板块列表
      *
+     * @param boardType 板块类型
      * @return List<StockBoardBean>
      */
-    List<StockBoardBean> getAllStockBoards();
+    List<StockBoardBean> getAllStockBoards(int boardType);
 
     /**
      * 获取板块120天v6数据
      *
+     * @param boardType 板块类型
      * @return Map<String, StockDetailsData>
      */
-    Map<String, StockDetailsData> getStockBoardsV6Details();
+    Map<String, StockDetailsData> getStockBoardsV6Details(int boardType);
 }

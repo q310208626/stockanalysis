@@ -1,5 +1,6 @@
 package com.person.lsj.stock.service.impl;
 
+import com.alibaba.fastjson2.JSONObject;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.person.lsj.stock.bean.dongfang.HomePageBean;
@@ -67,7 +68,7 @@ public class DongFangStockDataCapturerServiceImpl implements StockDataCapturerSe
     // target funds imcrement 1000w
     private static int TARGET_3DAY_MONEY_FLOW_INCREMENT = 10000000;
 
-    private ThreadPoolExecutor threadPool = new ThreadPoolExecutor(Constant.CPU_CORE_COUNT * 2, Constant.CPU_CORE_COUNT * 2, 10, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(5000));
+    private ThreadPoolExecutor threadPool = new ThreadPoolExecutor(Constant.CPU_CORE_COUNT, Constant.CPU_CORE_COUNT * 2, 10, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(5000));
 
     @Autowired
     private RedisOpsService redisOpsService;
@@ -629,15 +630,84 @@ public class DongFangStockDataCapturerServiceImpl implements StockDataCapturerSe
     }
 
     @Override
-    public List<StockBoardBean> getAllStockBoards() {
+    public int getBoardsTotalPage(int boardType) {
+        LOGGER.debug("Start get getBoardsTotalPage:" + boardType);
+        int totalPage = 0;
+        String curUrl = String.format(HOME_PAGE_URL);
+        try {
+            URIBuilder builder = new URIBuilder(curUrl);
+
+            // pageSize
+            builder.addParameter("pz", String.valueOf(PAGE_SIZE));
+
+            // sotck board 1=shanghai
+            builder.addParameter("po", "1");
+            builder.addParameter("np", "1");
+            builder.addParameter("fltt", "2");
+            builder.addParameter("invt", "2");
+            builder.addParameter("dect", "1");
+            builder.addParameter("wbp2u", "|0|0|0|web");
+            builder.addParameter("fid", "f3");
+            if (boardType == Constant.BOARD_TYPE_INDUSTRY) {
+                builder.addParameter("fs", "m:90+t:2+f:!50");
+            } else {
+                builder.addParameter("fs", "m:90+t:3+f:!50");
+            }
+
+            // curPageNum
+            builder.addParameter("pn", String.valueOf(1));
+
+            // f292 状态 dealTradeStae 6停牌 7退市
+            builder.addParameter("fields", "f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f12,f13,f14,f15,f16,f17,f18,f20,f21,f23,f24,f25,f26,f22,f33,f11,f62,f128,f136,f115,f152,f124,f107,f104,f105,f140,f141,f207,f208,f209,f222");
+            HttpGet httpGet = new HttpGet(builder.build());
+            try (CloseableHttpClient httpClient = HttpClients.createDefault();
+                 CloseableHttpResponse httpResponse = httpClient.execute(httpGet);
+                 InputStream content = httpResponse.getEntity().getContent();
+                 InputStreamReader reader = new InputStreamReader(content);
+                 BufferedReader bufferedReader = new BufferedReader(reader)) {
+
+                String line = null;
+                StringBuffer dataBuffer = new StringBuffer();
+                while ((line = bufferedReader.readLine()) != null) {
+                    dataBuffer.append(line);
+                    dataBuffer.append(System.lineSeparator());
+                }
+
+                JSONObject jsonObject = JSONObject.parseObject(dataBuffer.toString());
+                JSONObject dataJsonObject = jsonObject.getJSONObject("data");
+                String pageStr = dataJsonObject.getString("total");
+                int total = Integer.parseInt(pageStr);
+                totalPage = total % PAGE_SIZE == 0 ? total / PAGE_SIZE : total / PAGE_SIZE + 1;
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
+        LOGGER.debug("End get getBoardsTotalPage");
+        return totalPage;
+    }
+
+    @Override
+    public List<StockBoardBean> getAllStockBoards(int boardType) {
         LOGGER.debug("Enter getAllStockBoards");
-        int totalPage = getTotalPage();
+        int totalPage = getBoardsTotalPage(boardType);
         List<StockBoardBean> stockBoardBeans = new ArrayList<>();
         try {
             CountDownLatch countDownLatch = new CountDownLatch(totalPage);
-            Future<List<StockBoardBean>> future = threadPool.submit(new GetStockBoards());
-            List<StockBoardBean> stockBoardBeans1 = future.get();
-            stockBoardBeans.addAll(stockBoardBeans1);
+            List<Future<List<StockBoardBean>>> futureList = new ArrayList<>();
+            for (int page = 1; page <= totalPage; page++) {
+                Future<List<StockBoardBean>> futureTask = threadPool.submit(new GetStockBoards(boardType, page, countDownLatch));
+                futureList.add(futureTask);
+            }
+
+            countDownLatch.await();
+
+            for (Future<List<StockBoardBean>> listFuture : futureList) {
+                List<StockBoardBean> stockBoardBeanList = listFuture.get();
+                stockBoardBeans.addAll(stockBoardBeanList);
+            }
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         } catch (ExecutionException e) {
@@ -648,8 +718,8 @@ public class DongFangStockDataCapturerServiceImpl implements StockDataCapturerSe
     }
 
     @Override
-    public Map<String, StockDetailsData> getStockBoardsV6Details() {
-        List<StockBoardBean> allStockBoards = getAllStockBoards();
+    public Map<String, StockDetailsData> getStockBoardsV6Details(int boardType) {
+        List<StockBoardBean> allStockBoards = getAllStockBoards(boardType);
 
         if (CollectionUtils.isEmpty(allStockBoards)) {
             return Map.of();

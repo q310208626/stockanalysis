@@ -6,4 +6,8 @@ public class Constant {
     public static final int TASK_FLAG_STOCK_CODE = 0;
 
     public static final int TASK_FLAG_STOCK_BOARD = 1;
+
+    public static final int BOARD_TYPE_INDUSTRY = 0;
+
+    public static final int BOARD_TYPE_CONCEPT = 1;
 }
