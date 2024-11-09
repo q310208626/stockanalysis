@@ -220,4 +220,18 @@ public class FilterConfiguration {
         stockDetailsDataFilterChain.setFlag(Constant.TASK_FLAG_STOCK_BOARD);
         return stockDetailsDataFilterChain;
     }
+
+    @Bean(name = "stockBoardMacdAndKdjJudgeFilterChain5")
+    public StockDetailsDataFilterChain stockBoardMacdAndKdjJudgeFilterChain5() {
+        MacdStockDetailsDataFilter macdStockDetailsDataFilter = new MacdStockDetailsDataFilter(new TREND[]{TREND.TEND_DOWN, TREND.TEND_DOWN, TREND.TEND_DOWN}, TREND.TEND_RANDOM);
+        KdjStockDetailsDataFilter kdjStockDetailsDataFilter = new KdjStockDetailsDataFilter(60, new TREND[]{TREND.TEND_UP});
+        List<StockDetailsDataFilter> filters = new ArrayList<StockDetailsDataFilter>();
+        filters.add(macdStockDetailsDataFilter);
+        filters.add(kdjStockDetailsDataFilter);
+
+        StockDetailsDataFilterChain stockDetailsDataFilterChain = new StockDetailsDataFilterChain(filters);
+        stockDetailsDataFilterChain.setTaskId("Task_boards_0008");
+        stockDetailsDataFilterChain.setFlag(Constant.TASK_FLAG_STOCK_BOARD);
+        return stockDetailsDataFilterChain;
+    }
 }
