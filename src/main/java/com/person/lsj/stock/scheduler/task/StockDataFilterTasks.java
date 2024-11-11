@@ -45,7 +45,7 @@ public class StockDataFilterTasks {
             return;
         }
 
-        stockFilterTasksResultMap = stockFilterTasksResultMap == null ? CollectionUtils.newHashMap(stockFilterTasksMap.size()) : stockFilterTasksResultMap;
+        stockFilterTasksResultMap = stockFilterTasksResultMap == null ? CollectionUtils.newLinkedHashMap(stockFilterTasksMap.size()) : stockFilterTasksResultMap;
         StockDataResultSum StockDataResultSum = new StockDataResultSum();
         StockDataResultSum.setTaskId(taskId);
         StockDataResultSum.setCollectDate(LocalDate.now());

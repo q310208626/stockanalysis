@@ -10,6 +10,7 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 @Component
@@ -22,8 +23,8 @@ public class StockDataFilterTasksFatoryBean implements FactoryBean<StockDataFilt
         String[] filterChainNames = applicationContext.getBeanNamesForType(StockDetailsDataFilterChain.class);
 
         StockDataFilterTasks stockDataFilterTasks = new StockDataFilterTasks();
-        Map<String, StockDetailsDataFilterChain> stockDetailsDataFilterChainMap = new HashMap<>();
-        Map<String, StockDataResultSum> stockFilterTasksResultMap = new HashMap<>();
+        Map<String, StockDetailsDataFilterChain> stockDetailsDataFilterChainMap = new LinkedHashMap<>();
+        Map<String, StockDataResultSum> stockFilterTasksResultMap = new LinkedHashMap<>();
 
         if (ArrayUtils.isNotEmpty(filterChainNames)) {
             for (int i = 0; i < filterChainNames.length; i++) {

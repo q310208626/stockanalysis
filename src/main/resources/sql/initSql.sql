@@ -9,7 +9,7 @@ drop table if exists stock_data_result_sum;
 create table stock_data_result_sum
 (
     result_id     int auto_increment primary key,
-    task_id       varchar(12),
+    task_id       varchar(64),
     collect_date  DATE,
     accuracy_rate float(2)
 ) AUTO_INCREMENT = 100001 COMMENT = '任务扫描结果表';

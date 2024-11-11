@@ -36,7 +36,7 @@ public class StockDataResultController {
         });
 
         for (StockDataResultSum stockDataResultSum : stockDataResultSumList) {
-            List<StockDataResultDetails> stockDataResultDetailsList = stockDataResultSum.getStockDataResultDetailsList();
+            List<StockDataResultDetails> stockDataResultDetailsList = stockDataResultSum.getStockDataResultDetailsList().stream().filter(x -> x.getStockCode() != null).toList();
             List<String> stockCodeList = stockDataResultDetailsList.stream().map(x -> x.getStockCode()).collect(Collectors.toList());
             Map<String, String> stockCodesNames = stockDataCapturerService.getStockCodesNames(stockCodeList);
 
@@ -45,6 +45,8 @@ public class StockDataResultController {
                 String stockName = stockCodesNames.get(stockCode);
                 stockDataResultDetails.setStockName(stockName);
             }
+
+            stockDataResultSum.setStockDataResultDetailsList(stockDataResultDetailsList);
         }
 
         return stockDataResultSumList;

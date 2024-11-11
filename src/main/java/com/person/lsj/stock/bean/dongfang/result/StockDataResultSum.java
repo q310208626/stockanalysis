@@ -1,6 +1,7 @@
 package com.person.lsj.stock.bean.dongfang.result;
 
 import lombok.Data;
+import org.springframework.core.annotation.Order;
 
 import java.time.LocalDate;
 import java.util.*;

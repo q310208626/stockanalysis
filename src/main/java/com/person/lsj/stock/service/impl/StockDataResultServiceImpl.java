@@ -61,6 +61,9 @@ public class StockDataResultServiceImpl implements StockDataResultService {
             stockDataResultSum.getStockDataResultDetailsList().forEach(x -> {
                 x.setResultId(stockDataResultSum.getResultId());
             });
+            if (CollectionUtils.isEmpty(stockDataResultSum.getStockDataResultDetailsList())) {
+                continue;
+            }
             stockDataResultDetailsMapper.addBatch(stockDataResultSum.getStockDataResultDetailsList());
         }
         LOGGER.debug("exit addStockDataResult");

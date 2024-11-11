@@ -28,7 +28,7 @@ public class FilterConfiguration {
         filters.add(kdjStockDetailsDataFilter);
 
         StockDetailsDataFilterChain stockDetailsDataFilterChain = new StockDetailsDataFilterChain(filters);
-        stockDetailsDataFilterChain.setTaskId("Task_0000");
+        stockDetailsDataFilterChain.setTaskId("Task_0000_熊指标");
         stockDetailsDataFilterChain.setMoneyFlowDataFilter(moneyFlowDataFilter);
         return stockDetailsDataFilterChain;
     }
@@ -40,7 +40,7 @@ public class FilterConfiguration {
         MainMoneyFlowDataFilter moneyFlowDataFilter = new MainMoneyFlowDataFilter(judgeRule, 30000000);
 
         StockDetailsDataFilterChain stockDetailsDataFilterChain = new StockDetailsDataFilterChain(new ArrayList<>());
-        stockDetailsDataFilterChain.setTaskId("Task_0001");
+        stockDetailsDataFilterChain.setTaskId("Task_0001_资金连涨3000");
         stockDetailsDataFilterChain.setMoneyFlowDataFilter(moneyFlowDataFilter);
         return stockDetailsDataFilterChain;
     }
@@ -51,7 +51,7 @@ public class FilterConfiguration {
         MainMoneyFlowDataFilter moneyFlowDataFilter = new MainMoneyFlowDataFilter(judgeRule, 50000000);
 
         StockDetailsDataFilterChain stockDetailsDataFilterChain = new StockDetailsDataFilterChain(new ArrayList<>());
-        stockDetailsDataFilterChain.setTaskId("Task_0002");
+        stockDetailsDataFilterChain.setTaskId("Task_0002_资金连涨5000");
         stockDetailsDataFilterChain.setMoneyFlowDataFilter(moneyFlowDataFilter);
         return stockDetailsDataFilterChain;
     }
@@ -62,7 +62,7 @@ public class FilterConfiguration {
         MainMoneyFlowDataFilter moneyFlowDataFilter = new MainMoneyFlowDataFilter(judgeRule, 30000000);
 
         StockDetailsDataFilterChain stockDetailsDataFilterChain = new StockDetailsDataFilterChain(new ArrayList<>());
-        stockDetailsDataFilterChain.setTaskId("Task_0003");
+        stockDetailsDataFilterChain.setTaskId("Task_0003_资金减持3000");
         stockDetailsDataFilterChain.setMoneyFlowDataFilter(moneyFlowDataFilter);
         return stockDetailsDataFilterChain;
     }
@@ -77,7 +77,7 @@ public class FilterConfiguration {
 
         StockDetailsDataFilterChain stockDetailsDataFilterChain = new StockDetailsDataFilterChain(filters);
         stockDetailsDataFilterChain.setMoneyFlowDataFilter(moneyFlowDataFilter);
-        stockDetailsDataFilterChain.setTaskId("Task_0004");
+        stockDetailsDataFilterChain.setTaskId("Task_0004_boll0015");
         return stockDetailsDataFilterChain;
     }
 
@@ -91,7 +91,7 @@ public class FilterConfiguration {
 
         StockDetailsDataFilterChain stockDetailsDataFilterChain = new StockDetailsDataFilterChain(filters);
         stockDetailsDataFilterChain.setMoneyFlowDataFilter(moneyFlowDataFilter);
-        stockDetailsDataFilterChain.setTaskId("Task_0005");
+        stockDetailsDataFilterChain.setTaskId("Task_0005_boll0020");
         return stockDetailsDataFilterChain;
     }
 
@@ -106,7 +106,7 @@ public class FilterConfiguration {
         filters.add(kdjStockDetailsDataFilter);
 
         StockDetailsDataFilterChain stockDetailsDataFilterChain = new StockDetailsDataFilterChain(filters);
-        stockDetailsDataFilterChain.setTaskId("Task_0006");
+        stockDetailsDataFilterChain.setTaskId("Task_0006_boll&kdj");
         stockDetailsDataFilterChain.setMoneyFlowDataFilter(moneyFlowDataFilter);
         return stockDetailsDataFilterChain;
     }
@@ -122,7 +122,7 @@ public class FilterConfiguration {
         filters.add(kdjStockDetailsDataFilter);
 
         StockDetailsDataFilterChain stockDetailsDataFilterChain = new StockDetailsDataFilterChain(filters);
-        stockDetailsDataFilterChain.setTaskId("Task_0007");
+        stockDetailsDataFilterChain.setTaskId("Task_0007_追涨");
         stockDetailsDataFilterChain.setMoneyFlowDataFilter(moneyFlowDataFilter);
         return stockDetailsDataFilterChain;
     }
@@ -138,7 +138,7 @@ public class FilterConfiguration {
         filters.add(kdjStockDetailsDataFilter);
 
         StockDetailsDataFilterChain stockDetailsDataFilterChain = new StockDetailsDataFilterChain(filters);
-        stockDetailsDataFilterChain.setTaskId("Task_0008");
+        stockDetailsDataFilterChain.setTaskId("Task_0008_底部背离");
         stockDetailsDataFilterChain.setMoneyFlowDataFilter(moneyFlowDataFilter);
         return stockDetailsDataFilterChain;
     }
@@ -154,7 +154,7 @@ public class FilterConfiguration {
         filters.add(kdjStockDetailsDataFilter);
 
         StockDetailsDataFilterChain stockDetailsDataFilterChain = new StockDetailsDataFilterChain(filters);
-        stockDetailsDataFilterChain.setTaskId("Task_0009");
+        stockDetailsDataFilterChain.setTaskId("Task_0009_底部背离");
         stockDetailsDataFilterChain.setMoneyFlowDataFilter(moneyFlowDataFilter);
         return stockDetailsDataFilterChain;
     }
@@ -170,7 +170,7 @@ public class FilterConfiguration {
         filters.add(kdjStockDetailsDataFilter);
 
         StockDetailsDataFilterChain stockDetailsDataFilterChain = new StockDetailsDataFilterChain(filters);
-        stockDetailsDataFilterChain.setTaskId("Task_0009");
+        stockDetailsDataFilterChain.setTaskId("Task_00010_盘中震荡");
         stockDetailsDataFilterChain.setMoneyFlowDataFilter(moneyFlowDataFilter);
         return stockDetailsDataFilterChain;
     }

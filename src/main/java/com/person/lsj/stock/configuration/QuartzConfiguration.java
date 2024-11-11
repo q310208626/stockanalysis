@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 @Configuration
@@ -85,7 +86,7 @@ public class QuartzConfiguration {
 
     @Bean(name = "currentDayDataResultJob")
     public JobDetail currentDayDataResultJob() {
-        Map<String, StockDataResultSum> stockFilterTasksResultMap = new HashMap<String, StockDataResultSum>();
+        Map<String, StockDataResultSum> stockFilterTasksResultMap = new LinkedHashMap<>();
         Map<String, String> jobDetailsMap = new HashMap<>();
 
         JobDataMap jobDataMap = new JobDataMap();
@@ -102,7 +103,7 @@ public class QuartzConfiguration {
 
     @Bean(name = "currentStockBoardIndustryResultJob")
     public JobDetail currentStockBoardIndustryResultJob() {
-        Map<String, StockDataResultSum> stockFilterTasksResultMap = new HashMap<String, StockDataResultSum>();
+        Map<String, StockDataResultSum> stockFilterTasksResultMap = new LinkedHashMap<>();
         Map<String, String> jobDetailsMap = new HashMap<>();
 
         JobDataMap jobDataMap = new JobDataMap();
@@ -119,7 +120,7 @@ public class QuartzConfiguration {
 
     @Bean(name = "currentStockBoarddConceptResultJob")
     public JobDetail currentStockBoardConceptResultJob() {
-        Map<String, StockDataResultSum> stockFilterTasksResultMap = new HashMap<String, StockDataResultSum>();
+        Map<String, StockDataResultSum> stockFilterTasksResultMap = new LinkedHashMap<>();
         Map<String, String> jobDetailsMap = new HashMap<>();
 
         JobDataMap jobDataMap = new JobDataMap();
