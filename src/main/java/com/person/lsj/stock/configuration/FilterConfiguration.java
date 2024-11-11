@@ -170,7 +170,7 @@ public class FilterConfiguration {
         filters.add(kdjStockDetailsDataFilter);
 
         StockDetailsDataFilterChain stockDetailsDataFilterChain = new StockDetailsDataFilterChain(filters);
-        stockDetailsDataFilterChain.setTaskId("Task_00010_盘中震荡");
+        stockDetailsDataFilterChain.setTaskId("Task_0010_盘中震荡");
         stockDetailsDataFilterChain.setMoneyFlowDataFilter(moneyFlowDataFilter);
         return stockDetailsDataFilterChain;
     }
