@@ -143,6 +143,38 @@ public class FilterConfiguration {
         return stockDetailsDataFilterChain;
     }
 
+    @Bean(name = "stockDetailsDataFilterChainKDJUp3")
+    public StockDetailsDataFilterChain stockDetailsDataFilterChainKDJUp3() {
+        MainMoneyFlowDataFilter moneyFlowDataFilter = new MainMoneyFlowDataFilter();
+
+        MacdStockDetailsDataFilter macdStockDetailsDataFilter = new MacdStockDetailsDataFilter(new TREND[]{TREND.TEND_DOWN, TREND.TEND_DOWN, TREND.TEND_DOWN}, TREND.TEND_DOWN);
+        KdjStockDetailsDataFilter kdjStockDetailsDataFilter = new KdjStockDetailsDataFilter(30, new TREND[]{TREND.TEND_UP});
+        List<StockDetailsDataFilter> filters = new ArrayList<StockDetailsDataFilter>();
+        filters.add(macdStockDetailsDataFilter);
+        filters.add(kdjStockDetailsDataFilter);
+
+        StockDetailsDataFilterChain stockDetailsDataFilterChain = new StockDetailsDataFilterChain(filters);
+        stockDetailsDataFilterChain.setTaskId("Task_0009");
+        stockDetailsDataFilterChain.setMoneyFlowDataFilter(moneyFlowDataFilter);
+        return stockDetailsDataFilterChain;
+    }
+
+    @Bean(name = "stockDetailsDataFilterChainKDJUp4")
+    public StockDetailsDataFilterChain stockDetailsDataFilterChainKDJUp4() {
+        MainMoneyFlowDataFilter moneyFlowDataFilter = new MainMoneyFlowDataFilter();
+
+        MacdStockDetailsDataFilter macdStockDetailsDataFilter = new MacdStockDetailsDataFilter(new TREND[]{TREND.TEND_DOWN, TREND.TEND_DOWN, TREND.TEND_DOWN}, TREND.TEND_RANDOM);
+        KdjStockDetailsDataFilter kdjStockDetailsDataFilter = new KdjStockDetailsDataFilter(30, new TREND[]{TREND.TEND_UP});
+        List<StockDetailsDataFilter> filters = new ArrayList<StockDetailsDataFilter>();
+        filters.add(macdStockDetailsDataFilter);
+        filters.add(kdjStockDetailsDataFilter);
+
+        StockDetailsDataFilterChain stockDetailsDataFilterChain = new StockDetailsDataFilterChain(filters);
+        stockDetailsDataFilterChain.setTaskId("Task_0009");
+        stockDetailsDataFilterChain.setMoneyFlowDataFilter(moneyFlowDataFilter);
+        return stockDetailsDataFilterChain;
+    }
+
     @Bean(name = "stockBoardMacdJudgeFilterChain1")
     public StockDetailsDataFilterChain stockBoardMacdJudgeFilterChain1() {
         MacdStockDetailsDataFilter macdStockDetailsDataFilter = new MacdStockDetailsDataFilter(new TREND[]{TREND.TEND_UP, TREND.TEND_DOWN, TREND.TEND_DOWN}, TREND.TEND_RANDOM);

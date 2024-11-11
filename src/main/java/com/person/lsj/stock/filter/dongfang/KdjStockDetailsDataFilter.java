@@ -97,8 +97,9 @@ public class KdjStockDetailsDataFilter implements StockDetailsDataFilter {
     @Override
     public String getFilterRuleMsg() {
         StringBuffer filterRuleMsg = new StringBuffer("Kdj中J线判断: ");
+        filterRuleMsg.append("j线绝对值不超过[").append(targetAbsKdj).append("]");
         if (daysJudgeRule != null && daysJudgeRule.length > 0) {
-            filterRuleMsg.append("判断[").append(daysJudgeRule.length).append("]天");
+            filterRuleMsg.append(",判断[").append(daysJudgeRule.length).append("]天");
             for (int i = 0; i < daysJudgeRule.length; i++) {
                 filterRuleMsg.append(" ,倒数第[").append(i + 1).append("]天")
                         .append("呈现[")
