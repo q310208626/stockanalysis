@@ -10,4 +10,6 @@ public class Constant {
     public static final int BOARD_TYPE_INDUSTRY = 0;
 
     public static final int BOARD_TYPE_CONCEPT = 1;
+
+    public static final int PAGE_SIZE = 100;
 }

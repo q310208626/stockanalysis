@@ -63,8 +63,6 @@ public class DongFangStockDataCapturerServiceImpl implements StockDataCapturerSe
 
     private static final Header userAgentHeader = new BasicHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.6422.112 Safari/537.36");
 
-    private static int PAGE_SIZE = 20;
-
     // target funds imcrement 1000w
     private static int TARGET_3DAY_MONEY_FLOW_INCREMENT = 10000000;
 
@@ -91,7 +89,7 @@ public class DongFangStockDataCapturerServiceImpl implements StockDataCapturerSe
             builder.addParameter("pn", "1");
 
             // pageSize
-            builder.addParameter("pz", String.valueOf(PAGE_SIZE));
+            builder.addParameter("pz", String.valueOf(Constant.PAGE_SIZE));
 
             // sotck board 1=shanghai
             builder.addParameter("po", "1");
@@ -124,7 +122,7 @@ public class DongFangStockDataCapturerServiceImpl implements StockDataCapturerSe
                 ObjectMapper objectMapper = new ObjectMapper();
                 HomePageBean homePageBean = objectMapper.readValue(dataBuffer.toString(), HomePageBean.class);
                 int total = homePageBean.getData() == null ? 0 : homePageBean.getData().getTotal();
-                totalPage = total % PAGE_SIZE == 0 ? total / PAGE_SIZE : total / PAGE_SIZE + 1;
+                totalPage = total % Constant.PAGE_SIZE == 0 ? total / Constant.PAGE_SIZE : total / Constant.PAGE_SIZE + 1;
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -181,7 +179,7 @@ public class DongFangStockDataCapturerServiceImpl implements StockDataCapturerSe
             builder.addParameter("pn", String.valueOf(page));
 
             // pageSize
-            builder.addParameter("pz", String.valueOf(PAGE_SIZE));
+            builder.addParameter("pz", String.valueOf(Constant.PAGE_SIZE));
 
             // sotck board 1=shanghai
             builder.addParameter("po", "1");
@@ -638,7 +636,7 @@ public class DongFangStockDataCapturerServiceImpl implements StockDataCapturerSe
             URIBuilder builder = new URIBuilder(curUrl);
 
             // pageSize
-            builder.addParameter("pz", String.valueOf(PAGE_SIZE));
+            builder.addParameter("pz", String.valueOf(Constant.PAGE_SIZE));
 
             // sotck board 1=shanghai
             builder.addParameter("po", "1");
@@ -677,7 +675,7 @@ public class DongFangStockDataCapturerServiceImpl implements StockDataCapturerSe
                 JSONObject dataJsonObject = jsonObject.getJSONObject("data");
                 String pageStr = dataJsonObject.getString("total");
                 int total = Integer.parseInt(pageStr);
-                totalPage = total % PAGE_SIZE == 0 ? total / PAGE_SIZE : total / PAGE_SIZE + 1;
+                totalPage = total % Constant.PAGE_SIZE == 0 ? total / Constant.PAGE_SIZE : total / Constant.PAGE_SIZE + 1;
 
             } catch (Exception e) {
                 e.printStackTrace();

@@ -27,8 +27,6 @@ public class GetStockBoards implements Callable<List<StockBoardBean>> {
     // get StockCodeList
     private static final String HOME_PAGE_URL = STOCK_HOST + "/api/qt/clist/get";
 
-    private static int PAGE_SIZE = 20;
-
     private int boardType = Constant.BOARD_TYPE_INDUSTRY;
 
     private int page;
@@ -54,7 +52,7 @@ public class GetStockBoards implements Callable<List<StockBoardBean>> {
 
 
         // pageSize
-        builder.addParameter("pz", String.valueOf(PAGE_SIZE));
+        builder.addParameter("pz", String.valueOf(Constant.PAGE_SIZE));
 
         // sotck board 1=shanghai
         builder.addParameter("po", "1");

@@ -51,7 +51,6 @@ public class QuartzConfiguration {
                 .forJob(currentStockBoardIndustryResultJob())
                 .withIdentity(JobConstants.JOB_NAME_CURRENT_DAY_BOARD_INDUSTRY_RESULT_JOB)
                 .withSchedule(CronScheduleBuilder.cronSchedule("0 0/10 10-15 * * ? *"))
-//                .startNow()
                 .build();
     }
 
@@ -62,7 +61,6 @@ public class QuartzConfiguration {
                 .forJob(currentStockBoardConceptResultJob())
                 .withIdentity(JobConstants.JOB_NAME_CURRENT_DAY_BOARD_CONCEPT_RESULT_JOB)
                 .withSchedule(CronScheduleBuilder.cronSchedule("0 0/10 10-15 * * ? *"))
-//                .startNow()
                 .build();
     }
 

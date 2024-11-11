@@ -3,6 +3,7 @@ package com.person.lsj.stock.bean.dongfang.task;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.person.lsj.stock.bean.dongfang.HomePageBean;
 import com.person.lsj.stock.bean.dongfang.StockField;
+import com.person.lsj.stock.constant.Constant;
 import com.person.lsj.stock.constant.StockStatus;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
@@ -29,8 +30,6 @@ public class GetStockCodeList implements Callable<List<String>> {
     // get StockCodeList
     private static final String HOME_PAGE_URL = STOCK_HOST + "/api/qt/clist/get";
 
-    private static int PAGE_SIZE = 20;
-
     private int page;
 
     private CountDownLatch countDownLatch;
@@ -49,7 +48,7 @@ public class GetStockCodeList implements Callable<List<String>> {
 
 
         // pageSize
-        builder.addParameter("pz", String.valueOf(PAGE_SIZE));
+        builder.addParameter("pz", String.valueOf(Constant.PAGE_SIZE));
 
         // sotck board 1=shanghai
         builder.addParameter("po", "1");
