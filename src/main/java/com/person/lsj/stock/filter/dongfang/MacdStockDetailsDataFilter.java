@@ -56,12 +56,12 @@ public class MacdStockDetailsDataFilter implements StockDetailsDataFilter {
                 // judge current day kdj tend
                 switch (curDayJudgeRule) {
                     case TEND_DOWN:
-                        if (stockDataEntityPre.getMacdDif() < stockDataEntity.getMacdDif()) {
+                        if (stockDataEntityPre.getMacd() < stockDataEntity.getMacd()) {
                             matchJudgeRule = false;
                         }
                         break;
                     case TEND_UP:
-                        if (stockDataEntityPre.getMacdDif() > stockDataEntity.getMacdDif()) {
+                        if (stockDataEntityPre.getMacd() > stockDataEntity.getMacd()) {
                             matchJudgeRule = false;
                         }
                         break;
