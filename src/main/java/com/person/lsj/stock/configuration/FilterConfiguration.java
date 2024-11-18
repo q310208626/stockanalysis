@@ -4,10 +4,7 @@ import com.person.lsj.stock.constant.Constant;
 import com.person.lsj.stock.enumeration.TREND;
 import com.person.lsj.stock.filter.StockDetailsDataFilter;
 import com.person.lsj.stock.filter.StockDetailsDataFilterChain;
-import com.person.lsj.stock.filter.dongfang.BollStockDetailsDataFilter;
-import com.person.lsj.stock.filter.dongfang.KdjStockDetailsDataFilter;
-import com.person.lsj.stock.filter.dongfang.MacdStockDetailsDataFilter;
-import com.person.lsj.stock.filter.dongfang.MainMoneyFlowDataFilter;
+import com.person.lsj.stock.filter.dongfang.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -171,6 +168,24 @@ public class FilterConfiguration {
 
         StockDetailsDataFilterChain stockDetailsDataFilterChain = new StockDetailsDataFilterChain(filters);
         stockDetailsDataFilterChain.setTaskId("Task_0010_盘中震荡");
+        stockDetailsDataFilterChain.setMoneyFlowDataFilter(moneyFlowDataFilter);
+        return stockDetailsDataFilterChain;
+    }
+
+    @Bean(name = "stockDetailsDataFilterChainMdiUp")
+    public StockDetailsDataFilterChain stockDetailsDataFilterChainMdiUp() {
+        MainMoneyFlowDataFilter moneyFlowDataFilter = new MainMoneyFlowDataFilter(new TREND[]{TREND.TEND_UP}, 10000000);
+
+        TREND[] pdiTrend = new TREND[]{TREND.TEND_UP};
+        TREND[] mdiTrend = new TREND[]{TREND.TEND_DOWN};
+        TREND[] adxTrend = new TREND[]{TREND.TEND_UP};
+        float dValueBtwnPdiMdi = 15.0f;
+        MdiStockDetailsDataFilter mdiStockDetailsDataFilter = new MdiStockDetailsDataFilter(pdiTrend, mdiTrend, adxTrend, dValueBtwnPdiMdi);
+        List<StockDetailsDataFilter> filters = new ArrayList<StockDetailsDataFilter>();
+        filters.add(mdiStockDetailsDataFilter);
+
+        StockDetailsDataFilterChain stockDetailsDataFilterChain = new StockDetailsDataFilterChain(filters);
+        stockDetailsDataFilterChain.setTaskId("Task_0011_金叉判断");
         stockDetailsDataFilterChain.setMoneyFlowDataFilter(moneyFlowDataFilter);
         return stockDetailsDataFilterChain;
     }

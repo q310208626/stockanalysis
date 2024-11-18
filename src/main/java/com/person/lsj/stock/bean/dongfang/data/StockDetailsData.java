@@ -56,6 +56,9 @@ public class StockDetailsData {
                 // BOLL
                 setBoll(stockDataEntities, i);
 
+                // DMI
+                setDMI(stockDataEntities, i);
+
                 // MACD
                 if (i == 0) {
                     stockDataEntities.get(i).setMacdAx(stockDataEntities.get(i).getClose());
@@ -99,7 +102,84 @@ public class StockDetailsData {
         }
     }
 
-    private static void setBoll(List<StockDataEntity> stockDataEntities, int i) {
+    private void setDMI(List<StockDataEntity> stockDataEntities, int i) {
+        float HD = 0;
+        float LD = 0;
+        float DMI_TR_SUM, DMI_DMP_SUM, DMI_DMM_SUM, DMI_ADX_SUM, DMI_ADXR_SUM = 0;
+        if (i == 0) {
+            stockDataEntities.get(i).setDmiTr(Math.max(Math.max(stockDataEntities.get(i).getHigh() - stockDataEntities.get(i).getLow(), Math.abs(stockDataEntities.get(i).getHigh() - stockDataEntities.get(i).getClose())), Math.abs(stockDataEntities.get(i).getClose() - stockDataEntities.get(i).getLow())));
+            HD = 0;
+            LD = 0;
+        } else {
+            stockDataEntities.get(i).setDmiTr(Math.max(Math.max(stockDataEntities.get(i).getHigh() - stockDataEntities.get(i).getLow(), Math.abs(stockDataEntities.get(i).getHigh() - stockDataEntities.get(i - 1).getClose())), Math.abs(stockDataEntities.get(i - 1).getClose() - stockDataEntities.get(i).getLow())));
+            HD = stockDataEntities.get(i).getHigh() - stockDataEntities.get(i - 1).getHigh();
+            LD = stockDataEntities.get(i - 1).getLow() - stockDataEntities.get(i).getLow();
+        }
+
+        if ((HD > 0) && (HD > LD)) {
+            stockDataEntities.get(i).setDmiDmp(HD);
+        } else {
+            stockDataEntities.get(i).setDmiDmp(0);
+        }
+
+        if ((LD > 0) && (LD > HD)) {
+            stockDataEntities.get(i).setDmiDmm(LD);
+        } else {
+            stockDataEntities.get(i).setDmiDmm(0);
+        }
+
+        if (i >= 13) {
+            if (i == 13) {
+                DMI_TR_SUM = DMI_DMP_SUM = DMI_DMM_SUM = 0;
+                for (var j = 0; j < 14; j++) {
+                    DMI_TR_SUM += stockDataEntities.get(i - j).getDmiTr();
+                    DMI_DMP_SUM += stockDataEntities.get(i - j).getDmiDmp();
+                    DMI_DMM_SUM += stockDataEntities.get(i - j).getDmiDmm();
+                }
+                stockDataEntities.get(i).setDmiExpmemaTr(DMI_TR_SUM / 14);
+                stockDataEntities.get(i).setDmiExpmemaDmp(DMI_DMP_SUM / 14);
+                stockDataEntities.get(i).setDmiExpmemaDmm(DMI_DMM_SUM / 14);
+            } else {
+                stockDataEntities.get(i).setDmiExpmemaTr((stockDataEntities.get(i).getDmiTr() * 2 + 13 * stockDataEntities.get(i - 1).getDmiExpmemaTr()) / 15);
+                stockDataEntities.get(i).setDmiExpmemaDmp((stockDataEntities.get(i).getDmiDmp() * 2 + 13 * stockDataEntities.get(i - 1).getDmiExpmemaDmp()) / 15);
+                stockDataEntities.get(i).setDmiExpmemaDmm((stockDataEntities.get(i).getDmiDmm() * 2 + 13 * stockDataEntities.get(i - 1).getDmiExpmemaDmm()) / 15);
+            }
+            if (stockDataEntities.get(i).getDmiExpmemaTr() != 0) {
+                stockDataEntities.get(i).setDmiPdi(stockDataEntities.get(i).getDmiExpmemaDmp() * 100 / stockDataEntities.get(i).getDmiExpmemaTr());
+                stockDataEntities.get(i).setDmiMdi(stockDataEntities.get(i).getDmiExpmemaDmm() * 100 / stockDataEntities.get(i).getDmiExpmemaTr());
+                if (stockDataEntities.get(i).getDmiPdi() + stockDataEntities.get(i).getDmiMdi() != 0) {
+                    stockDataEntities.get(i).setDmiMpdi(Math.abs(stockDataEntities.get(i).getDmiMdi() - stockDataEntities.get(i).getDmiPdi()) / (stockDataEntities.get(i).getDmiMdi() + stockDataEntities.get(i).getDmiPdi()) * 100);
+                }
+            }
+        }
+
+        if (i >= 18) {
+            if (i == 18) {
+                DMI_ADX_SUM = 0;
+                for (var j = 0; j < 6; j++) {
+                    DMI_ADX_SUM += stockDataEntities.get(i - j).getDmiMpdi();
+                }
+                stockDataEntities.get(i).setDmiAdx(DMI_ADX_SUM / 6);
+            } else {
+                stockDataEntities.get(i).setDmiAdx((stockDataEntities.get(i).getDmiMpdi() * 2 + 5 * stockDataEntities.get(i - 1).getDmiAdx()) / 7);
+            }
+        }
+
+        if (i >= 23) {
+            if (i == 23) {
+                DMI_ADXR_SUM = 0;
+                for (var j = 0; j < 6; j++) {
+                    DMI_ADXR_SUM += stockDataEntities.get(i - j).getDmiAdx();
+                }
+                stockDataEntities.get(i).setDmiAdxr(DMI_ADXR_SUM / 6);
+            } else {
+                stockDataEntities.get(i).setDmiAdxr((stockDataEntities.get(i).getDmiAdx() * 2 + 5 * stockDataEntities.get(i - 1).getDmiAdxr()) / 7);
+            }
+        }
+
+    }
+
+    private void setBoll(List<StockDataEntity> stockDataEntities, int i) {
         if (i >= 19) {
             float sum = 0;
             for (var j = 0; j < 20; j++) {
@@ -117,7 +197,7 @@ public class StockDetailsData {
         }
     }
 
-    private static void setASI(List<StockDataEntity> stockDataEntities, int i) {
+    private void setASI(List<StockDataEntity> stockDataEntities, int i) {
         if (i >= 1) {
             float LC = stockDataEntities.get(i - 1).getClose();
             float AA = Math.abs(stockDataEntities.get(i).getHigh() - LC);

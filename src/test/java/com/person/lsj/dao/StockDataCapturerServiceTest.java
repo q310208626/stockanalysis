@@ -6,6 +6,8 @@ import com.person.lsj.stock.bean.dongfang.data.StockCurDetailsData;
 import com.person.lsj.stock.bean.dongfang.data.StockDetailsData;
 import com.person.lsj.stock.bean.dongfang.moneyflow.StockMoneyFlowBean;
 import com.person.lsj.stock.constant.Constant;
+import com.person.lsj.stock.enumeration.TREND;
+import com.person.lsj.stock.filter.dongfang.MdiStockDetailsDataFilter;
 import com.person.lsj.stock.service.StockDataCapturerService;
 import org.junit.Assert;
 import org.junit.Test;
@@ -85,5 +87,18 @@ public class StockDataCapturerServiceTest {
     public void getStockBoardsV6Details(){
         Map<String, StockDetailsData> stockBoardsV6Details = stockDataCapturerService.getStockBoardsV6Details(Constant.BOARD_TYPE_INDUSTRY);
         Assert.assertNotNull(stockBoardsV6Details);
+    }
+
+    @Test
+    public void MdiFilterTest() {
+        TREND[] pdiTrend = new TREND[]{TREND.TEND_UP};
+        TREND[] mdiTrend = new TREND[]{TREND.TEND_DOWN};
+        TREND[] adxTrend = new TREND[]{TREND.TEND_UP,TREND.TEND_UP};
+        MdiStockDetailsDataFilter mdiStockDetailsDataFilter = new MdiStockDetailsDataFilter(pdiTrend, mdiTrend, adxTrend, 10.0f);
+        ArrayList<String> stockCodeList = new ArrayList<>();
+        stockCodeList.add("600938");
+        Map<String, StockDetailsData> stockCodesV6Detail = stockDataCapturerService.getStockCodesV6Detail(stockCodeList);
+        Map<String, StockDetailsData> filterRet = mdiStockDetailsDataFilter.filter(stockCodesV6Detail);
+        Assert.assertNotNull(filterRet);
     }
 }

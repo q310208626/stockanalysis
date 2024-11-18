@@ -39,7 +39,7 @@ public class StockDataEntity {
     private float crC;
     private float crMID;
 
-    private float dmiAdr;
+    private float dmiAdx;
     private float dmiAdxr;
     private float dmiDmm;
     private float dmiDmp;
@@ -335,12 +335,12 @@ public class StockDataEntity {
         this.crMID = crMID;
     }
 
-    public float getDmiAdr() {
-        return dmiAdr;
+    public float getDmiAdx() {
+        return dmiAdx;
     }
 
-    public void setDmiAdr(float dmiAdr) {
-        this.dmiAdr = dmiAdr;
+    public void setDmiAdx(float dmiAdx) {
+        this.dmiAdx = dmiAdx;
     }
 
     public float getDmiAdxr() {
