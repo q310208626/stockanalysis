@@ -46,6 +46,8 @@ public class StockMoneyFlowDeserializer extends JsonDeserializer<StockMoneyFlowB
                 String[] klineDatas = klineStr.split(",");
                 String dataTimeStr = klineDatas[0];
                 String leadMoney = klineDatas[1];
+                String largeOrderMoney = klineDatas[4];
+                String superLargeOrderMoney = klineDatas[5];
 
                 try {
                     Date dataDate = dateFormat.get().parse(dataTimeStr);
@@ -54,6 +56,8 @@ public class StockMoneyFlowDeserializer extends JsonDeserializer<StockMoneyFlowB
                     e.printStackTrace();
                 }
                 stockMoneyFlowData.setMainMoneyFlow(Float.valueOf(leadMoney));
+                stockMoneyFlowData.setLargeOrderMoney(Float.valueOf(largeOrderMoney));
+                stockMoneyFlowData.setSuperLargeOrderMoney(Float.valueOf(superLargeOrderMoney));
                 datas.add(stockMoneyFlowData);
             }
             Collections.sort(datas, new StockMoneyFlowDataComparator());

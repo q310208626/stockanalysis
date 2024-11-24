@@ -1,28 +1,18 @@
 package com.person.lsj.stock.bean.dongfang.moneyflow;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
 
 import java.util.Date;
 
+@Data
 public class StockMoneyFlowData {
 
     private Date dataDate;
 
     private float mainMoneyFlow;
 
-    public Date getDataDate() {
-        return dataDate;
-    }
+    private float largeOrderMoney;
 
-    public void setDataDate(Date dataDate) {
-        this.dataDate = dataDate;
-    }
-
-    public float getMainMoneyFlow() {
-        return mainMoneyFlow;
-    }
-
-    public void setMainMoneyFlow(float mainMoneyFlow) {
-        this.mainMoneyFlow = mainMoneyFlow;
-    }
+    private float superLargeOrderMoney;
 }

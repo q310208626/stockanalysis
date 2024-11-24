@@ -208,6 +208,7 @@ public class KdjStockDetailsDataFilter implements StockDetailsDataFilter {
         if (dValueBtwnKD > 0) {
             filterRuleMsg.append("K线跟D线相差的绝对值不超过[").append(dValueBtwnKD).append("], ");
         }
+
         if (kJudgeRule != null && kJudgeRule.length > 0) {
             filterRuleMsg.append("Kdj中K线判断: ");
             filterRuleMsg.append(",判断[").append(kJudgeRule.length).append("]天");
