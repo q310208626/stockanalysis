@@ -232,6 +232,36 @@ public class FilterConfiguration {
         return stockDetailsDataFilterChain;
     }
 
+    @Bean(name = "stockDetailsDataFilterChain_VolumeMulti_15UP")
+    public StockDetailsDataFilterChain stockDetailsDataFilterChain_VolumeMulti_15UP() {
+        MainMoneyFlowDataFilter moneyFlowDataFilter = new MainMoneyFlowDataFilter();
+        List<StockDetailsDataFilter> filters = new ArrayList<StockDetailsDataFilter>();
+        IncreaseRateDataFilter increaseRateDataFilter = new IncreaseRateDataFilter(new TREND[]{TREND.TEND_DOWN, TREND.TEND_DOWN}, new float[]{3.0f, 3.0f});
+        VolumeDetailsFilter volumeDetailsFilter = new VolumeDetailsFilter();
+        filters.add(increaseRateDataFilter);
+        filters.add(volumeDetailsFilter);
+
+        StockDetailsDataFilterChain stockDetailsDataFilterChain = new StockDetailsDataFilterChain(filters);
+        stockDetailsDataFilterChain.setTaskId("Task_0015_交易量为昨天的1.5倍");
+        stockDetailsDataFilterChain.setMoneyFlowDataFilter(moneyFlowDataFilter);
+        return stockDetailsDataFilterChain;
+    }
+
+    @Bean(name = "stockDetailsDataFilterChain_VolumeMulti_20UP")
+    public StockDetailsDataFilterChain stockDetailsDataFilterChain_VolumeMulti_20UP() {
+        MainMoneyFlowDataFilter moneyFlowDataFilter = new MainMoneyFlowDataFilter();
+        List<StockDetailsDataFilter> filters = new ArrayList<StockDetailsDataFilter>();
+        IncreaseRateDataFilter increaseRateDataFilter = new IncreaseRateDataFilter(new TREND[]{TREND.TEND_DOWN, TREND.TEND_DOWN}, new float[]{3.0f, 3.0f});
+        VolumeDetailsFilter volumeDetailsFilter = new VolumeDetailsFilter(2.0f);
+        filters.add(increaseRateDataFilter);
+        filters.add(volumeDetailsFilter);
+
+        StockDetailsDataFilterChain stockDetailsDataFilterChain = new StockDetailsDataFilterChain(filters);
+        stockDetailsDataFilterChain.setTaskId("Task_0015_交易量为昨天的2倍");
+        stockDetailsDataFilterChain.setMoneyFlowDataFilter(moneyFlowDataFilter);
+        return stockDetailsDataFilterChain;
+    }
+
     @Bean(name = "stockBoardMacdJudgeFilterChain1")
     public StockDetailsDataFilterChain stockBoardMacdJudgeFilterChain1() {
         MacdStockDetailsDataFilter macdStockDetailsDataFilter = new MacdStockDetailsDataFilter(new TREND[]{TREND.TEND_UP, TREND.TEND_DOWN, TREND.TEND_DOWN}, TREND.TEND_RANDOM);
