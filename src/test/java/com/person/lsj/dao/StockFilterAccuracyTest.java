@@ -47,7 +47,7 @@ public class StockFilterAccuracyTest {
         List<StockMoneyFlowBean> stockMoneyFlowDataList = stockDataCapturerService.getStockMoneyFlowData(allStockCodes, testDay + 10);
         Map<String, StockDetailsData> stockCodesV6Detail = stockDataCapturerService.getStockCodesV6Detail(allStockCodes);
         Map<String,Float> resultMap = new HashMap<>();
-
+        Map<String,Boolean> taskMatch = new HashMap<>();
         // 循环60次，查看Filter对于历史数据的预测正确率
         for (int daysAgo = 1; daysAgo <= testDay; daysAgo++) {
             Map<String, StockDetailsDataFilterChain> stockFilterTasksMap = stockDataFilterTasks.getStockFilterTasksMap();
@@ -81,7 +81,6 @@ public class StockFilterAccuracyTest {
             }
             stockDataFilterTasks.processTasks(Constant.TASK_FLAG_STOCK_CODE, daysAgo);
             Map<String, StockDataResultSum> stockFilterTasksResultMap = stockDataFilterTasks.getStockFilterTasksResultMap();
-
             // 统计本次的各个任务的预测正确率
             for (String taskId : stockFilterTasksResultMap.keySet()) {
                 StockDataResultSum stockDataResultSum = stockFilterTasksResultMap.get(taskId);
@@ -93,6 +92,7 @@ public class StockFilterAccuracyTest {
                 if (CollectionUtils.isEmpty(stockDataResultDetailsList)) {
                     increaseRatio = 1;
                 } else {
+                    taskMatch.put(taskId, true);
                     for (StockDataResultDetails stockDataResultDetails : stockDataResultDetailsList) {
                         String stockCode = stockDataResultDetails.getStockCode();
                         StockDetailsData stockDetailsData = stockCodesV6Detail.get(stockCode);
@@ -115,7 +115,7 @@ public class StockFilterAccuracyTest {
         }
 
         resultMap.forEach((taskId, resultMapValue) -> {
-            System.out.println(taskId + ":" + resultMapValue);
+            System.out.println(taskId + " match[" + taskMatch.getOrDefault(taskId, false) + "]" + ":" + resultMapValue);
         });
     }
 }

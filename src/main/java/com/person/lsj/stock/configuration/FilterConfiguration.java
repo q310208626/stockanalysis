@@ -262,8 +262,8 @@ public class FilterConfiguration {
         return stockDetailsDataFilterChain;
     }
 
-    @Bean(name = "stockDetailsDataFilterChain_BigOrder_2UP_Kdj2Up_LowIncrRate")
-    public StockDetailsDataFilterChain stockDetailsDataFilterChain_BigOrder_2UP_Kdj2Up_LowIncrRate() {
+    @Bean(name = "stockDetailsDataFilterChain_BigOrder_2UP_LowIncrRate_Kdj2Up")
+    public StockDetailsDataFilterChain stockDetailsDataFilterChain_BigOrder_2UP_LowIncrRate_Kdj2Up() {
         BigOrderMoneyFlowDataFilter moneyFlowDataFilter = new BigOrderMoneyFlowDataFilter(new TREND[]{TREND.TEND_UP, TREND.TEND_UP}, new TREND[]{TREND.TEND_UP, TREND.TEND_UP});
 
         List<StockDetailsDataFilter> filters = new ArrayList<StockDetailsDataFilter>();
@@ -273,7 +273,86 @@ public class FilterConfiguration {
         filters.add(kdjStockDetailsDataFilter);
 
         StockDetailsDataFilterChain stockDetailsDataFilterChain = new StockDetailsDataFilterChain(filters);
-        stockDetailsDataFilterChain.setTaskId("Task_0017_主力2天投入资金涨幅不大");
+        stockDetailsDataFilterChain.setTaskId("Task_0017_主力2天投入资金涨幅不大_Kdj两次上升");
+        stockDetailsDataFilterChain.setMoneyFlowDataFilter(moneyFlowDataFilter);
+        return stockDetailsDataFilterChain;
+    }
+
+    @Bean(name = "stockDetailsDataFilterChain_BigOrder_2UP_MdiUp_KD_dValue")
+    public StockDetailsDataFilterChain stockDetailsDataFilterChain_BigOrder_2UP_MdiUp_KD_dValue() {
+        BigOrderMoneyFlowDataFilter moneyFlowDataFilter = new BigOrderMoneyFlowDataFilter(new TREND[]{TREND.TEND_UP, TREND.TEND_UP}, new TREND[]{TREND.TEND_UP, TREND.TEND_UP});
+
+        List<StockDetailsDataFilter> filters = new ArrayList<StockDetailsDataFilter>();
+        IncreaseRateDataFilter increaseRateDataFilter = new IncreaseRateDataFilter(new TREND[]{TREND.TEND_DOWN, TREND.TEND_DOWN}, new float[]{3.0f, 3.0f});
+        KdjStockDetailsDataFilter kdjStockDetailsDataFilter = new KdjStockDetailsDataFilter(8.0f, new TREND[]{TREND.TEND_UP}, new TREND[]{TREND.TEND_DOWN});
+        filters.add(increaseRateDataFilter);
+        filters.add(kdjStockDetailsDataFilter);
+
+        StockDetailsDataFilterChain stockDetailsDataFilterChain = new StockDetailsDataFilterChain(filters);
+        stockDetailsDataFilterChain.setTaskId("Task_0018_主力2天投入资金涨幅不大_KD金叉");
+        stockDetailsDataFilterChain.setMoneyFlowDataFilter(moneyFlowDataFilter);
+        return stockDetailsDataFilterChain;
+    }
+
+    @Bean(name = "stockDetailsDataFilterChain_BigOrder_2UP_MdiUp_KD_dValue_Money3000")
+    public StockDetailsDataFilterChain stockDetailsDataFilterChain_BigOrder_2UP_MdiUp_KD_dValue_Money3000() {
+        BigOrderMoneyFlowDataFilter moneyFlowDataFilter = new BigOrderMoneyFlowDataFilter(new TREND[]{TREND.TEND_UP, TREND.TEND_UP}, new TREND[]{TREND.TEND_UP, TREND.TEND_UP}, 30000000);
+
+        List<StockDetailsDataFilter> filters = new ArrayList<StockDetailsDataFilter>();
+        IncreaseRateDataFilter increaseRateDataFilter = new IncreaseRateDataFilter(new TREND[]{TREND.TEND_DOWN, TREND.TEND_DOWN}, new float[]{3.0f, 3.0f});
+        KdjStockDetailsDataFilter kdjStockDetailsDataFilter = new KdjStockDetailsDataFilter(8.0f, new TREND[]{TREND.TEND_UP}, new TREND[]{TREND.TEND_DOWN});
+        filters.add(increaseRateDataFilter);
+        filters.add(kdjStockDetailsDataFilter);
+
+        StockDetailsDataFilterChain stockDetailsDataFilterChain = new StockDetailsDataFilterChain(filters);
+        stockDetailsDataFilterChain.setTaskId("Task_0019_主力2天投入资金涨幅不大_KD金叉_资金流入3000万");
+        stockDetailsDataFilterChain.setMoneyFlowDataFilter(moneyFlowDataFilter);
+        return stockDetailsDataFilterChain;
+    }
+
+    @Bean(name = "stockDetailsDataFilterChain_VolumeMulti_18UP")
+    public StockDetailsDataFilterChain stockDetailsDataFilterChain_VolumeMulti_18UP() {
+        MainMoneyFlowDataFilter moneyFlowDataFilter = new MainMoneyFlowDataFilter();
+        List<StockDetailsDataFilter> filters = new ArrayList<StockDetailsDataFilter>();
+        IncreaseRateDataFilter increaseRateDataFilter = new IncreaseRateDataFilter(new TREND[]{TREND.TEND_DOWN, TREND.TEND_DOWN}, new float[]{3.0f, 3.0f});
+        VolumeDetailsFilter volumeDetailsFilter = new VolumeDetailsFilter(1.8f);
+        filters.add(increaseRateDataFilter);
+        filters.add(volumeDetailsFilter);
+
+        StockDetailsDataFilterChain stockDetailsDataFilterChain = new StockDetailsDataFilterChain(filters);
+        stockDetailsDataFilterChain.setTaskId("Task_0020_交易量为昨天的1.8倍");
+        stockDetailsDataFilterChain.setMoneyFlowDataFilter(moneyFlowDataFilter);
+        return stockDetailsDataFilterChain;
+    }
+
+    @Bean(name = "stockDetailsDataFilterChain_VolumeMulti_20UP_Money3000")
+    public StockDetailsDataFilterChain stockDetailsDataFilterChain_VolumeMulti_20UP_Money3000() {
+        TREND[] judgeRule = new TREND[]{TREND.TEND_UP, TREND.TEND_UP, TREND.TEND_UP};
+        MainMoneyFlowDataFilter moneyFlowDataFilter = new MainMoneyFlowDataFilter(judgeRule, 30000000);
+        List<StockDetailsDataFilter> filters = new ArrayList<StockDetailsDataFilter>();
+        IncreaseRateDataFilter increaseRateDataFilter = new IncreaseRateDataFilter(new TREND[]{TREND.TEND_DOWN, TREND.TEND_DOWN}, new float[]{3.0f, 3.0f});
+        VolumeDetailsFilter volumeDetailsFilter = new VolumeDetailsFilter(2.0f);
+        filters.add(increaseRateDataFilter);
+        filters.add(volumeDetailsFilter);
+
+        StockDetailsDataFilterChain stockDetailsDataFilterChain = new StockDetailsDataFilterChain(filters);
+        stockDetailsDataFilterChain.setTaskId("Task_0021_交易量为昨天的2倍_资金流入3000万");
+        stockDetailsDataFilterChain.setMoneyFlowDataFilter(moneyFlowDataFilter);
+        return stockDetailsDataFilterChain;
+    }
+
+    @Bean(name = "stockDetailsDataFilterChain_BollDvalue002_Money3000")
+    public StockDetailsDataFilterChain stockDetailsDataFilterChain_BollDvalue002_Money3000() {
+        TREND[] judgeRule = new TREND[]{TREND.TEND_UP, TREND.TEND_UP, TREND.TEND_UP};
+        MainMoneyFlowDataFilter moneyFlowDataFilter = new MainMoneyFlowDataFilter(judgeRule, 30000000);
+        StockDetailsDataFilter bollStockDetailsDataFilter = new BollStockDetailsDataFilter(0.02f);
+        KdjStockDetailsDataFilter kdjStockDetailsDataFilter = new KdjStockDetailsDataFilter(new TREND[]{TREND.TEND_UP, TREND.TEND_UP});
+        List<StockDetailsDataFilter> filters = new ArrayList<>();
+        filters.add(bollStockDetailsDataFilter);
+        filters.add(kdjStockDetailsDataFilter);
+
+        StockDetailsDataFilterChain stockDetailsDataFilterChain = new StockDetailsDataFilterChain(filters);
+        stockDetailsDataFilterChain.setTaskId("Task_0022_boll&kdj_资金流入3000万");
         stockDetailsDataFilterChain.setMoneyFlowDataFilter(moneyFlowDataFilter);
         return stockDetailsDataFilterChain;
     }
