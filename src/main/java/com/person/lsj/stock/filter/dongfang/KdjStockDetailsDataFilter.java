@@ -56,6 +56,11 @@ public class KdjStockDetailsDataFilter implements StockDetailsDataFilter {
 
     @Override
     public Map<String, StockDetailsData> filter(Map<String, StockDetailsData> stockDetailsDataMap) {
+        return filter(stockDetailsDataMap, 0);
+    }
+
+    @Override
+    public Map<String, StockDetailsData> filter(Map<String, StockDetailsData> stockDetailsDataMap, int fewDaysAgo) {
         LOGGER.debug("enter filter,size:" + stockDetailsDataMap.size());
         if ((ArrayUtils.isEmpty(kJudgeRule) && ArrayUtils.isEmpty(dJudgeRule) && ArrayUtils.isEmpty(jJudgeRule)) || CollectionUtils.isEmpty(stockDetailsDataMap)) {
             return stockDetailsDataMap;
@@ -69,15 +74,18 @@ public class KdjStockDetailsDataFilter implements StockDetailsDataFilter {
             String stockCode = stockDetailsEntry.getKey();
             StockDetailsData stockDetailsData = stockDetailsEntry.getValue();
             int maxJudgeRule = Math.max(Math.max(kJudgeRule == null ? 0 : kJudgeRule.length, dJudgeRule == null ? 0 : dJudgeRule.length), jJudgeRule == null ? 0 : jJudgeRule.length);
-            int judgeDay = stockDetailsData.getStockDataEntities().size() <= maxJudgeRule ? stockDetailsData.getStockDataEntities().size() - 1 : maxJudgeRule;
+            int judgeDay = stockDetailsData.getStockDataEntities().size() - fewDaysAgo <= maxJudgeRule ? stockDetailsData.getStockDataEntities().size() - 1 - fewDaysAgo : maxJudgeRule;
             boolean matchJudgeRule = true;
+            if (judgeDay == 0) {
+                matchJudgeRule = false;
+            }
             for (int curReverseDayNum = 1; curReverseDayNum <= judgeDay; curReverseDayNum++) {
 
-                StockDataEntity stockDataEntity = stockDetailsData.getStockDataEntities().get(stockDetailsData.getStockDataEntities().size() - curReverseDayNum);
+                StockDataEntity stockDataEntity = stockDetailsData.getStockDataEntities().get(stockDetailsData.getStockDataEntities().size() - curReverseDayNum - fewDaysAgo);
 
-                boolean kRet = filterK(stockDetailsData, curReverseDayNum);
-                boolean dRet = filterD(stockDetailsData, curReverseDayNum);
-                boolean jRet = filterJ(stockDetailsData, curReverseDayNum);
+                boolean kRet = filterK(stockDetailsData, curReverseDayNum, fewDaysAgo);
+                boolean dRet = filterD(stockDetailsData, curReverseDayNum, fewDaysAgo);
+                boolean jRet = filterJ(stockDetailsData, curReverseDayNum, fewDaysAgo);
 
                 matchJudgeRule = kRet && dRet && jRet;
 
@@ -108,14 +116,14 @@ public class KdjStockDetailsDataFilter implements StockDetailsDataFilter {
         return result;
     }
 
-    private boolean filterJ(StockDetailsData stockDetailsData, int curReverseDayNum) {
+    private boolean filterJ(StockDetailsData stockDetailsData, int curReverseDayNum, int fewDaysAgo) {
         if (ArrayUtils.isEmpty(jJudgeRule) || jJudgeRule.length < curReverseDayNum) {
             return true;
         }
 
         boolean matchJudgeRule = true;
-        StockDataEntity stockDataEntity = stockDetailsData.getStockDataEntities().get(stockDetailsData.getStockDataEntities().size() - curReverseDayNum);
-        StockDataEntity stockDataEntityPre = stockDetailsData.getStockDataEntities().get(stockDetailsData.getStockDataEntities().size() - curReverseDayNum - 1);
+        StockDataEntity stockDataEntity = stockDetailsData.getStockDataEntities().get(stockDetailsData.getStockDataEntities().size() - curReverseDayNum - fewDaysAgo);
+        StockDataEntity stockDataEntityPre = stockDetailsData.getStockDataEntities().get(stockDetailsData.getStockDataEntities().size() - curReverseDayNum - 1 - fewDaysAgo);
         TREND curDayJudgeRule = jJudgeRule[curReverseDayNum - 1];
 
         // judge current day kdj tend
@@ -139,14 +147,14 @@ public class KdjStockDetailsDataFilter implements StockDetailsDataFilter {
         return matchJudgeRule;
     }
 
-    private boolean filterK(StockDetailsData stockDetailsData, int curReverseDayNum) {
+    private boolean filterK(StockDetailsData stockDetailsData, int curReverseDayNum, int fewDaysAgo) {
         if (ArrayUtils.isEmpty(kJudgeRule) || kJudgeRule.length < curReverseDayNum) {
             return true;
         }
 
         boolean matchJudgeRule = true;
-        StockDataEntity stockDataEntity = stockDetailsData.getStockDataEntities().get(stockDetailsData.getStockDataEntities().size() - curReverseDayNum);
-        StockDataEntity stockDataEntityPre = stockDetailsData.getStockDataEntities().get(stockDetailsData.getStockDataEntities().size() - curReverseDayNum - 1);
+        StockDataEntity stockDataEntity = stockDetailsData.getStockDataEntities().get(stockDetailsData.getStockDataEntities().size() - curReverseDayNum - fewDaysAgo);
+        StockDataEntity stockDataEntityPre = stockDetailsData.getStockDataEntities().get(stockDetailsData.getStockDataEntities().size() - curReverseDayNum - 1 - fewDaysAgo);
         TREND curDayJudgeRule = kJudgeRule[curReverseDayNum - 1];
 
         // judge current day kdj tend
@@ -170,14 +178,14 @@ public class KdjStockDetailsDataFilter implements StockDetailsDataFilter {
         return matchJudgeRule;
     }
 
-    private boolean filterD(StockDetailsData stockDetailsData, int curReverseDayNum) {
+    private boolean filterD(StockDetailsData stockDetailsData, int curReverseDayNum, int fewDaysAgo) {
         if (ArrayUtils.isEmpty(dJudgeRule) || dJudgeRule.length < curReverseDayNum) {
             return true;
         }
 
         boolean matchJudgeRule = true;
-        StockDataEntity stockDataEntity = stockDetailsData.getStockDataEntities().get(stockDetailsData.getStockDataEntities().size() - curReverseDayNum);
-        StockDataEntity stockDataEntityPre = stockDetailsData.getStockDataEntities().get(stockDetailsData.getStockDataEntities().size() - curReverseDayNum - 1);
+        StockDataEntity stockDataEntity = stockDetailsData.getStockDataEntities().get(stockDetailsData.getStockDataEntities().size() - curReverseDayNum - fewDaysAgo);
+        StockDataEntity stockDataEntityPre = stockDetailsData.getStockDataEntities().get(stockDetailsData.getStockDataEntities().size() - curReverseDayNum - 1 - fewDaysAgo);
         TREND curDayJudgeRule = dJudgeRule[curReverseDayNum - 1];
 
         // judge current day kdj tend

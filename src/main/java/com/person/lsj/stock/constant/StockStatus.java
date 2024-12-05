@@ -1,6 +1,7 @@
 package com.person.lsj.stock.constant;
 
 public enum StockStatus {
+    CLOSING(5,"已收盘"),
     SUSPEND(6,"停牌"),
     DELISTED(7,"退市"),
     SUSPEND_LISTING(8,"暂停上市"),

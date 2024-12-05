@@ -38,6 +38,12 @@ public class MainMoneyFlowDataFilter implements MoneyFlowDataFilter {
 
     @Override
     public List<StockMoneyFlowBean> filter(List<StockMoneyFlowBean> stockMoneyFlowBeanList) {
+        return filter(stockMoneyFlowBeanList, 0);
+    }
+
+    @Override
+    public List<StockMoneyFlowBean> filter(List<StockMoneyFlowBean> stockMoneyFlowBeanList, int fewDaysAgo) {
+        LOGGER.debug("enter filter,size:" + stockMoneyFlowBeanList.size());
         if (CollectionUtils.isEmpty(stockMoneyFlowBeanList) || ArrayUtils.isEmpty(daysJudgeRule)) {
             return stockMoneyFlowBeanList;
         }
@@ -52,8 +58,8 @@ public class MainMoneyFlowDataFilter implements MoneyFlowDataFilter {
             int mainDaysMoneyFlow = 0;
             boolean moneyAllPositive = true;
             boolean matchJudgeRule = true;
-            for (int i = 0; i < (stockMoneyFlowBeanDatas.size() < daysJudgeRule.length ? stockMoneyFlowBeanDatas.size() : daysJudgeRule.length); i++) {
-                StockMoneyFlowData stockMoneyFlowData = stockMoneyFlowBeanDatas.get(i);
+            for (int i = 0; i < (stockMoneyFlowBeanDatas.size() - fewDaysAgo < daysJudgeRule.length ? stockMoneyFlowBeanDatas.size() - fewDaysAgo : daysJudgeRule.length); i++) {
+                StockMoneyFlowData stockMoneyFlowData = stockMoneyFlowBeanDatas.get(i + fewDaysAgo);
                 TREND curDayJudgeRule = daysJudgeRule[i];
 
                 // judge current day money flow
@@ -81,6 +87,7 @@ public class MainMoneyFlowDataFilter implements MoneyFlowDataFilter {
                 filterStockMoneyFlowBeanList.add(stockMoneyFlowBean);
             }
         }
+        LOGGER.debug("exit filter,size:" + filterStockMoneyFlowBeanList.size());
         return filterStockMoneyFlowBeanList;
     }
 

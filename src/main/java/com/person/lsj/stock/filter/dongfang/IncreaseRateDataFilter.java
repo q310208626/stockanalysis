@@ -31,6 +31,11 @@ public class IncreaseRateDataFilter implements StockDetailsDataFilter {
 
     @Override
     public Map<String, StockDetailsData> filter(Map<String, StockDetailsData> stockDetailsDataMap) {
+        return filter(stockDetailsDataMap, 0);
+    }
+
+    @Override
+    public Map<String, StockDetailsData> filter(Map<String, StockDetailsData> stockDetailsDataMap, int fewDaysAgo) {
         LOGGER.debug("enter filter,size:" + stockDetailsDataMap.size());
         if (ArrayUtils.isEmpty(daysJudgeRule) || CollectionUtils.isEmpty(stockDetailsDataMap)) {
             return stockDetailsDataMap;
@@ -44,11 +49,13 @@ public class IncreaseRateDataFilter implements StockDetailsDataFilter {
             String stockCode = stockDetailsEntry.getKey();
             StockDetailsData stockDetailsData = stockDetailsEntry.getValue();
             int ruleJudgeDay = Math.min(daysJudgeRule == null ? 0 : daysJudgeRule.length, increaseRateRule == null ? 0 : increaseRateRule.length);
-            int judgeDay = stockDetailsData.getStockDataEntities().size() <= ruleJudgeDay ? stockDetailsData.getStockDataEntities().size() - 1 : ruleJudgeDay;
+            int judgeDay = stockDetailsData.getStockDataEntities().size() - fewDaysAgo <= ruleJudgeDay ? stockDetailsData.getStockDataEntities().size() - 1 - fewDaysAgo : ruleJudgeDay;
             boolean matchJudgeRule = true;
+            if (judgeDay == 0) {
+                matchJudgeRule = false;
+            }
             for (int curReverseDayNum = 1; curReverseDayNum <= judgeDay; curReverseDayNum++) {
-
-                StockDataEntity stockDataEntity = stockDetailsData.getStockDataEntities().get(stockDetailsData.getStockDataEntities().size() - curReverseDayNum);
+                StockDataEntity stockDataEntity = stockDetailsData.getStockDataEntities().get(stockDetailsData.getStockDataEntities().size() - curReverseDayNum - fewDaysAgo);
                 float curDayIncreaseRate = stockDataEntity.getIncreasePercentage();
                 TREND curDayJudgeRule = daysJudgeRule[curReverseDayNum - 1];
                 float targetIncreaseRate = increaseRateRule[curReverseDayNum - 1];
@@ -91,7 +98,7 @@ public class IncreaseRateDataFilter implements StockDetailsDataFilter {
         StringBuffer filterRuleMsg = new StringBuffer();
 
         if (daysJudgeRule.length > 0) {
-            filterRuleMsg.append("涨幅判断, ").append(",判断[").append(daysJudgeRule.length).append("]天");
+            filterRuleMsg.append("涨幅判断").append(" ,判断[").append(daysJudgeRule.length).append("]天");
             for (int i = 0; i < daysJudgeRule.length; i++) {
                 TREND curDayJudgeRule = daysJudgeRule[i];
                 float targetIncrRate = increaseRateRule[i];

@@ -257,7 +257,23 @@ public class FilterConfiguration {
         filters.add(volumeDetailsFilter);
 
         StockDetailsDataFilterChain stockDetailsDataFilterChain = new StockDetailsDataFilterChain(filters);
-        stockDetailsDataFilterChain.setTaskId("Task_0015_交易量为昨天的2倍");
+        stockDetailsDataFilterChain.setTaskId("Task_0016_交易量为昨天的2倍");
+        stockDetailsDataFilterChain.setMoneyFlowDataFilter(moneyFlowDataFilter);
+        return stockDetailsDataFilterChain;
+    }
+
+    @Bean(name = "stockDetailsDataFilterChain_BigOrder_2UP_Kdj2Up_LowIncrRate")
+    public StockDetailsDataFilterChain stockDetailsDataFilterChain_BigOrder_2UP_Kdj2Up_LowIncrRate() {
+        BigOrderMoneyFlowDataFilter moneyFlowDataFilter = new BigOrderMoneyFlowDataFilter(new TREND[]{TREND.TEND_UP, TREND.TEND_UP}, new TREND[]{TREND.TEND_UP, TREND.TEND_UP});
+
+        List<StockDetailsDataFilter> filters = new ArrayList<StockDetailsDataFilter>();
+        IncreaseRateDataFilter increaseRateDataFilter = new IncreaseRateDataFilter(new TREND[]{TREND.TEND_DOWN, TREND.TEND_DOWN}, new float[]{3.0f, 3.0f});
+        KdjStockDetailsDataFilter kdjStockDetailsDataFilter = new KdjStockDetailsDataFilter(new TREND[]{TREND.TEND_UP, TREND.TEND_UP});
+        filters.add(increaseRateDataFilter);
+        filters.add(kdjStockDetailsDataFilter);
+
+        StockDetailsDataFilterChain stockDetailsDataFilterChain = new StockDetailsDataFilterChain(filters);
+        stockDetailsDataFilterChain.setTaskId("Task_0017_主力2天投入资金涨幅不大");
         stockDetailsDataFilterChain.setMoneyFlowDataFilter(moneyFlowDataFilter);
         return stockDetailsDataFilterChain;
     }

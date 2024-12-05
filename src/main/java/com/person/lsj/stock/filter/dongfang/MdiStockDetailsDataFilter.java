@@ -28,6 +28,11 @@ public class MdiStockDetailsDataFilter implements StockDetailsDataFilter {
 
     @Override
     public Map<String, StockDetailsData> filter(Map<String, StockDetailsData> stockDetailsDataMap) {
+        return filter(stockDetailsDataMap, 0);
+    }
+
+    @Override
+    public Map<String, StockDetailsData> filter(Map<String, StockDetailsData> stockDetailsDataMap, int fewDaysAgo) {
         LOGGER.debug("enter filter,size:" + stockDetailsDataMap.size());
         if (CollectionUtils.isEmpty(stockDetailsDataMap)) {
             return stockDetailsDataMap;
@@ -44,14 +49,17 @@ public class MdiStockDetailsDataFilter implements StockDetailsDataFilter {
 
             // at least one day judge dValue
             maxTrendDay = maxTrendDay == 0 ? 1 : maxTrendDay;
-            int judgeDay = stockDetailsData.getStockDataEntities().size() <= maxTrendDay ? stockDetailsData.getStockDataEntities().size() - 1 : maxTrendDay;
+            int judgeDay = stockDetailsData.getStockDataEntities().size() - fewDaysAgo <= maxTrendDay ? stockDetailsData.getStockDataEntities().size() - 1 - fewDaysAgo : maxTrendDay;
             boolean matchJudgeRule = true;
+            if (judgeDay == 0) {
+                matchJudgeRule = false;
+            }
             for (int curReverseDayNum = 1; curReverseDayNum <= judgeDay; curReverseDayNum++) {
 
-                StockDataEntity stockDataEntity = stockDetailsData.getStockDataEntities().get(stockDetailsData.getStockDataEntities().size() - curReverseDayNum);
-                boolean pdiRet = filterPdi(stockDetailsData, curReverseDayNum);
-                boolean mdiRet = filterMdi(stockDetailsData, curReverseDayNum);
-                boolean adxRet = filterAdx(stockDetailsData, curReverseDayNum);
+                StockDataEntity stockDataEntity = stockDetailsData.getStockDataEntities().get(stockDetailsData.getStockDataEntities().size() - curReverseDayNum - fewDaysAgo);
+                boolean pdiRet = filterPdi(stockDetailsData, curReverseDayNum, fewDaysAgo);
+                boolean mdiRet = filterMdi(stockDetailsData, curReverseDayNum, fewDaysAgo);
+                boolean adxRet = filterAdx(stockDetailsData, curReverseDayNum, fewDaysAgo);
                 matchJudgeRule = pdiRet && mdiRet && adxRet;
 
                 // the last day kdjJ data must be keep within the target absolute value
@@ -75,14 +83,14 @@ public class MdiStockDetailsDataFilter implements StockDetailsDataFilter {
         return result;
     }
 
-    private boolean filterPdi(StockDetailsData stockDetailsData, int curReverseDayNum) {
+    private boolean filterPdi(StockDetailsData stockDetailsData, int curReverseDayNum, int fewDaysAgo) {
         if (pdiTrend == null || pdiTrend.length == 0 || pdiTrend.length < curReverseDayNum) {
             return true;
         }
 
         boolean matchJudgeRule = true;
-        StockDataEntity stockDataEntity = stockDetailsData.getStockDataEntities().get(stockDetailsData.getStockDataEntities().size() - curReverseDayNum);
-        StockDataEntity stockDataEntityPre = stockDetailsData.getStockDataEntities().get(stockDetailsData.getStockDataEntities().size() - curReverseDayNum - 1);
+        StockDataEntity stockDataEntity = stockDetailsData.getStockDataEntities().get(stockDetailsData.getStockDataEntities().size() - curReverseDayNum - fewDaysAgo);
+        StockDataEntity stockDataEntityPre = stockDetailsData.getStockDataEntities().get(stockDetailsData.getStockDataEntities().size() - curReverseDayNum - 1 - fewDaysAgo);
         TREND curDayJudgeRule = pdiTrend[curReverseDayNum - 1];
 
         // judge current day kdj tend
@@ -106,14 +114,14 @@ public class MdiStockDetailsDataFilter implements StockDetailsDataFilter {
         return matchJudgeRule;
     }
 
-    private boolean filterMdi(StockDetailsData stockDetailsData, int curReverseDayNum) {
+    private boolean filterMdi(StockDetailsData stockDetailsData, int curReverseDayNum, int fewDaysAgo) {
         if (mdiTrend == null || mdiTrend.length == 0 || mdiTrend.length < curReverseDayNum) {
             return true;
         }
 
         boolean matchJudgeRule = true;
-        StockDataEntity stockDataEntity = stockDetailsData.getStockDataEntities().get(stockDetailsData.getStockDataEntities().size() - curReverseDayNum);
-        StockDataEntity stockDataEntityPre = stockDetailsData.getStockDataEntities().get(stockDetailsData.getStockDataEntities().size() - curReverseDayNum - 1);
+        StockDataEntity stockDataEntity = stockDetailsData.getStockDataEntities().get(stockDetailsData.getStockDataEntities().size() - curReverseDayNum - fewDaysAgo);
+        StockDataEntity stockDataEntityPre = stockDetailsData.getStockDataEntities().get(stockDetailsData.getStockDataEntities().size() - curReverseDayNum - 1 - fewDaysAgo);
         TREND curDayJudgeRule = mdiTrend[curReverseDayNum - 1];
 
         // judge current day kdj tend
@@ -136,14 +144,14 @@ public class MdiStockDetailsDataFilter implements StockDetailsDataFilter {
         return matchJudgeRule;
     }
 
-    private boolean filterAdx(StockDetailsData stockDetailsData, int curReverseDayNum) {
+    private boolean filterAdx(StockDetailsData stockDetailsData, int curReverseDayNum, int fewDaysAgo) {
         if ( adxTrend== null || adxTrend.length == 0 || adxTrend.length < curReverseDayNum) {
             return true;
         }
 
         boolean matchJudgeRule = true;
-        StockDataEntity stockDataEntity = stockDetailsData.getStockDataEntities().get(stockDetailsData.getStockDataEntities().size() - curReverseDayNum);
-        StockDataEntity stockDataEntityPre = stockDetailsData.getStockDataEntities().get(stockDetailsData.getStockDataEntities().size() - curReverseDayNum - 1);
+        StockDataEntity stockDataEntity = stockDetailsData.getStockDataEntities().get(stockDetailsData.getStockDataEntities().size() - curReverseDayNum - fewDaysAgo);
+        StockDataEntity stockDataEntityPre = stockDetailsData.getStockDataEntities().get(stockDetailsData.getStockDataEntities().size() - curReverseDayNum - 1 - fewDaysAgo);
         TREND curDayJudgeRule = adxTrend[curReverseDayNum - 1];
 
         // judge current day kdj tend

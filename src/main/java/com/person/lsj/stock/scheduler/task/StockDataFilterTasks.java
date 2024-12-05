@@ -23,6 +23,13 @@ public class StockDataFilterTasks {
      * process tasks base on filter chain
      */
     public void processTasks(int targetTask) {
+        processTasks(targetTask, 0);
+    }
+
+    /**
+     * process tasks base on filter chain
+     */
+    public void processTasks(int targetTask, int fewDaysAgo) {
         if (CollectionUtils.isEmpty(stockFilterTasksMap)) {
             return;
         }
@@ -35,7 +42,7 @@ public class StockDataFilterTasks {
             if (stockDetailsDataFilterChain.getFlag() != targetTask) {
                 continue;
             }
-            Map<String, StockDetailsData> stockDetailsDataMap = stockDetailsDataFilterChain.doFilter();
+            Map<String, StockDetailsData> stockDetailsDataMap = stockDetailsDataFilterChain.doFilter(fewDaysAgo);
             addToResultMap(taskId, stockDetailsDataMap);
         }
     }

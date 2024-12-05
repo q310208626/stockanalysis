@@ -7,6 +7,7 @@ import com.person.lsj.stock.filter.StockDetailsDataFilter;
 import org.apache.log4j.Logger;
 import org.springframework.util.CollectionUtils;
 
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -51,6 +52,12 @@ public class BollStockDetailsDataFilter implements StockDetailsDataFilter {
 
     @Override
     public Map<String, StockDetailsData> filter(Map<String, StockDetailsData> stockDetailsDataMap) {
+        return filter(stockDetailsDataMap, 0);
+    }
+
+    @Override
+    public Map<String, StockDetailsData> filter(Map<String, StockDetailsData> stockDetailsDataMap, int fewDaysAgo) {
+        LOGGER.debug("enter filter,size:" + stockDetailsDataMap.size());
         if (CollectionUtils.isEmpty(stockDetailsDataMap)) {
             return stockDetailsDataMap;
         }
@@ -61,16 +68,17 @@ public class BollStockDetailsDataFilter implements StockDetailsDataFilter {
             Map.Entry<String, StockDetailsData> stockDetailsEntry = stockDetailsIterator.next();
             String stockCode = stockDetailsEntry.getKey();
             StockDetailsData stockDetailsData = stockDetailsEntry.getValue();
-            int judgeDay = stockDetailsData.getStockDataEntities().size() <= TREND_JUDGE_DAY ? stockDetailsData.getStockDataEntities().size() - 1 : TREND_JUDGE_DAY;
+            int judgeDay = stockDetailsData.getStockDataEntities().size() - fewDaysAgo <= TREND_JUDGE_DAY ? stockDetailsData.getStockDataEntities().size() - 1 - fewDaysAgo : TREND_JUDGE_DAY;
 
-            setTrendAndBottom(judgeDay, stockDetailsData);
-            StockDataEntity stockDataEntity = stockDetailsData.getStockDataEntities().getLast();
+            setTrendAndBottom(judgeDay, stockDetailsData, fewDaysAgo);
+            StockDataEntity stockDataEntity = stockDetailsData.getStockDataEntities().get(stockDetailsData.getStockDataEntities().size() - 1 - fewDaysAgo);
             float curPrice = stockDataEntity.getClose();
             float bottomPrice = curBottom == BOTTOM_MID ? stockDataEntity.getBoll() : stockDataEntity.getBollLower();
             if (Math.abs((curPrice - bottomPrice) / curPrice) <= absDValue) {
                 filterResult.put(stockCode, stockDetailsData);
             }
         }
+        LOGGER.debug("exit filter,size:" + filterResult.size());
         return filterResult;
     }
 
@@ -87,12 +95,12 @@ public class BollStockDetailsDataFilter implements StockDetailsDataFilter {
      * @param judgeDay
      * @param stockDetailsData
      */
-    private void setTrendAndBottom(int judgeDay, StockDetailsData stockDetailsData) {
+    private void setTrendAndBottom(int judgeDay, StockDetailsData stockDetailsData, int fewDaysAgo) {
         int trendNum = TREND_JUDGE_DAY;
         for (int curReverseDayNum = 1; curReverseDayNum <= judgeDay; curReverseDayNum++) {
 
-            StockDataEntity stockDataEntity = stockDetailsData.getStockDataEntities().get(stockDetailsData.getStockDataEntities().size() - curReverseDayNum);
-            StockDataEntity stockDataEntityPre = stockDetailsData.getStockDataEntities().get(stockDetailsData.getStockDataEntities().size() - curReverseDayNum - 1);
+            StockDataEntity stockDataEntity = stockDetailsData.getStockDataEntities().get(stockDetailsData.getStockDataEntities().size() - curReverseDayNum - fewDaysAgo);
+            StockDataEntity stockDataEntityPre = stockDetailsData.getStockDataEntities().get(stockDetailsData.getStockDataEntities().size() - curReverseDayNum - 1 - fewDaysAgo);
 
             float bollMid = stockDataEntity.getBoll();
             float bollMidPre = stockDataEntityPre.getBoll();

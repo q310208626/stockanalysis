@@ -4,6 +4,8 @@ import com.person.lsj.stock.bean.dongfang.data.StockDetailsData;
 import com.person.lsj.stock.bean.dongfang.moneyflow.StockMoneyFlowBean;
 import org.springframework.util.CollectionUtils;
 
+import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -23,22 +25,31 @@ public class StockDetailsDataFilterChain {
     }
 
     public List<StockMoneyFlowBean> doFilterMoneyFlow() {
+        return doFilterMoneyFlow(0);
+    }
+
+    public List<StockMoneyFlowBean> doFilterMoneyFlow(int fewDaysAgo) {
         if (CollectionUtils.isEmpty(stockMoneyFlowBeanList) || moneyFlowDataFilter == null) {
             return stockMoneyFlowBeanList;
         }
 
-        List<StockMoneyFlowBean> afterFilterData = moneyFlowDataFilter.filter(stockMoneyFlowBeanList);
+        List<StockMoneyFlowBean> afterFilterData = moneyFlowDataFilter.filter(stockMoneyFlowBeanList, fewDaysAgo);
         return afterFilterData;
     }
 
     public Map<String, StockDetailsData> doFilter() {
+        return doFilter(0);
+    }
+
+    public Map<String, StockDetailsData> doFilter(int fewDaysAgo) {
         if (CollectionUtils.isEmpty(stockDetailsDataMap) || CollectionUtils.isEmpty(stockDetailsDataFilters)) {
             return stockDetailsDataMap;
         }
 
-        Map<String, StockDetailsData> temp = Map.copyOf(stockDetailsDataMap);
+        Map<String, StockDetailsData> temp = new HashMap<String, StockDetailsData>();
+        temp.putAll(stockDetailsDataMap);
         for (StockDetailsDataFilter stockDetailsDataFilter : stockDetailsDataFilters) {
-            temp = stockDetailsDataFilter.filter(temp);
+            temp = stockDetailsDataFilter.filter(temp, fewDaysAgo);
         }
 
         return temp;

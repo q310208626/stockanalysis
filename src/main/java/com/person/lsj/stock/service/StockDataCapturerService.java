@@ -49,6 +49,15 @@ public interface StockDataCapturerService {
     List<StockMoneyFlowBean> getStockMoneyFlowData(List<String> stockCodes);
 
     /**
+     * 获取days天数的资金数据
+     *
+     * @param stockCodes
+     * @param days
+     * @return List stockCode
+     */
+    List<StockMoneyFlowBean> getStockMoneyFlowData(List<String> stockCodes, int days);
+
+    /**
      * 判断当前stockCode的v6曲线是否符合设置的标准
      *
      * @param stockCodes

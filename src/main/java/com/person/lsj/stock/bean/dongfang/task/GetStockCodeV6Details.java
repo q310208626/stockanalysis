@@ -53,6 +53,8 @@ public class GetStockCodeV6Details implements Callable<StockDetailsData> {
             e.printStackTrace();
         } catch (RuntimeException e) {
             e.printStackTrace();
+        } catch (Exception e){
+          e.printStackTrace();
         } finally {
             countDownLatch.countDown();
         }

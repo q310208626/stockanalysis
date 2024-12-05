@@ -556,6 +556,51 @@ public class DongFangStockDataCapturerServiceImpl implements StockDataCapturerSe
     }
 
     @Override
+    public List<StockMoneyFlowBean> getStockMoneyFlowData(List<String> stockCodes, int days) {
+        LOGGER.debug("Enter getStockMoneyFlowData");
+
+        List<StockMoneyFlowBean> stockMoneyFlowBeanList = new ArrayList<>();
+        try {
+            URIBuilder uriBuilder = new URIBuilder(STOCK_MONEY_FLOW_URL);
+
+            // 获取days天的数据
+            uriBuilder.addParameter("lmt", String.valueOf(days));
+
+            uriBuilder.addParameter("fields1", "f1,f2,f3,f7");
+            uriBuilder.addParameter("fields2", "f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61,f62,f63,f64,f65");
+            CountDownLatch countDownLatch = new CountDownLatch(stockCodes.size());
+            List<FutureTask<StockMoneyFlowBean>> futureTaskArrayList = new ArrayList<>();
+            for (String stockCode : stockCodes) {
+                LOGGER.debug("start get money flow msg:" + stockCode);
+                uriBuilder.setParameter("secid", getRequestSecid(stockCode));
+                HttpGet httpGet = new HttpGet(uriBuilder.build());
+                FutureTask<StockMoneyFlowBean> stockMoneyFlowBeanFutureTask = new FutureTask<>(new GetStockCodeMoneyData(stockCode, httpGet, countDownLatch));
+                futureTaskArrayList.add(stockMoneyFlowBeanFutureTask);
+                threadPool.execute(stockMoneyFlowBeanFutureTask);
+                LOGGER.debug("end money flow msg:" + stockCode);
+            }
+
+            countDownLatch.await();
+
+            for (FutureTask<StockMoneyFlowBean> stockMoneyFlowBeanFuture : futureTaskArrayList) {
+                StockMoneyFlowBean stockMoneyFlowBean = stockMoneyFlowBeanFuture.get(20, TimeUnit.MILLISECONDS);
+                stockMoneyFlowBeanList.add(stockMoneyFlowBean);
+            }
+
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        } catch (TimeoutException e) {
+            throw new RuntimeException(e);
+        }
+        LOGGER.debug("Exit getStockMoneyFlowData");
+        return stockMoneyFlowBeanList;
+    }
+
+    @Override
     public LocalDate getLastWorkDay() {
         List<String> stockCodeList = getStockCode(1);
         Map<String, StockDetailsData> stockCodesV6DetailMap = getStockCodesV6Detail(stockCodeList);
@@ -616,6 +661,8 @@ public class DongFangStockDataCapturerServiceImpl implements StockDataCapturerSe
                 stockStatus = stockCurDetailsData.getStockStatus();
 
             } catch (IOException e) {
+                LOGGER.error(e.getMessage());
+            } catch (NumberFormatException e) {
                 LOGGER.error(e.getMessage());
             }
 

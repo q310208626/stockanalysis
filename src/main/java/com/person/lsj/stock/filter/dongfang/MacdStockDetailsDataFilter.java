@@ -33,6 +33,11 @@ public class MacdStockDetailsDataFilter implements StockDetailsDataFilter {
 
     @Override
     public Map<String, StockDetailsData> filter(Map<String, StockDetailsData> stockDetailsDataMap) {
+        return filter(stockDetailsDataMap, 0);
+    }
+
+    @Override
+    public Map<String, StockDetailsData> filter(Map<String, StockDetailsData> stockDetailsDataMap, int fewDaysAgo) {
         LOGGER.debug("enter filter,size:" + stockDetailsDataMap.size());
         if (ArrayUtils.isEmpty(daysJudgeRule) || CollectionUtils.isEmpty(stockDetailsDataMap)) {
             return stockDetailsDataMap;
@@ -45,12 +50,15 @@ public class MacdStockDetailsDataFilter implements StockDetailsDataFilter {
             Map.Entry<String, StockDetailsData> stockDetailsEntry = stockDetailsIterator.next();
             String stockCode = stockDetailsEntry.getKey();
             StockDetailsData stockDetailsData = stockDetailsEntry.getValue();
-            int judgeDay = stockDetailsData.getStockDataEntities().size() <= daysJudgeRule.length ? stockDetailsData.getStockDataEntities().size() - 1 : daysJudgeRule.length;
+            int judgeDay = stockDetailsData.getStockDataEntities().size() - fewDaysAgo <= daysJudgeRule.length ? stockDetailsData.getStockDataEntities().size() - 1 - fewDaysAgo : daysJudgeRule.length;
             boolean matchJudgeRule = true;
+            if (judgeDay == 0) {
+                matchJudgeRule = false;
+            }
             for (int curReverseDayNum = 1; curReverseDayNum <= judgeDay; curReverseDayNum++) {
 
-                StockDataEntity stockDataEntity = stockDetailsData.getStockDataEntities().get(stockDetailsData.getStockDataEntities().size() - curReverseDayNum);
-                StockDataEntity stockDataEntityPre = stockDetailsData.getStockDataEntities().get(stockDetailsData.getStockDataEntities().size() - curReverseDayNum - 1);
+                StockDataEntity stockDataEntity = stockDetailsData.getStockDataEntities().get(stockDetailsData.getStockDataEntities().size() - curReverseDayNum - fewDaysAgo);
+                StockDataEntity stockDataEntityPre = stockDetailsData.getStockDataEntities().get(stockDetailsData.getStockDataEntities().size() - curReverseDayNum - 1 - fewDaysAgo);
                 TREND curDayJudgeRule = daysJudgeRule[curReverseDayNum - 1];
 
                 // judge current day kdj tend

@@ -7,5 +7,7 @@ import java.util.List;
 public interface MoneyFlowDataFilter {
     List<StockMoneyFlowBean> filter(List<StockMoneyFlowBean> stockMoneyFlowBeans);
 
+    List<StockMoneyFlowBean> filter(List<StockMoneyFlowBean> stockMoneyFlowBeans, int fewDaysAgo);
+
     String getFilterRuleMsg();
 }

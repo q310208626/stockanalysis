@@ -79,7 +79,7 @@ public class StockDataResultJob implements Job {
 
         List<StockDataResultSum> stockDataResultSumList = yesterDayResultMap.values().stream().collect(Collectors.toList());
         for (StockDataResultSum stockDataResultSum : stockDataResultSumList) {
-            List<StockDataResultDetails> stockDataResultDetailsList = stockDataResultSum.getStockDataResultDetailsList();
+            List<StockDataResultDetails> stockDataResultDetailsList = stockDataResultSum.getStockDataResultDetailsList().stream().filter(x -> x.getStockCode() != null).collect(Collectors.toList());
 
             if (CollectionUtils.isEmpty(stockDataResultDetailsList)) {
                 continue;

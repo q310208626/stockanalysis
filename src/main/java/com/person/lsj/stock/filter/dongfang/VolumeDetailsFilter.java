@@ -27,6 +27,11 @@ public class VolumeDetailsFilter implements StockDetailsDataFilter {
 
     @Override
     public Map<String, StockDetailsData> filter(Map<String, StockDetailsData> stockDetailsDataMap) {
+        return filter(stockDetailsDataMap, 0);
+    }
+
+    @Override
+    public Map<String, StockDetailsData> filter(Map<String, StockDetailsData> stockDetailsDataMap, int fewDaysAgo) {
         LOGGER.debug("enter filter,size:" + stockDetailsDataMap.size());
         if (CollectionUtils.isEmpty(stockDetailsDataMap)) {
             return stockDetailsDataMap;
@@ -39,12 +44,17 @@ public class VolumeDetailsFilter implements StockDetailsDataFilter {
             Map.Entry<String, StockDetailsData> stockDetailsEntry = stockDetailsIterator.next();
             String stockCode = stockDetailsEntry.getKey();
             StockDetailsData stockDetailsData = stockDetailsEntry.getValue();
-            int judgeDay = 1;
+            int judgeDay = stockDetailsData.getStockDataEntities().size() - 1 - fewDaysAgo < 2   ? 0 : 1;
             boolean matchJudgeRule = true;
+
+            if (judgeDay == 0) {
+                matchJudgeRule = false;
+            }
+
             for (int curReverseDayNum = 1; curReverseDayNum <= judgeDay; curReverseDayNum++) {
 
-                StockDataEntity stockDataEntity = stockDetailsData.getStockDataEntities().get(stockDetailsData.getStockDataEntities().size() - curReverseDayNum);
-                StockDataEntity stockDataEntityPre = stockDetailsData.getStockDataEntities().get(stockDetailsData.getStockDataEntities().size() - curReverseDayNum - 1);
+                StockDataEntity stockDataEntity = stockDetailsData.getStockDataEntities().get(stockDetailsData.getStockDataEntities().size() - curReverseDayNum - fewDaysAgo);
+                StockDataEntity stockDataEntityPre = stockDetailsData.getStockDataEntities().get(stockDetailsData.getStockDataEntities().size() - curReverseDayNum - 1 - fewDaysAgo);
 
                 float volume = stockDataEntity.getVolume();
                 float volumePre = stockDataEntityPre.getVolume();

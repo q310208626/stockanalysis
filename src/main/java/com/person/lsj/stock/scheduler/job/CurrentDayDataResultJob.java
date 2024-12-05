@@ -3,6 +3,7 @@ package com.person.lsj.stock.scheduler.job;
 import com.person.lsj.stock.bean.dongfang.data.StockCurDetailsData;
 import com.person.lsj.stock.bean.dongfang.data.StockDetailsData;
 import com.person.lsj.stock.bean.dongfang.moneyflow.StockMoneyFlowBean;
+import com.person.lsj.stock.bean.dongfang.result.StockDataResultDetails;
 import com.person.lsj.stock.bean.dongfang.result.StockDataResultSum;
 import com.person.lsj.stock.constant.Constant;
 import com.person.lsj.stock.constant.CustomDateFormat;
@@ -17,6 +18,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;

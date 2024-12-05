@@ -41,6 +41,12 @@ public class BigOrderMoneyFlowDataFilter implements MoneyFlowDataFilter {
 
     @Override
     public List<StockMoneyFlowBean> filter(List<StockMoneyFlowBean> stockMoneyFlowBeanList) {
+        return filter(stockMoneyFlowBeanList, 0);
+    }
+
+    @Override
+    public List<StockMoneyFlowBean> filter(List<StockMoneyFlowBean> stockMoneyFlowBeanList, int fewDaysAgo) {
+        LOGGER.debug("enter filter,size:" + stockMoneyFlowBeanList.size());
         if (CollectionUtils.isEmpty(stockMoneyFlowBeanList) || (ArrayUtils.isEmpty(largeOrderTrend) && ArrayUtils.isEmpty(superLargeOrderTrend))) {
             return stockMoneyFlowBeanList;
         }
@@ -55,8 +61,8 @@ public class BigOrderMoneyFlowDataFilter implements MoneyFlowDataFilter {
             int mainDaysMoneyFlow = 0;
             boolean matchJudgeRule = true;
             int judgeDay = Math.max(largeOrderTrend == null ? 0 : largeOrderTrend.length, superLargeOrderTrend == null ? 0 : superLargeOrderTrend.length);
-            for (int i = 0; i < (stockMoneyFlowBeanDatas.size() < judgeDay ? stockMoneyFlowBeanDatas.size() : judgeDay); i++) {
-                StockMoneyFlowData stockMoneyFlowData = stockMoneyFlowBeanDatas.get(i);
+            for (int i = 0; i < (stockMoneyFlowBeanDatas.size() - fewDaysAgo < judgeDay ? stockMoneyFlowBeanDatas.size() - fewDaysAgo : judgeDay); i++) {
+                StockMoneyFlowData stockMoneyFlowData = stockMoneyFlowBeanDatas.get(i + fewDaysAgo);
 
                 boolean largeRet = filterLargeOrder(stockMoneyFlowData,i);
                 boolean superLargeRet = filterSuperLargeOrder(stockMoneyFlowData,i);
@@ -74,6 +80,7 @@ public class BigOrderMoneyFlowDataFilter implements MoneyFlowDataFilter {
                 filterStockMoneyFlowBeanList.add(stockMoneyFlowBean);
             }
         }
+        LOGGER.debug("exit filter,size:" + filterStockMoneyFlowBeanList.size());
         return filterStockMoneyFlowBeanList;
     }
 
