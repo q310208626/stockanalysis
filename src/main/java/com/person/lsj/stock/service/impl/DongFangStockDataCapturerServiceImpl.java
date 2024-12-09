@@ -53,6 +53,9 @@ public class DongFangStockDataCapturerServiceImpl implements StockDataCapturerSe
     // get Stock Money Flow
     private static final String STOCK_MONEY_FLOW_URL = STOCK_FLOW_HOST + "/api/qt/stock/fflow/daykline/get";
 
+    // get Today Stock Money Flow
+    private static final String STOCK_MONEY_FLOW_TODAY_URL = STOCK_HOST + "/api/qt/stock/fflow/kline/get";
+
     private static final String STOCK_DETAILS_HOST = "https://push2his.eastmoney.com";
 
     // get Stock Details
@@ -512,14 +515,19 @@ public class DongFangStockDataCapturerServiceImpl implements StockDataCapturerSe
 
     @Override
     public List<StockMoneyFlowBean> getStockMoneyFlowData(List<String> stockCodes) {
-        LOGGER.debug("Enter getStockMoneyFlowData");
+        return getStockMoneyFlowData(stockCodes, 10);
+    }
+
+    private List<StockMoneyFlowBean> getStockMoneyFlowTodayData(List<String> stockCodes) {
+        LOGGER.debug("Enter getStockMoneyFlowTodayData");
 
         List<StockMoneyFlowBean> stockMoneyFlowBeanList = new ArrayList<>();
         try {
-            URIBuilder uriBuilder = new URIBuilder(STOCK_MONEY_FLOW_URL);
+            URIBuilder uriBuilder = new URIBuilder(STOCK_MONEY_FLOW_TODAY_URL);
 
-            // 获取10天的数据
-            uriBuilder.addParameter("lmt", "10");
+            // 获取days天的数据
+            uriBuilder.addParameter("lmt", "1");
+            uriBuilder.addParameter("klt", "1");
 
             uriBuilder.addParameter("fields1", "f1,f2,f3,f7");
             uriBuilder.addParameter("fields2", "f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61,f62,f63,f64,f65");
@@ -551,11 +559,10 @@ public class DongFangStockDataCapturerServiceImpl implements StockDataCapturerSe
         } catch (TimeoutException e) {
             throw new RuntimeException(e);
         }
-        LOGGER.debug("Exit getStockMoneyFlowData");
+        LOGGER.debug("Exit getStockMoneyFlowTodayData");
         return stockMoneyFlowBeanList;
     }
 
-    @Override
     public List<StockMoneyFlowBean> getStockMoneyFlowData(List<String> stockCodes, int days) {
         LOGGER.debug("Enter getStockMoneyFlowData");
 
@@ -585,6 +592,19 @@ public class DongFangStockDataCapturerServiceImpl implements StockDataCapturerSe
             for (FutureTask<StockMoneyFlowBean> stockMoneyFlowBeanFuture : futureTaskArrayList) {
                 StockMoneyFlowBean stockMoneyFlowBean = stockMoneyFlowBeanFuture.get(20, TimeUnit.MILLISECONDS);
                 stockMoneyFlowBeanList.add(stockMoneyFlowBean);
+            }
+
+            // get Today Money Flow add as days Money Flow List header
+            List<StockMoneyFlowBean> stockMoneyFlowTodayData = getStockMoneyFlowTodayData(stockCodes);
+            Map<String, StockMoneyFlowBean> stockMoneyFlowTodayDataMap = stockMoneyFlowTodayData.stream().collect(Collectors.toMap(x -> x.getStockCode(), x -> x));
+            for (StockMoneyFlowBean stockMoneyFlowBean : stockMoneyFlowBeanList) {
+                StockMoneyFlowData lastStockMoneyFlowData = stockMoneyFlowBean.getDatas().getFirst();
+                String stockCode = stockMoneyFlowBean.getStockCode();
+                StockMoneyFlowBean toDayStockMoneyFlowData = stockMoneyFlowTodayDataMap.get(stockCode);
+                if (lastStockMoneyFlowData.getDataDate().equals(toDayStockMoneyFlowData.getDatas().getLast().getDataDate())) {
+                    continue;
+                }
+                stockMoneyFlowBean.getDatas().addFirst(toDayStockMoneyFlowData.getDatas().getLast());
             }
 
         } catch (URISyntaxException e) {
