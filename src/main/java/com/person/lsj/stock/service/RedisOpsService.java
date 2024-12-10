@@ -5,4 +5,8 @@ public interface RedisOpsService {
     public String getValue(String key);
 
     public <T> T getValueObj(String key);
+
+    public void setMapValue(String mapName, String mapKey, String mapValue);
+
+    public <T> T getMapValue(String mapName, String mapKey);
 }

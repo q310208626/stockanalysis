@@ -18,9 +18,9 @@ import java.io.InputStreamReader;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 
-public class GetStockCodeMoneyData implements Callable<StockMoneyFlowBean> {
+public class GetStockCodeTodayMoneyData implements Callable<StockMoneyFlowBean> {
     private static Logger LOGGER = Logger.getLogger(GetStockCodeV6Details.class);
-    private static final String REDIS_PREFIX_STOCK_MONEY_DATA = "STOCK_MONEY_DATA";
+    private static final String REDIS_PREFIX_STOCK_MONEY_DATA = "STOCK_MONEY_TODAY_DATA";
 
     private String curStockCode;
     private HttpGet httpGet;
@@ -28,7 +28,7 @@ public class GetStockCodeMoneyData implements Callable<StockMoneyFlowBean> {
     private RedisOpsService redisOpsService;
     private boolean useCache = false;
 
-    public GetStockCodeMoneyData(String curStockCode, HttpGet httpGet, CountDownLatch countDownLatch, RedisOpsService redisOpsService,boolean useCache) {
+    public GetStockCodeTodayMoneyData(String curStockCode, HttpGet httpGet, CountDownLatch countDownLatch, RedisOpsService redisOpsService, boolean useCache) {
         this.curStockCode = curStockCode;
         this.httpGet = httpGet;
         this.countDownLatch = countDownLatch;
@@ -36,10 +36,8 @@ public class GetStockCodeMoneyData implements Callable<StockMoneyFlowBean> {
         this.useCache = useCache;
     }
 
-    public GetStockCodeMoneyData(String curStockCode, HttpGet httpGet,CountDownLatch countDownLatch) {
-        this.curStockCode = curStockCode;
-        this.httpGet = httpGet;
-        this.countDownLatch = countDownLatch;
+    public GetStockCodeTodayMoneyData(String curStockCode, HttpGet httpGet, CountDownLatch countDownLatch) {
+        this(curStockCode, httpGet, countDownLatch, null, false);
     }
 
 

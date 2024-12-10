@@ -107,6 +107,9 @@ public class StockDataEntity {
         }
     };
 
+    public StockDataEntity() {
+    }
+
     public StockDataEntity(String data) {
         String[] datas = data.split(",");
         String timeStr = datas[0];

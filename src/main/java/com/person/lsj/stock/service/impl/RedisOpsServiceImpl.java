@@ -28,4 +28,14 @@ public class RedisOpsServiceImpl implements RedisOpsService {
     public <T> T getValueObj(String key) {
         return (T) redisTemplate.opsForValue().get(key);
     }
+
+    @Override
+    public void setMapValue(String mapName, String mapKey, String mapValue) {
+        redisTemplate.opsForHash().put(mapName, mapKey, mapValue);
+    }
+
+    @Override
+    public <T> T getMapValue(String mapName, String mapKey) {
+        return (T) redisTemplate.opsForHash().get(mapName, mapKey);
+    }
 }

@@ -24,6 +24,7 @@ import org.apache.hc.core5.http.message.BasicHeader;
 import org.apache.hc.core5.net.URIBuilder;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -70,6 +71,9 @@ public class DongFangStockDataCapturerServiceImpl implements StockDataCapturerSe
     private static int TARGET_3DAY_MONEY_FLOW_INCREMENT = 10000000;
 
     private ThreadPoolExecutor threadPool = new ThreadPoolExecutor(Constant.CPU_CORE_COUNT, Constant.CPU_CORE_COUNT * 2, 10, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(5000));
+
+    @Value("${data.test.use-redis-cache:false}")
+    private boolean useRedisCache;
 
     @Autowired
     private RedisOpsService redisOpsService;
@@ -321,7 +325,7 @@ public class DongFangStockDataCapturerServiceImpl implements StockDataCapturerSe
             for (String stockCode : stockCodes) {
                 uriBuilder.setParameter("secid", getRequestSecid(stockCode));
                 HttpGet httpGet = new HttpGet(uriBuilder.build());
-                FutureTask<StockDetailsData> futureTask = new FutureTask<>(new GetStockCodeV6Details(stockCode, httpGet, countDownLatch));
+                FutureTask<StockDetailsData> futureTask = new FutureTask<>(new GetStockCodeV6Details(stockCode, httpGet, countDownLatch, redisOpsService, useRedisCache));
                 futureTaskList.add(futureTask);
                 threadPool.submit(futureTask);
             }
@@ -537,7 +541,7 @@ public class DongFangStockDataCapturerServiceImpl implements StockDataCapturerSe
                 LOGGER.debug("start get money flow msg:" + stockCode);
                 uriBuilder.setParameter("secid", getRequestSecid(stockCode));
                 HttpGet httpGet = new HttpGet(uriBuilder.build());
-                FutureTask<StockMoneyFlowBean> stockMoneyFlowBeanFutureTask = new FutureTask<>(new GetStockCodeMoneyData(stockCode, httpGet, countDownLatch));
+                FutureTask<StockMoneyFlowBean> stockMoneyFlowBeanFutureTask = new FutureTask<>(new GetStockCodeTodayMoneyData(stockCode, httpGet, countDownLatch, redisOpsService, true));
                 futureTaskArrayList.add(stockMoneyFlowBeanFutureTask);
                 threadPool.execute(stockMoneyFlowBeanFutureTask);
                 LOGGER.debug("end money flow msg:" + stockCode);
@@ -546,7 +550,7 @@ public class DongFangStockDataCapturerServiceImpl implements StockDataCapturerSe
             countDownLatch.await();
 
             for (FutureTask<StockMoneyFlowBean> stockMoneyFlowBeanFuture : futureTaskArrayList) {
-                StockMoneyFlowBean stockMoneyFlowBean = stockMoneyFlowBeanFuture.get(20, TimeUnit.MILLISECONDS);
+                StockMoneyFlowBean stockMoneyFlowBean = stockMoneyFlowBeanFuture.get(3000, TimeUnit.MILLISECONDS);
                 stockMoneyFlowBeanList.add(stockMoneyFlowBean);
             }
 
@@ -581,7 +585,7 @@ public class DongFangStockDataCapturerServiceImpl implements StockDataCapturerSe
                 LOGGER.debug("start get money flow msg:" + stockCode);
                 uriBuilder.setParameter("secid", getRequestSecid(stockCode));
                 HttpGet httpGet = new HttpGet(uriBuilder.build());
-                FutureTask<StockMoneyFlowBean> stockMoneyFlowBeanFutureTask = new FutureTask<>(new GetStockCodeMoneyData(stockCode, httpGet, countDownLatch));
+                FutureTask<StockMoneyFlowBean> stockMoneyFlowBeanFutureTask = new FutureTask<>(new GetStockCodeMoneyData(stockCode, httpGet, countDownLatch, redisOpsService, useRedisCache));
                 futureTaskArrayList.add(stockMoneyFlowBeanFutureTask);
                 threadPool.execute(stockMoneyFlowBeanFutureTask);
                 LOGGER.debug("end money flow msg:" + stockCode);
@@ -595,8 +599,9 @@ public class DongFangStockDataCapturerServiceImpl implements StockDataCapturerSe
             }
 
             // get Today Money Flow add as days Money Flow List header
+            stockCodes = stockCodes.stream().distinct().collect(Collectors.toList());
             List<StockMoneyFlowBean> stockMoneyFlowTodayData = getStockMoneyFlowTodayData(stockCodes);
-            Map<String, StockMoneyFlowBean> stockMoneyFlowTodayDataMap = stockMoneyFlowTodayData.stream().collect(Collectors.toMap(x -> x.getStockCode(), x -> x));
+            Map<String, StockMoneyFlowBean> stockMoneyFlowTodayDataMap = stockMoneyFlowTodayData.stream().distinct().collect(Collectors.toMap(x -> x.getStockCode(), x -> x));
             for (StockMoneyFlowBean stockMoneyFlowBean : stockMoneyFlowBeanList) {
                 StockMoneyFlowData lastStockMoneyFlowData = stockMoneyFlowBean.getDatas().getFirst();
                 String stockCode = stockMoneyFlowBean.getStockCode();
@@ -807,7 +812,7 @@ public class DongFangStockDataCapturerServiceImpl implements StockDataCapturerSe
                 String boardCode = stockBoardBean.getBoardCode();
                 uriBuilder.setParameter("secid", getRequestSecid(boardCode));
                 HttpGet httpGet = new HttpGet(uriBuilder.build());
-                FutureTask<StockDetailsData> futureTask = new FutureTask<>(new GetStockCodeV6Details(boardCode, httpGet, countDownLatch));
+                FutureTask<StockDetailsData> futureTask = new FutureTask<>(new GetStockCodeV6Details(boardCode, httpGet, countDownLatch, redisOpsService, useRedisCache));
                 futureTaskList.add(futureTask);
                 threadPool.submit(futureTask);
             }
