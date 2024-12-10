@@ -62,6 +62,22 @@ public class FilterConfiguration {
         return stockDetailsDataFilterChain;
     }
 
+    @Bean(name = "stockDetailsDataFilterChain_KDJ_MACD_Reverse")
+    public StockDetailsDataFilterChain stockDetailsDataFilterChain_KDJ_MACD_Reverse() {
+        MainMoneyFlowDataFilter moneyFlowDataFilter = new MainMoneyFlowDataFilter();
+
+        MacdStockDetailsDataFilter macdStockDetailsDataFilter = new MacdStockDetailsDataFilter(new TREND[]{TREND.TEND_UP, TREND.TEND_UP, TREND.TEND_DOWN});
+        KdjStockDetailsDataFilter kdjStockDetailsDataFilter = new KdjStockDetailsDataFilter(15, new TREND[]{TREND.TEND_UP, TREND.TEND_DOWN, TREND.TEND_DOWN});
+        List<StockDetailsDataFilter> filters = new ArrayList<StockDetailsDataFilter>();
+        filters.add(macdStockDetailsDataFilter);
+        filters.add(kdjStockDetailsDataFilter);
+
+        StockDetailsDataFilterChain stockDetailsDataFilterChain = new StockDetailsDataFilterChain(filters);
+        stockDetailsDataFilterChain.setTaskId("Task_0000_KDJ_MACD_底部反转");
+        stockDetailsDataFilterChain.setMoneyFlowDataFilter(moneyFlowDataFilter);
+        return stockDetailsDataFilterChain;
+    }
+
     @Bean(name = "stockDetailsDataFilterChain3DaysMoneyFlow3000w")
     public StockDetailsDataFilterChain stockDetailsDataFilterChain2() {
         // 3 day`s main money flow are all increased
