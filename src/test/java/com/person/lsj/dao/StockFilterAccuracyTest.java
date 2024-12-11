@@ -20,6 +20,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.CollectionUtils;
 
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +40,7 @@ public class StockFilterAccuracyTest {
     @Autowired
     private StockDataResultService stockDataResultService;
 
-    private int testDay = 60;
+    private int testDay = 30;
 
     @Test
     public void testStockCode() {
@@ -48,6 +49,9 @@ public class StockFilterAccuracyTest {
         Map<String, StockDetailsData> stockCodesV6Detail = stockDataCapturerService.getStockCodesV6Detail(allStockCodes);
         Map<String,Float> resultMap = new HashMap<>();
         Map<String,Boolean> taskMatch = new HashMap<>();
+        Map<String,Integer> matchCount = new HashMap<>();
+        Map<String,Integer> totalCount = new HashMap<>();
+
         // 循环60次，查看Filter对于历史数据的预测正确率
         for (int daysAgo = 1; daysAgo <= testDay; daysAgo++) {
             Map<String, StockDetailsDataFilterChain> stockFilterTasksMap = stockDataFilterTasks.getStockFilterTasksMap();
@@ -86,36 +90,34 @@ public class StockFilterAccuracyTest {
                 StockDataResultSum stockDataResultSum = stockFilterTasksResultMap.get(taskId);
                 List<StockDataResultDetails> stockDataResultDetailsList = stockDataResultSum.getStockDataResultDetailsList();
                 int stockCount = stockDataResultDetailsList.size();
-                int increaseCount = 0;
-                float increaseRatio = 0;
 
                 if (CollectionUtils.isEmpty(stockDataResultDetailsList)) {
-                    increaseRatio = 1;
-                } else {
-                    taskMatch.put(taskId, true);
-                    for (StockDataResultDetails stockDataResultDetails : stockDataResultDetailsList) {
-                        String stockCode = stockDataResultDetails.getStockCode();
-                        StockDetailsData stockDetailsData = stockCodesV6Detail.get(stockCode);
-
-                        // 获取下一天的数据
-                        StockDataEntity nextStockDataEntity = stockDetailsData.getStockDataEntities().get(stockDetailsData.getStockDataEntities().size() - daysAgo);
-                        float increasePercentage = nextStockDataEntity.getIncreasePercentage();
-                        if (increasePercentage > 0) {
-                            increaseCount++;
-                        }
-                    }
-                    increaseRatio = 1.0f * increaseCount / stockCount;
+                    continue;
                 }
-                resultMap.put(taskId, resultMap.getOrDefault(taskId, 0.0f) + increaseRatio);
+
+                totalCount.put(taskId, totalCount.getOrDefault(taskId, 0) + stockCount);
+                taskMatch.put(taskId, true);
+                for (StockDataResultDetails stockDataResultDetails : stockDataResultDetailsList) {
+                    String stockCode = stockDataResultDetails.getStockCode();
+                    StockDetailsData stockDetailsData = stockCodesV6Detail.get(stockCode);
+
+                    // 获取下一天的数据
+                    StockDataEntity nextStockDataEntity = stockDetailsData.getStockDataEntities().get(stockDetailsData.getStockDataEntities().size() - daysAgo);
+                    float increasePercentage = nextStockDataEntity.getIncreasePercentage();
+                    if (increasePercentage > 0) {
+                        matchCount.put(taskId, matchCount.getOrDefault(taskId, 0) + 1);
+                    }
+                    LOGGER.debug(taskId + ":" + nextStockDataEntity.getTime().format(DateTimeFormatter.ISO_LOCAL_DATE) + ":" + stockCode + ":");
+                }
             }
         }
 
-        for (String taskId : resultMap.keySet()) {
-            resultMap.put(taskId, resultMap.get(taskId) / testDay * 1.0f);
+        for (String taskId : totalCount.keySet()) {
+            resultMap.put(taskId, 1.0f * matchCount.get(taskId) / totalCount.getOrDefault(taskId, 1));
         }
 
         resultMap.forEach((taskId, resultMapValue) -> {
-            System.out.println(taskId + " match[" + taskMatch.getOrDefault(taskId, false) + "]" + ":" + resultMapValue);
+            System.out.println(taskId + ":" + resultMapValue);
         });
     }
 }
