@@ -40,7 +40,7 @@ public class StockFilterAccuracyTest {
     @Autowired
     private StockDataResultService stockDataResultService;
 
-    private int testDay = 30;
+    private int testDay = 60;
 
     @Test
     public void testStockCode() {

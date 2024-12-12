@@ -300,14 +300,16 @@ public class FilterConfiguration {
 
     @Bean(name = "stockDetailsDataFilterChainKDJ_K2Down1Up_D3Down_dValue10_BigOrder1Up1000")
     public StockDetailsDataFilterChain stockDetailsDataFilterChainKDJ_K2Down1Up_D3Down_dValue10_BigOrder1Up1000() {
-        BigOrderMoneyFlowDataFilter moneyFlowDataFilter = new BigOrderMoneyFlowDataFilter(new TREND[]{TREND.TEND_UP}, new TREND[]{TREND.TEND_UP});
+        MainMoneyFlowDataFilter moneyFlowDataFilter = new MainMoneyFlowDataFilter();
 
-        KdjStockDetailsDataFilter kdjStockDetailsDataFilter = new KdjStockDetailsDataFilter(10.0f, new TREND[]{TREND.TEND_DOWN, TREND.TEND_DOWN, TREND.TEND_UP}, new TREND[]{TREND.TEND_DOWN, TREND.TEND_DOWN, TREND.TEND_DOWN});
+        KdjStockDetailsDataFilter kdjStockDetailsDataFilter = new KdjStockDetailsDataFilter(20, new TREND[]{TREND.TEND_UP});
+        RsiStockDetailsDataFilter rsiStockDetailsDataFilter = new RsiStockDetailsDataFilter(30, 40, new TREND[]{TREND.TEND_UP, TREND.TEND_UP});
         List<StockDetailsDataFilter> filters = new ArrayList<StockDetailsDataFilter>();
         filters.add(kdjStockDetailsDataFilter);
+        filters.add(rsiStockDetailsDataFilter);
 
         StockDetailsDataFilterChain stockDetailsDataFilterChain = new StockDetailsDataFilterChain(filters);
-        stockDetailsDataFilterChain.setTaskId("Task_0012_KD金叉_大订单1天");
+        stockDetailsDataFilterChain.setTaskId("Task_0012_KDJ20_Rsi2连升");
         stockDetailsDataFilterChain.setMoneyFlowDataFilter(moneyFlowDataFilter);
         return stockDetailsDataFilterChain;
     }
@@ -570,6 +572,18 @@ public class FilterConfiguration {
         StockDetailsDataFilterChain stockDetailsDataFilterChain = new StockDetailsDataFilterChain(filters);
         stockDetailsDataFilterChain.setTaskId("Task_boards_0008");
         stockDetailsDataFilterChain.setFlag(Constant.TASK_FLAG_STOCK_BOARD);
+        return stockDetailsDataFilterChain;
+    }
+
+    @Bean(name = "stockBoardMainMoneyFlow2Up")
+    public StockDetailsDataFilterChain stockBoardMainMoneyFlow2Up() {
+        MainMoneyFlowDataFilter moneyFlowDataFilter = new MainMoneyFlowDataFilter(new TREND[]{TREND.TEND_UP,TREND.TEND_UP},300000000);
+        List<StockDetailsDataFilter> filters = new ArrayList<StockDetailsDataFilter>();
+
+        StockDetailsDataFilterChain stockDetailsDataFilterChain = new StockDetailsDataFilterChain(filters);
+        stockDetailsDataFilterChain.setTaskId("Task_boards_0009_主力资金2天流入3亿");
+        stockDetailsDataFilterChain.setFlag(Constant.TASK_FLAG_STOCK_BOARD);
+        stockDetailsDataFilterChain.setMoneyFlowDataFilter(moneyFlowDataFilter);
         return stockDetailsDataFilterChain;
     }
 }

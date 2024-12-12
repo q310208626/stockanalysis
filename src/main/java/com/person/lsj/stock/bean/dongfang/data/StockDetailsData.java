@@ -59,6 +59,9 @@ public class StockDetailsData {
                 // DMI
                 setDMI(stockDataEntities, i);
 
+                // RSI
+                setRsi(stockDataEntities, i);
+
                 // MACD
                 if (i == 0) {
                     stockDataEntities.get(i).setMacdAx(stockDataEntities.get(i).getClose());
@@ -256,6 +259,35 @@ public class StockDetailsData {
             } catch (IllegalAccessException e) {
                 throw new RuntimeException(e);
             }
+        }
+    }
+
+    private void setRsi(List<StockDataEntity> stockDataEntities, int i) {
+        if (i > 0) {
+            float RSI_UP = Math.max(stockDataEntities.get(i).getClose() - stockDataEntities.get(i - 1).getClose(), 0);
+            float RSI_DN = Math.abs(stockDataEntities.get(i).getClose() - stockDataEntities.get(i - 1).getClose());
+            if (i == 1) {
+                stockDataEntities.get(i).setRsiUpA(RSI_UP);
+                stockDataEntities.get(i).setRsiDnA(RSI_DN);
+                stockDataEntities.get(i).setRsiUpB(RSI_UP);
+                stockDataEntities.get(i).setRsiDnB(RSI_DN);
+                stockDataEntities.get(i).setRsiUpC(RSI_UP);
+                stockDataEntities.get(i).setRsiDnC(RSI_DN);
+            }
+            else {
+                stockDataEntities.get(i).setRsiUpA(RSI_UP + stockDataEntities.get(i - 1).getRsiUpA() * (6 - 1) / 6);
+                stockDataEntities.get(i).setRsiDnA(RSI_DN + stockDataEntities.get(i - 1).getRsiDnA() * (6 - 1) / 6);
+                stockDataEntities.get(i).setRsiUpB(RSI_UP + stockDataEntities.get(i - 1).getRsiUpB() * (12 - 1) / 12);
+                stockDataEntities.get(i).setRsiDnB(RSI_DN + stockDataEntities.get(i - 1).getRsiDnB() * (12 - 1) / 12);
+                stockDataEntities.get(i).setRsiUpC(RSI_UP + stockDataEntities.get(i - 1).getRsiUpC() * (24 - 1) / 24);
+                stockDataEntities.get(i).setRsiDnC(RSI_DN + stockDataEntities.get(i - 1).getRsiDnC() * (24 - 1) / 24);
+            }
+        }
+
+        if (i > 4) {
+            stockDataEntities.get(i).setRsiA(stockDataEntities.get(i).getRsiDnA() == 0 ? 0 : stockDataEntities.get(i).getRsiUpA() / stockDataEntities.get(i).getRsiDnA() * 100);
+            stockDataEntities.get(i).setRsiB(stockDataEntities.get(i).getRsiDnB() == 0 ? 0 : stockDataEntities.get(i).getRsiUpB() / stockDataEntities.get(i).getRsiDnB() * 100);
+            stockDataEntities.get(i).setRsiC(stockDataEntities.get(i).getRsiDnC() == 0 ? 0 : stockDataEntities.get(i).getRsiUpC() / stockDataEntities.get(i).getRsiDnC() * 100);
         }
     }
 

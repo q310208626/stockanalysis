@@ -1,7 +1,9 @@
 package com.person.lsj.stock.scheduler.job;
 
+import com.person.lsj.stock.bean.dongfang.data.StockBoardBean;
 import com.person.lsj.stock.bean.dongfang.data.StockCurDetailsData;
 import com.person.lsj.stock.bean.dongfang.data.StockDetailsData;
+import com.person.lsj.stock.bean.dongfang.moneyflow.StockMoneyFlowBean;
 import com.person.lsj.stock.bean.dongfang.result.StockDataResultSum;
 import com.person.lsj.stock.constant.Constant;
 import com.person.lsj.stock.constant.CustomDateFormat;
@@ -18,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -37,7 +40,13 @@ public class CurrentStockBoardIndustryResultJob implements Job {
         JobDataMap jobDataMap = context.getMergedJobDataMap();
 
         // get money flow data
-        Map<String, StockDetailsData> stockBoardsV6Details = stockDataCapturerService.getStockBoardsV6Details(Constant.BOARD_TYPE_INDUSTRY);
+        List<StockBoardBean> allStockBoards = stockDataCapturerService.getAllStockBoards(Constant.BOARD_TYPE_INDUSTRY);
+        List<String> allStockCodes = allStockBoards.stream().map(x -> x.getBoardCode()).collect(Collectors.toList());
+        List<StockMoneyFlowBean> stockMoneyFlowDataList = stockDataCapturerService.getStockMoneyFlowData(allStockCodes);
+
+        // get all board code v6 Details
+        Map<String, StockDetailsData> allStockBoardsV6Details = stockDataCapturerService.getStockBoardsV6Details(Constant.BOARD_TYPE_INDUSTRY);
+
         Map<String, StockDetailsDataFilterChain> stockFilterTasksMap = stockDataFilterTasks.getStockFilterTasksMap();
         for (String taskId : stockDataFilterTasks.getStockFilterTasksMap().keySet()) {
             StockDetailsDataFilterChain stockDetailsDataFilterChain = stockFilterTasksMap.get(taskId);
@@ -45,6 +54,26 @@ public class CurrentStockBoardIndustryResultJob implements Job {
             // check if task for stock code
             if (stockDetailsDataFilterChain.getFlag() != Constant.TASK_FLAG_STOCK_BOARD) {
                 continue;
+            }
+
+            stockDetailsDataFilterChain.setStockMoneyFlowBeanList(stockMoneyFlowDataList);
+            List<StockMoneyFlowBean> targetMoneyFlowBeanList = stockDetailsDataFilterChain.doFilterMoneyFlow();
+            List<String> targetStockCodeList = targetMoneyFlowBeanList.stream().map(x -> x.getStockCode()).collect(Collectors.toList());
+            for (int i = targetMoneyFlowBeanList.size() - 1; i >= 0; i--) {
+                StockMoneyFlowBean stockMoneyFlowBean = targetMoneyFlowBeanList.get(i);
+                if (stockMoneyFlowBean.getStockCode() == null) {
+                    System.out.println("stockCode is null" + i + ":" + stockMoneyFlowBean.getStockCode());
+                }
+            }
+
+            Map<String, StockDetailsData> stockBoardsV6Details = null;
+            if (stockDetailsDataFilterChain.getMoneyFlowDataFilter() == null) {
+                stockBoardsV6Details = allStockBoardsV6Details;
+            } else {
+                stockBoardsV6Details = new HashMap<>();
+                for (String stockCode : targetStockCodeList) {
+                    stockBoardsV6Details.put(stockCode,allStockBoardsV6Details.get(stockCode));
+                }
             }
 
             stockDetailsDataFilterChain.setStockDetailsDataMap(stockBoardsV6Details);
