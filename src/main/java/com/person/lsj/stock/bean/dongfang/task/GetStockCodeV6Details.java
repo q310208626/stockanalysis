@@ -3,21 +3,24 @@ package com.person.lsj.stock.bean.dongfang.task;
 import com.alibaba.fastjson2.JSON;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.person.lsj.stock.bean.dongfang.data.StockDetailsDeserializer;
 import com.person.lsj.stock.bean.dongfang.data.StockDetailsData;
-import com.person.lsj.stock.bean.dongfang.moneyflow.StockMoneyFlowBean;
+import com.person.lsj.stock.bean.dongfang.data.StockDetailsDeserializer;
 import com.person.lsj.stock.service.RedisOpsService;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.core5.util.Timeout;
 import org.apache.log4j.Logger;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 public class GetStockCodeV6Details implements Callable<StockDetailsData> {
     private static Logger LOGGER = Logger.getLogger(GetStockCodeV6Details.class);
@@ -55,7 +58,11 @@ public class GetStockCodeV6Details implements Callable<StockDetailsData> {
                 }
             }
 
-            try (CloseableHttpClient httpClient = HttpClients.createDefault();
+            RequestConfig requestConfig = RequestConfig.custom()
+                    .setConnectTimeout(Timeout.of(3000, TimeUnit.SECONDS))  // 设置连接超时为5秒
+                    .setConnectionRequestTimeout(Timeout.of(5000, TimeUnit.SECONDS))  // 设置从连接池中获取连接的超时为3秒
+                    .build();
+            try (CloseableHttpClient httpClient = HttpClients.custom().setDefaultRequestConfig(requestConfig).build();
                  CloseableHttpResponse httpResponse = httpClient.execute(httpGet);
                  InputStream inputStream = httpResponse.getEntity().getContent();
                  InputStreamReader inputStreamReader = new InputStreamReader(inputStream);

@@ -102,6 +102,12 @@ public class CurrentDayDataResultJob implements Job {
         //set job details
         Map<String, String> jobDetailsMap = (Map<String, String>) jobDataMap.get(JobConstants.JOB_DETAILS_MAP);
         jobDetailsMap.put(JobConstants.JOB_DETAILS_KEY_EXE_TIME, LocalDateTime.now().format(DateTimeFormatter.ofPattern(CustomDateFormat.DATE_TIME_FORMAT)));
+
+        // clear data
+        stockDataFilterTasks.getStockFilterTasksMap().values().stream().forEach(chain->{
+            chain.getStockDetailsDataMap().clear();
+            chain.getStockMoneyFlowBeanList().clear();
+        });
         LOGGER.debug("CurrentDayDataResultJob End Normally");
     }
 }
