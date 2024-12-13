@@ -44,7 +44,7 @@ import java.util.stream.Collectors;
 public class DongFangStockDataCapturerServiceImpl implements StockDataCapturerService {
     private static Logger LOGGER = Logger.getLogger(StockDataCapturerService.class);
 
-    private static final String STOCK_HOST = "https://43.push2.eastmoney.com";
+    private static final String STOCK_HOST = "https://push2.eastmoney.com";
 
     // get StockCodeList
     private static final String HOME_PAGE_URL = STOCK_HOST + "/api/qt/clist/get";
@@ -530,7 +530,7 @@ public class DongFangStockDataCapturerServiceImpl implements StockDataCapturerSe
             URIBuilder uriBuilder = new URIBuilder(STOCK_MONEY_FLOW_TODAY_URL);
 
             // 获取days天的数据
-            uriBuilder.addParameter("lmt", "1");
+            uriBuilder.addParameter("lmt", "0");
             uriBuilder.addParameter("klt", "1");
 
             uriBuilder.addParameter("fields1", "f1,f2,f3,f7");
@@ -541,7 +541,7 @@ public class DongFangStockDataCapturerServiceImpl implements StockDataCapturerSe
                 LOGGER.debug("start get money flow msg:" + stockCode);
                 uriBuilder.setParameter("secid", getRequestSecid(stockCode));
                 HttpGet httpGet = new HttpGet(uriBuilder.build());
-                FutureTask<StockMoneyFlowBean> stockMoneyFlowBeanFutureTask = new FutureTask<>(new GetStockCodeTodayMoneyData(stockCode, httpGet, countDownLatch, redisOpsService, true));
+                FutureTask<StockMoneyFlowBean> stockMoneyFlowBeanFutureTask = new FutureTask<>(new GetStockCodeTodayMoneyData(stockCode, httpGet, countDownLatch, redisOpsService, useRedisCache));
                 futureTaskArrayList.add(stockMoneyFlowBeanFutureTask);
                 threadPool.execute(stockMoneyFlowBeanFutureTask);
                 LOGGER.debug("end money flow msg:" + stockCode);
