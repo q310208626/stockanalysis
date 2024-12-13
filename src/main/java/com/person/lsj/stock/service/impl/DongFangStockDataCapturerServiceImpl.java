@@ -606,6 +606,11 @@ public class DongFangStockDataCapturerServiceImpl implements StockDataCapturerSe
                 StockMoneyFlowData lastStockMoneyFlowData = stockMoneyFlowBean.getDatas().getFirst();
                 String stockCode = stockMoneyFlowBean.getStockCode();
                 StockMoneyFlowBean toDayStockMoneyFlowData = stockMoneyFlowTodayDataMap.get(stockCode);
+
+                if (toDayStockMoneyFlowData.getDatas().size() <= 0) {
+                    continue;
+                }
+
                 if (lastStockMoneyFlowData.getDataDate().equals(toDayStockMoneyFlowData.getDatas().getLast().getDataDate())) {
                     continue;
                 }
