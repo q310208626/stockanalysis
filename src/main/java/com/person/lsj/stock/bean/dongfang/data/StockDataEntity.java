@@ -29,7 +29,7 @@ public class StockDataEntity {
     private float bollUpper;
 
     private float cci;
-    private float cciTvp;
+    private float cciTyp;
 
     private float cr;
     private float crA;
@@ -274,12 +274,12 @@ public class StockDataEntity {
         this.cci = cci;
     }
 
-    public float getCciTvp() {
-        return cciTvp;
+    public float getCciTyp() {
+        return cciTyp;
     }
 
-    public void setCciTvp(float cciTvp) {
-        this.cciTvp = cciTvp;
+    public void setCciTyp(float cciTyp) {
+        this.cciTyp = cciTyp;
     }
 
     public float getCr() {

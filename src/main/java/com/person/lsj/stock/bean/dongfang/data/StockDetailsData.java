@@ -62,6 +62,9 @@ public class StockDetailsData {
                 // RSI
                 setRsi(stockDataEntities, i);
 
+                // CCI
+                setCci(stockDataEntities, i);
+
                 // MACD
                 if (i == 0) {
                     stockDataEntities.get(i).setMacdAx(stockDataEntities.get(i).getClose());
@@ -288,6 +291,29 @@ public class StockDetailsData {
             stockDataEntities.get(i).setRsiA(stockDataEntities.get(i).getRsiDnA() == 0 ? 0 : stockDataEntities.get(i).getRsiUpA() / stockDataEntities.get(i).getRsiDnA() * 100);
             stockDataEntities.get(i).setRsiB(stockDataEntities.get(i).getRsiDnB() == 0 ? 0 : stockDataEntities.get(i).getRsiUpB() / stockDataEntities.get(i).getRsiDnB() * 100);
             stockDataEntities.get(i).setRsiC(stockDataEntities.get(i).getRsiDnC() == 0 ? 0 : stockDataEntities.get(i).getRsiUpC() / stockDataEntities.get(i).getRsiDnC() * 100);
+        }
+    }
+
+    private void setCci(List<StockDataEntity> stockDataEntities, int i) {
+        stockDataEntities.get(i).setCciTyp((stockDataEntities.get(i).getHigh() + stockDataEntities.get(i).getLow() + stockDataEntities.get(i).getClose()) / 3);
+        if (i >= 13) {
+            float sum = 0;
+            for (var j = 0; j < 14; j++) {
+                sum += stockDataEntities.get(i - j).getClose();
+            }
+            float CCI_MA = sum / 14;
+            sum = 0;
+            for (var j = 0; j < 14; j++) {
+                sum += stockDataEntities.get(i - j).getCciTyp();
+            }
+            float CCI_TYP_MA = sum / 14;
+            sum = 0;
+            for (var j = 0; j < 14; j++) {
+                sum += Math.abs(stockDataEntities.get(i - j).getCciTyp() - CCI_TYP_MA);
+            }
+            if (sum != 0) {
+                stockDataEntities.get(i).setCci((stockDataEntities.get(i).getCciTyp() - CCI_TYP_MA) / (0.015f * (sum / 14)));
+            }
         }
     }
 
