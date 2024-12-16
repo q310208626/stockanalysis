@@ -30,7 +30,8 @@ public class QuartzConfiguration {
                 .newTrigger()
                 .forJob(stockDataResultJob())
                 .withIdentity(JobConstants.JOB_NAME_STOCK_DATA_RESULT_JOB)
-                .withSchedule(CronScheduleBuilder.cronSchedule("0 30 15 * * ? *"))
+//                .withSchedule(CronScheduleBuilder.cronSchedule("0 30 15 * * ? *"))
+                .startNow()
                 .build();
     }
 
