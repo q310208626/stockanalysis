@@ -30,6 +30,22 @@ public class FilterConfiguration {
         return stockDetailsDataFilterChain;
     }
 
+    @Bean(name = "stockDetailsDataFilterChain_KDJ_MACD_MainMoney3000")
+    public StockDetailsDataFilterChain stockDetailsDataFilterChain_KDJ_MACD_MainMoney3000() {
+        MainMoneyFlowDataFilter moneyFlowDataFilter = new MainMoneyFlowDataFilter(new TREND[]{TREND.TEND_RANDOM, TREND.TEND_RANDOM, TREND.TEND_RANDOM}, 10000000);
+
+        MacdStockDetailsDataFilter macdStockDetailsDataFilter = new MacdStockDetailsDataFilter(new TREND[]{TREND.TEND_RANDOM, TREND.TEND_DOWN, TREND.TEND_DOWN, TREND.TEND_DOWN});
+        KdjStockDetailsDataFilter kdjStockDetailsDataFilter = new KdjStockDetailsDataFilter(new TREND[]{TREND.TEND_DOWN, TREND.TEND_DOWN, TREND.TEND_DOWN, TREND.TEND_DOWN});
+        List<StockDetailsDataFilter> filters = new ArrayList<StockDetailsDataFilter>();
+        filters.add(macdStockDetailsDataFilter);
+        filters.add(kdjStockDetailsDataFilter);
+
+        StockDetailsDataFilterChain stockDetailsDataFilterChain = new StockDetailsDataFilterChain(filters);
+        stockDetailsDataFilterChain.setTaskId("Task_0000_KDJ_MACD_主力1000");
+        stockDetailsDataFilterChain.setMoneyFlowDataFilter(moneyFlowDataFilter);
+        return stockDetailsDataFilterChain;
+    }
+
     @Bean(name = "stockDetailsDataFilterChain_KDJ_MACD_BigOrder1000")
     public StockDetailsDataFilterChain stockDetailsDataFilterChain_KDJ_MACD_BigOrder1000() {
         BigOrderMoneyFlowDataFilter moneyFlowDataFilter = new BigOrderMoneyFlowDataFilter(new TREND[]{TREND.TEND_UP, TREND.TEND_UP}, new TREND[]{TREND.TEND_UP, TREND.TEND_UP});
@@ -304,6 +320,21 @@ public class FilterConfiguration {
         return stockDetailsDataFilterChain;
     }
 
+    @Bean(name = "stockDetailsDataFilterChain_Volume3Up")
+    public StockDetailsDataFilterChain stockDetailsDataFilterChain_Volume3Up() {
+        MainMoneyFlowDataFilter moneyFlowDataFilter = new MainMoneyFlowDataFilter();
+        List<StockDetailsDataFilter> filters = new ArrayList<StockDetailsDataFilter>();
+        IncreaseRateDataFilter increaseRateDataFilter = new IncreaseRateDataFilter(new TREND[]{TREND.TEND_DOWN, TREND.TEND_DOWN}, new float[]{2f, 1.0f});
+        VolumeTrendDetailsFilter volumeDetailsFilter = new VolumeTrendDetailsFilter(new TREND[]{TREND.TEND_UP, TREND.TEND_UP, TREND.TEND_UP}, true, false);
+        filters.add(increaseRateDataFilter);
+        filters.add(volumeDetailsFilter);
+
+        StockDetailsDataFilterChain stockDetailsDataFilterChain = new StockDetailsDataFilterChain(filters);
+        stockDetailsDataFilterChain.setTaskId("Task_0016_交易量3天上升_涨幅不大");
+        stockDetailsDataFilterChain.setMoneyFlowDataFilter(moneyFlowDataFilter);
+        return stockDetailsDataFilterChain;
+    }
+
     @Bean(name = "stockBoardMacdJudgeFilterChain1")
     public StockDetailsDataFilterChain stockBoardMacdJudgeFilterChain1() {
         MacdStockDetailsDataFilter macdStockDetailsDataFilter = new MacdStockDetailsDataFilter(new TREND[]{TREND.TEND_UP, TREND.TEND_DOWN, TREND.TEND_DOWN}, TREND.TEND_RANDOM);
@@ -419,6 +450,18 @@ public class FilterConfiguration {
 
         StockDetailsDataFilterChain stockDetailsDataFilterChain = new StockDetailsDataFilterChain(filters);
         stockDetailsDataFilterChain.setTaskId("Task_boards_0009_主力资金2天流入3亿");
+        stockDetailsDataFilterChain.setFlag(Constant.TASK_FLAG_STOCK_BOARD);
+        stockDetailsDataFilterChain.setMoneyFlowDataFilter(moneyFlowDataFilter);
+        return stockDetailsDataFilterChain;
+    }
+
+    @Bean(name = "stockBoardMainMoneyFlow_FirstUp")
+    public StockDetailsDataFilterChain stockBoardMainMoneyFlow_FirstUp() {
+        MainMoneyFlowDataFilter moneyFlowDataFilter = new MainMoneyFlowDataFilter(new TREND[]{TREND.TEND_UP, TREND.TEND_DOWN, TREND.TEND_DOWN}, 100000000);
+        List<StockDetailsDataFilter> filters = new ArrayList<StockDetailsDataFilter>();
+
+        StockDetailsDataFilterChain stockDetailsDataFilterChain = new StockDetailsDataFilterChain(filters);
+        stockDetailsDataFilterChain.setTaskId("Task_boards_0009_主力资金_两次出逃后再加入");
         stockDetailsDataFilterChain.setFlag(Constant.TASK_FLAG_STOCK_BOARD);
         stockDetailsDataFilterChain.setMoneyFlowDataFilter(moneyFlowDataFilter);
         return stockDetailsDataFilterChain;
