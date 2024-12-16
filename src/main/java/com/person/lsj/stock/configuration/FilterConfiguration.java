@@ -199,6 +199,22 @@ public class FilterConfiguration {
         return stockDetailsDataFilterChain;
     }
 
+    @Bean(name = "stockDetailsDataFilterChainKDJUp")
+    public StockDetailsDataFilterChain stockDetailsDataFilterChainKDJUp2() {
+        MainMoneyFlowDataFilter moneyFlowDataFilter = new MainMoneyFlowDataFilter();
+
+        MacdStockDetailsDataFilter macdStockDetailsDataFilter = new MacdStockDetailsDataFilter(new TREND[]{TREND.TEND_DOWN, TREND.TEND_DOWN, TREND.TEND_DOWN}, TREND.TEND_DOWN);
+        KdjStockDetailsDataFilter kdjStockDetailsDataFilter = new KdjStockDetailsDataFilter(20, new TREND[]{TREND.TEND_UP});
+        List<StockDetailsDataFilter> filters = new ArrayList<StockDetailsDataFilter>();
+        filters.add(macdStockDetailsDataFilter);
+        filters.add(kdjStockDetailsDataFilter);
+
+        StockDetailsDataFilterChain stockDetailsDataFilterChain = new StockDetailsDataFilterChain(filters);
+        stockDetailsDataFilterChain.setTaskId("Task_0008_底部背离");
+        stockDetailsDataFilterChain.setMoneyFlowDataFilter(moneyFlowDataFilter);
+        return stockDetailsDataFilterChain;
+    }
+
     @Bean(name = "stockDetailsDataFilterChainKDJUp4")
     public StockDetailsDataFilterChain stockDetailsDataFilterChainKDJUp4() {
         MainMoneyFlowDataFilter moneyFlowDataFilter = new MainMoneyFlowDataFilter();
