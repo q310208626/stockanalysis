@@ -204,7 +204,7 @@ public class FilterConfiguration {
         MainMoneyFlowDataFilter moneyFlowDataFilter = new MainMoneyFlowDataFilter();
 
         MacdStockDetailsDataFilter macdStockDetailsDataFilter = new MacdStockDetailsDataFilter(new TREND[]{TREND.TEND_DOWN, TREND.TEND_DOWN, TREND.TEND_DOWN}, TREND.TEND_DOWN);
-        KdjStockDetailsDataFilter kdjStockDetailsDataFilter = new KdjStockDetailsDataFilter(20, new TREND[]{TREND.TEND_UP});
+        KdjStockDetailsDataFilter kdjStockDetailsDataFilter = new KdjStockDetailsDataFilter(25, new TREND[]{TREND.TEND_UP});
         List<StockDetailsDataFilter> filters = new ArrayList<StockDetailsDataFilter>();
         filters.add(macdStockDetailsDataFilter);
         filters.add(kdjStockDetailsDataFilter);
