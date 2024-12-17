@@ -611,10 +611,10 @@ public class DongFangStockDataCapturerServiceImpl implements StockDataCapturerSe
                     continue;
                 }
 
-                if (lastStockMoneyFlowData.getDataDate().equals(toDayStockMoneyFlowData.getDatas().getLast().getDataDate())) {
+                if (lastStockMoneyFlowData.getDataDate().equals(toDayStockMoneyFlowData.getDatas().getFirst().getDataDate())) {
                     continue;
                 }
-                stockMoneyFlowBean.getDatas().addFirst(toDayStockMoneyFlowData.getDatas().getLast());
+                stockMoneyFlowBean.getDatas().addFirst(toDayStockMoneyFlowData.getDatas().getFirst());
             }
 
         } catch (URISyntaxException e) {
