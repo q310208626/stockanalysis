@@ -127,10 +127,11 @@ public class CurrentDayDataResultJob implements Job {
 
             endTime = System.currentTimeMillis();
         } catch (Exception e) {
+            LOGGER.error(e.getMessage());
             throw new RuntimeException(e);
         } finally {
             tempStockDetailsDataMap.clear();
+            LOGGER.info("CurrentDayDataResultJob End Normally, cost:" + (endTime - startTime) + "ms");
         }
-        LOGGER.info("CurrentDayDataResultJob End Normally, cost:" + (endTime - startTime) + "ms");
     }
 }
