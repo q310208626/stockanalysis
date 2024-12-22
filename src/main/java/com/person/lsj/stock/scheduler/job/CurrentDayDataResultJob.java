@@ -35,7 +35,8 @@ public class CurrentDayDataResultJob implements Job {
 
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
-        LOGGER.debug("CurrentDayDataResultJob start[" + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME) + "]");
+        LOGGER.info("CurrentDayDataResultJob start[" + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME) + "]");
+        long startTime = System.currentTimeMillis();
         JobDataMap jobDataMap = context.getMergedJobDataMap();
         List<String> allStockCodes = stockDataCapturerService.getAllStockCodes();
         if (CollectionUtils.isEmpty(allStockCodes)) {
@@ -108,6 +109,8 @@ public class CurrentDayDataResultJob implements Job {
             chain.getStockDetailsDataMap().clear();
             chain.getStockMoneyFlowBeanList().clear();
         });
-        LOGGER.debug("CurrentDayDataResultJob End Normally");
+
+        long endTime = System.currentTimeMillis();
+        LOGGER.info("CurrentDayDataResultJob End Normally, cost:" + (endTime - startTime) + "ms");
     }
 }

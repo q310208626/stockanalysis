@@ -27,6 +27,10 @@ public class MacdStockDetailsDataFilter implements StockDetailsDataFilter {
     // diff is large then zero
     private TREND isDiffLargeThenZero = TREND.TEND_RANDOM;
 
+    private int minDiff = -200;
+
+    private int maxDiff = 200;
+
     public MacdStockDetailsDataFilter(TREND[] macdJudgeRule) {
         this(macdJudgeRule, TREND.TEND_DOWN);
     }
@@ -44,6 +48,12 @@ public class MacdStockDetailsDataFilter implements StockDetailsDataFilter {
         this.diffJudgeRule = diffJudgeRule;
         this.diffLargeThenDea = diffLargeThenDea;
         this.isDiffLargeThenZero = isDiffLargeThenZero;
+    }
+
+    public MacdStockDetailsDataFilter(TREND[] diffJudgeRule, int minDiff, int maxDiff) {
+        this.diffJudgeRule = diffJudgeRule;
+        this.minDiff = minDiff;
+        this.maxDiff = maxDiff;
     }
 
     @Override
@@ -82,7 +92,8 @@ public class MacdStockDetailsDataFilter implements StockDetailsDataFilter {
                 if (1 == curReverseDayNum) {
                     boolean resultMatchDiffNdDea = isMatchDiffAndDea(stockDataEntity);
                     boolean resultMatchDiffNdZero = isMatchDiffAndZero(stockDataEntity);
-                    matchJudgeRule = matchJudgeRule && resultMatchDiffNdDea && resultMatchDiffNdZero;
+                    boolean resultMatchDiffMinAndMax = isMatchDiffMinAndMax(stockDataEntity);
+                    matchJudgeRule = matchJudgeRule && resultMatchDiffNdDea && resultMatchDiffNdZero & resultMatchDiffMinAndMax;
                 }
 
                 // if one days data no match,break down current loop
@@ -116,6 +127,14 @@ public class MacdStockDetailsDataFilter implements StockDetailsDataFilter {
         if (isDiffLargeThenZero.equals(TREND.TEND_DOWN) && (stockDataEntity.getMacdDif() > 0)) {
             matchJudgeRule = false;
         } else if (isDiffLargeThenZero.equals(TREND.TEND_UP) && (stockDataEntity.getMacdDif() < 0)) {
+            matchJudgeRule = false;
+        }
+        return matchJudgeRule;
+    }
+
+    private boolean isMatchDiffMinAndMax(StockDataEntity stockDataEntity) {
+        boolean matchJudgeRule = true;
+        if (stockDataEntity.getMacdDif() < minDiff || stockDataEntity.getMacdDif() > maxDiff) {
             matchJudgeRule = false;
         }
         return matchJudgeRule;
