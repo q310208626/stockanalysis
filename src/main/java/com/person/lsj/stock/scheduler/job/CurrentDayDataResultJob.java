@@ -18,9 +18,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @DisallowConcurrentExecution
@@ -33,84 +31,106 @@ public class CurrentDayDataResultJob implements Job {
     @Autowired
     private StockDataFilterTasks stockDataFilterTasks;
 
+    private Map<String, StockDetailsData> tempStockDetailsDataMap = new HashMap<>();
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
         LOGGER.info("CurrentDayDataResultJob start[" + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME) + "]");
-        long startTime = System.currentTimeMillis();
-        JobDataMap jobDataMap = context.getMergedJobDataMap();
-        List<String> allStockCodes = stockDataCapturerService.getAllStockCodes();
-        if (CollectionUtils.isEmpty(allStockCodes)) {
-            LOGGER.debug("CurrentDayDataResultJob End With Empty Stock Codes");
-            return;
-        }
-
-        // get money flow data
-        List<StockMoneyFlowBean> stockMoneyFlowDataList = stockDataCapturerService.getStockMoneyFlowData(allStockCodes);
-        Map<String, StockDetailsDataFilterChain> stockFilterTasksMap = stockDataFilterTasks.getStockFilterTasksMap();
-        for (String taskId : stockDataFilterTasks.getStockFilterTasksMap().keySet()) {
-            StockDetailsDataFilterChain stockDetailsDataFilterChain = stockFilterTasksMap.get(taskId);
-
-            // check if task for stock code
-            if (stockDetailsDataFilterChain.getFlag() != Constant.TASK_FLAG_STOCK_CODE) {
-                continue;
+        long startTime = 0;
+        long endTime = 0;
+        try {
+            startTime = System.currentTimeMillis();
+            JobDataMap jobDataMap = context.getMergedJobDataMap();
+            List<String> allStockCodes = stockDataCapturerService.getAllStockCodes();
+            if (CollectionUtils.isEmpty(allStockCodes)) {
+                LOGGER.debug("CurrentDayDataResultJob End With Empty Stock Codes");
+                return;
             }
 
-            // money flow filter
-            stockDetailsDataFilterChain.setStockMoneyFlowBeanList(stockMoneyFlowDataList);
-            List<StockMoneyFlowBean> targetMoneyFlowBeanList = stockDetailsDataFilterChain.doFilterMoneyFlow();
-            List<String> targetStockCodeList = targetMoneyFlowBeanList.stream().map(x -> x.getStockCode()).collect(Collectors.toList());
-            for (int i = targetMoneyFlowBeanList.size() - 1; i >= 0; i--) {
-                StockMoneyFlowBean stockMoneyFlowBean = targetMoneyFlowBeanList.get(i);
-                if (stockMoneyFlowBean.getStockCode() == null) {
-                    System.out.println("stockCode is null" + i + ":" + stockMoneyFlowBean.getStockCode());
+            // get money flow data
+            List<StockMoneyFlowBean> stockMoneyFlowDataList = stockDataCapturerService.getStockMoneyFlowData(allStockCodes);
+            Map<String, StockDetailsDataFilterChain> stockFilterTasksMap = stockDataFilterTasks.getStockFilterTasksMap();
+            for (String taskId : stockDataFilterTasks.getStockFilterTasksMap().keySet()) {
+                StockDetailsDataFilterChain stockDetailsDataFilterChain = stockFilterTasksMap.get(taskId);
+
+                // check if task for stock code
+                if (stockDetailsDataFilterChain.getFlag() != Constant.TASK_FLAG_STOCK_CODE) {
+                    continue;
                 }
+
+                // money flow filter
+                stockDetailsDataFilterChain.setStockMoneyFlowBeanList(stockMoneyFlowDataList);
+                List<StockMoneyFlowBean> targetMoneyFlowBeanList = stockDetailsDataFilterChain.doFilterMoneyFlow();
+                List<String> targetStockCodeList = targetMoneyFlowBeanList.stream().map(x -> x.getStockCode()).collect(Collectors.toList());
+                for (int i = targetMoneyFlowBeanList.size() - 1; i >= 0; i--) {
+                    StockMoneyFlowBean stockMoneyFlowBean = targetMoneyFlowBeanList.get(i);
+                    if (stockMoneyFlowBean.getStockCode() == null) {
+                        System.out.println("stockCode is null" + i + ":" + stockMoneyFlowBean.getStockCode());
+                    }
+                }
+
+                // v6 details filter
+                Iterator<String> targetStockCodeIterator = targetStockCodeList.iterator();
+                List<String> stockCodeToQuery = new ArrayList<>();
+                Map<String, StockDetailsData> stockCodesV6DetailMap = new HashMap<>();
+                while (targetStockCodeIterator.hasNext()) {
+                    String stockCode = targetStockCodeIterator.next();
+                    if (tempStockDetailsDataMap.get(stockCode) == null) {
+                        stockCodeToQuery.add(stockCode);
+                    } else {
+                        stockCodesV6DetailMap.put(stockCode, tempStockDetailsDataMap.get(stockCode));
+                    }
+                }
+                Map<String, StockDetailsData> remainStockDetailsMap = stockDataCapturerService.getStockCodesV6Detail(stockCodeToQuery);
+                tempStockDetailsDataMap.putAll(remainStockDetailsMap);
+                stockCodesV6DetailMap.putAll(remainStockDetailsMap);
+                stockDetailsDataFilterChain.setStockDetailsDataMap(stockCodesV6DetailMap);
+            }
+            stockDataFilterTasks.processTasks(Constant.TASK_FLAG_STOCK_CODE);
+
+            Map<String, StockDataResultSum> stockFilterTasksResultMap = stockDataFilterTasks.getStockFilterTasksResultMap();
+
+            // fill result data
+            for (StockDataResultSum stockDataResultSum : stockFilterTasksResultMap.values()) {
+                List<String> stockCodes = stockDataResultSum.getStockDataResultDetailsList().stream().map(x -> x.getStockCode()).collect(Collectors.toList());
+                Map<String, StockCurDetailsData> stockCodesCurDayDetail = stockDataCapturerService.getStockCodesCurDayDetail(stockCodes);
+
+                // set desc
+                StockDetailsDataFilterChain stockDetailsDataFilterChain = stockFilterTasksMap.get(stockDataResultSum.getTaskId());
+                stockDataResultSum.setDesc(stockDetailsDataFilterChain.getFilterRuleMsgs());
+
+                // set current time data
+                stockDataResultSum
+                        .getStockDataResultDetailsList()
+                        .forEach(x -> {
+                            StockCurDetailsData stockCurDetailsData = stockCodesCurDayDetail.get(x.getStockCode());
+                            x.setStockName(stockCurDetailsData.getStockName());
+                            x.setOpen(Float.valueOf(stockCurDetailsData.getOpen()));
+                            x.setClose(Float.valueOf(stockCurDetailsData.getCur()));
+                            x.setIncrease(Float.valueOf(stockCurDetailsData.getIncreasePercentage()));
+                        });
             }
 
-            // v6 details filter
-            Map<String, StockDetailsData> stockCodesV6DetailMap = stockDataCapturerService.getStockCodesV6Detail(targetStockCodeList);
-            stockDetailsDataFilterChain.setStockDetailsDataMap(stockCodesV6DetailMap);
+            // set result
+            Map<String, StockDataResultSum> outerStockFilterTasksResultMap = (Map<String, StockDataResultSum>) jobDataMap.get(JobConstants.RESULT_MAP);
+            outerStockFilterTasksResultMap.clear();
+            outerStockFilterTasksResultMap.putAll(stockFilterTasksResultMap);
+
+            //set job details
+            Map<String, String> jobDetailsMap = (Map<String, String>) jobDataMap.get(JobConstants.JOB_DETAILS_MAP);
+            jobDetailsMap.put(JobConstants.JOB_DETAILS_KEY_EXE_TIME, LocalDateTime.now().format(DateTimeFormatter.ofPattern(CustomDateFormat.DATE_TIME_FORMAT)));
+
+            // clear data
+            stockDataFilterTasks.getStockFilterTasksMap().values().stream().forEach(chain->{
+                chain.getStockDetailsDataMap().clear();
+                chain.getStockMoneyFlowBeanList().clear();
+            });
+
+            endTime = System.currentTimeMillis();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        } finally {
+            tempStockDetailsDataMap.clear();
         }
-        stockDataFilterTasks.processTasks(Constant.TASK_FLAG_STOCK_CODE);
-
-        Map<String, StockDataResultSum> stockFilterTasksResultMap = stockDataFilterTasks.getStockFilterTasksResultMap();
-
-        // fill result data
-        for (StockDataResultSum stockDataResultSum : stockFilterTasksResultMap.values()) {
-            List<String> stockCodes = stockDataResultSum.getStockDataResultDetailsList().stream().map(x -> x.getStockCode()).collect(Collectors.toList());
-            Map<String, StockCurDetailsData> stockCodesCurDayDetail = stockDataCapturerService.getStockCodesCurDayDetail(stockCodes);
-
-            // set desc
-            StockDetailsDataFilterChain stockDetailsDataFilterChain = stockFilterTasksMap.get(stockDataResultSum.getTaskId());
-            stockDataResultSum.setDesc(stockDetailsDataFilterChain.getFilterRuleMsgs());
-
-            // set current time data
-            stockDataResultSum
-                    .getStockDataResultDetailsList()
-                    .forEach(x -> {
-                        StockCurDetailsData stockCurDetailsData = stockCodesCurDayDetail.get(x.getStockCode());
-                        x.setStockName(stockCurDetailsData.getStockName());
-                        x.setOpen(Float.valueOf(stockCurDetailsData.getOpen()));
-                        x.setClose(Float.valueOf(stockCurDetailsData.getCur()));
-                        x.setIncrease(Float.valueOf(stockCurDetailsData.getIncreasePercentage()));
-                    });
-        }
-
-        // set result
-        Map<String, StockDataResultSum> outerStockFilterTasksResultMap = (Map<String, StockDataResultSum>) jobDataMap.get(JobConstants.RESULT_MAP);
-        outerStockFilterTasksResultMap.clear();
-        outerStockFilterTasksResultMap.putAll(stockFilterTasksResultMap);
-
-        //set job details
-        Map<String, String> jobDetailsMap = (Map<String, String>) jobDataMap.get(JobConstants.JOB_DETAILS_MAP);
-        jobDetailsMap.put(JobConstants.JOB_DETAILS_KEY_EXE_TIME, LocalDateTime.now().format(DateTimeFormatter.ofPattern(CustomDateFormat.DATE_TIME_FORMAT)));
-
-        // clear data
-        stockDataFilterTasks.getStockFilterTasksMap().values().stream().forEach(chain->{
-            chain.getStockDetailsDataMap().clear();
-            chain.getStockMoneyFlowBeanList().clear();
-        });
-
-        long endTime = System.currentTimeMillis();
         LOGGER.info("CurrentDayDataResultJob End Normally, cost:" + (endTime - startTime) + "ms");
     }
 }
