@@ -132,7 +132,7 @@ public class FilterConfiguration {
 
     @Bean(name = "stockDetailsDataFilterChain_KDJ_MACDDiffUp2Days")
     public StockDetailsDataFilterChain stockDetailsDataFilterChain_KDJ_MACDDiffUp2Days() {
-        MainMoneyFlowDataFilter moneyFlowDataFilter = new MainMoneyFlowDataFilter(new TREND[]{TREND.TEND_RANDOM, TREND.TEND_RANDOM, TREND.TEND_RANDOM}, 4000000);
+//        MainMoneyFlowDataFilter moneyFlowDataFilter = new MainMoneyFlowDataFilter(new TREND[]{TREND.TEND_RANDOM, TREND.TEND_RANDOM, TREND.TEND_RANDOM}, 5000000);
 
         MacdStockDetailsDataFilter macdStockDetailsDataFilter = new MacdStockDetailsDataFilter(new TREND[]{TREND.TEND_UP, TREND.TEND_UP}, -20, 0);
         KdjStockDetailsDataFilter kdjStockDetailsDataFilter = new KdjStockDetailsDataFilter(20, 30, new TREND[]{TREND.TEND_UP, TREND.TEND_UP});
@@ -142,7 +142,7 @@ public class FilterConfiguration {
 
         StockDetailsDataFilterChain stockDetailsDataFilterChain = new StockDetailsDataFilterChain(filters);
         stockDetailsDataFilterChain.setTaskId("Task_0000_KDJ_MACDDiffUp2Days");
-        stockDetailsDataFilterChain.setMoneyFlowDataFilter(moneyFlowDataFilter);
+//        stockDetailsDataFilterChain.setMoneyFlowDataFilter(moneyFlowDataFilter);
         return stockDetailsDataFilterChain;
     }
 
