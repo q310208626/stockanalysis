@@ -17,18 +17,33 @@ public class MacdStockDetailsDataFilter implements StockDetailsDataFilter {
 
     // size = judgeDay  key=reveser day num  value=0/1/* 0=up 1=down *=up or down
     // eg.  [*,1,1,1,1] represent: last day is up or down, second~fifth to last day is down
-    private TREND[] daysJudgeRule;
+    private TREND[] macdJudgeRule = new TREND[]{TREND.TEND_RANDOM};
+
+    private TREND[] diffJudgeRule = new TREND[]{TREND.TEND_RANDOM};
 
     // diff is large then dea,default is small then dea
-    private TREND diffLargeThenDea;
+    private TREND diffLargeThenDea = TREND.TEND_RANDOM;
 
-    public MacdStockDetailsDataFilter(TREND[] daysJudgeRule) {
-        this(daysJudgeRule, TREND.TEND_DOWN);
+    // diff is large then zero
+    private TREND isDiffLargeThenZero = TREND.TEND_RANDOM;
+
+    public MacdStockDetailsDataFilter(TREND[] macdJudgeRule) {
+        this(macdJudgeRule, TREND.TEND_DOWN);
     }
 
-    public MacdStockDetailsDataFilter(TREND[] daysJudgeRule, TREND diffLargeThenDea) {
-        this.daysJudgeRule = daysJudgeRule;
+    public MacdStockDetailsDataFilter(TREND[] macdJudgeRule, TREND diffLargeThenDea) {
+        this(macdJudgeRule, diffLargeThenDea, TREND.TEND_RANDOM);
+    }
+
+    public MacdStockDetailsDataFilter(TREND[] macdJudgeRule, TREND diffLargeThenDea, TREND isDiffLargeThenZero) {
+        this(macdJudgeRule, new TREND[]{TREND.TEND_RANDOM}, diffLargeThenDea, isDiffLargeThenZero);
+    }
+
+    public MacdStockDetailsDataFilter(TREND[] macdJudgeRule, TREND[] diffJudgeRule, TREND diffLargeThenDea, TREND isDiffLargeThenZero) {
+        this.macdJudgeRule = macdJudgeRule;
+        this.diffJudgeRule = diffJudgeRule;
         this.diffLargeThenDea = diffLargeThenDea;
+        this.isDiffLargeThenZero = isDiffLargeThenZero;
     }
 
     @Override
@@ -39,7 +54,7 @@ public class MacdStockDetailsDataFilter implements StockDetailsDataFilter {
     @Override
     public Map<String, StockDetailsData> filter(Map<String, StockDetailsData> stockDetailsDataMap, int fewDaysAgo) {
         LOGGER.debug("enter filter,size:" + stockDetailsDataMap.size());
-        if (ArrayUtils.isEmpty(daysJudgeRule) || CollectionUtils.isEmpty(stockDetailsDataMap)) {
+        if (ArrayUtils.isEmpty(macdJudgeRule) || CollectionUtils.isEmpty(stockDetailsDataMap)) {
             return stockDetailsDataMap;
         }
 
@@ -50,7 +65,7 @@ public class MacdStockDetailsDataFilter implements StockDetailsDataFilter {
             Map.Entry<String, StockDetailsData> stockDetailsEntry = stockDetailsIterator.next();
             String stockCode = stockDetailsEntry.getKey();
             StockDetailsData stockDetailsData = stockDetailsEntry.getValue();
-            int judgeDay = stockDetailsData.getStockDataEntities().size() - fewDaysAgo <= daysJudgeRule.length ? stockDetailsData.getStockDataEntities().size() - 1 - fewDaysAgo : daysJudgeRule.length;
+            int judgeDay = stockDetailsData.getStockDataEntities().size() - fewDaysAgo <= macdJudgeRule.length ? stockDetailsData.getStockDataEntities().size() - 1 - fewDaysAgo : macdJudgeRule.length;
             boolean matchJudgeRule = true;
             if (judgeDay == 0) {
                 matchJudgeRule = false;
@@ -58,32 +73,16 @@ public class MacdStockDetailsDataFilter implements StockDetailsDataFilter {
             for (int curReverseDayNum = 1; curReverseDayNum <= judgeDay; curReverseDayNum++) {
 
                 StockDataEntity stockDataEntity = stockDetailsData.getStockDataEntities().get(stockDetailsData.getStockDataEntities().size() - curReverseDayNum - fewDaysAgo);
-                StockDataEntity stockDataEntityPre = stockDetailsData.getStockDataEntities().get(stockDetailsData.getStockDataEntities().size() - curReverseDayNum - 1 - fewDaysAgo);
-                TREND curDayJudgeRule = daysJudgeRule[curReverseDayNum - 1];
-
-                // judge current day kdj tend
-                switch (curDayJudgeRule) {
-                    case TEND_DOWN:
-                        if (stockDataEntityPre.getMacd() < stockDataEntity.getMacd()) {
-                            matchJudgeRule = false;
-                        }
-                        break;
-                    case TEND_UP:
-                        if (stockDataEntityPre.getMacd() > stockDataEntity.getMacd()) {
-                            matchJudgeRule = false;
-                        }
-                        break;
-                    case TEND_RANDOM:
-                        break;
-                    default:
-                        break;
-                }
 
                 // judge current day macdDEA is large than macdDiff
-                if (diffLargeThenDea.equals(TREND.TEND_DOWN) && (stockDataEntity.getMacdDea() < stockDataEntity.getMacdDif())) {
-                    matchJudgeRule = false;
-                } else if (diffLargeThenDea.equals(TREND.TEND_UP) && (stockDataEntity.getMacdDea() > stockDataEntity.getMacdDif())) {
-                    matchJudgeRule = false;
+                boolean resultMacd = filterMacd(stockDetailsData, curReverseDayNum, fewDaysAgo);
+                boolean resultDiff = filterDiff(stockDetailsData, curReverseDayNum, fewDaysAgo);
+                matchJudgeRule = resultMacd && resultDiff;
+
+                if (1 == curReverseDayNum) {
+                    boolean resultMatchDiffNdDea = isMatchDiffAndDea(stockDataEntity);
+                    boolean resultMatchDiffNdZero = isMatchDiffAndZero(stockDataEntity);
+                    matchJudgeRule = matchJudgeRule && resultMatchDiffNdDea && resultMatchDiffNdZero;
                 }
 
                 // if one days data no match,break down current loop
@@ -102,6 +101,88 @@ public class MacdStockDetailsDataFilter implements StockDetailsDataFilter {
         return result;
     }
 
+    private boolean isMatchDiffAndDea(StockDataEntity stockDataEntity) {
+        boolean matchJudgeRule = true;
+        if (diffLargeThenDea.equals(TREND.TEND_DOWN) && (stockDataEntity.getMacdDea() < stockDataEntity.getMacdDif())) {
+            matchJudgeRule = false;
+        } else if (diffLargeThenDea.equals(TREND.TEND_UP) && (stockDataEntity.getMacdDea() > stockDataEntity.getMacdDif())) {
+            matchJudgeRule = false;
+        }
+        return matchJudgeRule;
+    }
+
+    private boolean isMatchDiffAndZero(StockDataEntity stockDataEntity) {
+        boolean matchJudgeRule = true;
+        if (isDiffLargeThenZero.equals(TREND.TEND_DOWN) && (stockDataEntity.getMacdDif() > 0)) {
+            matchJudgeRule = false;
+        } else if (isDiffLargeThenZero.equals(TREND.TEND_UP) && (stockDataEntity.getMacdDif() < 0)) {
+            matchJudgeRule = false;
+        }
+        return matchJudgeRule;
+    }
+
+    private boolean filterMacd(StockDetailsData stockDetailsData, int curReverseDayNum, int fewDaysAgo) {
+        if (ArrayUtils.isEmpty(macdJudgeRule) || macdJudgeRule.length < curReverseDayNum) {
+            return true;
+        }
+
+        boolean matchJudgeRule = true;
+        StockDataEntity stockDataEntity = stockDetailsData.getStockDataEntities().get(stockDetailsData.getStockDataEntities().size() - curReverseDayNum - fewDaysAgo);
+        StockDataEntity stockDataEntityPre = stockDetailsData.getStockDataEntities().get(stockDetailsData.getStockDataEntities().size() - curReverseDayNum - 1 - fewDaysAgo);
+        TREND curDayJudgeRule = macdJudgeRule[curReverseDayNum - 1];
+
+        // judge current day kdj tend
+        switch (curDayJudgeRule) {
+            case TEND_DOWN:
+                if (stockDataEntityPre.getMacd() < stockDataEntity.getMacd()) {
+                    matchJudgeRule = false;
+                }
+                break;
+            case TEND_UP:
+                if (stockDataEntityPre.getMacd() > stockDataEntity.getMacd()) {
+                    matchJudgeRule = false;
+                }
+                break;
+            case TEND_RANDOM:
+                break;
+            default:
+                break;
+        }
+
+        return matchJudgeRule;
+    }
+
+    private boolean filterDiff(StockDetailsData stockDetailsData, int curReverseDayNum, int fewDaysAgo) {
+        if (ArrayUtils.isEmpty(diffJudgeRule) || diffJudgeRule.length < curReverseDayNum) {
+            return true;
+        }
+
+        boolean matchJudgeRule = true;
+        StockDataEntity stockDataEntity = stockDetailsData.getStockDataEntities().get(stockDetailsData.getStockDataEntities().size() - curReverseDayNum - fewDaysAgo);
+        StockDataEntity stockDataEntityPre = stockDetailsData.getStockDataEntities().get(stockDetailsData.getStockDataEntities().size() - curReverseDayNum - 1 - fewDaysAgo);
+        TREND curDayJudgeRule = diffJudgeRule[curReverseDayNum - 1];
+
+        // judge current day kdj tend
+        switch (curDayJudgeRule) {
+            case TEND_DOWN:
+                if (stockDataEntityPre.getMacdDif() < stockDataEntity.getMacdDif()) {
+                    matchJudgeRule = false;
+                }
+                break;
+            case TEND_UP:
+                if (stockDataEntityPre.getMacdDif() > stockDataEntity.getMacdDif()) {
+                    matchJudgeRule = false;
+                }
+                break;
+            case TEND_RANDOM:
+                break;
+            default:
+                break;
+        }
+
+        return matchJudgeRule;
+    }
+
     @Override
     public String getFilterRuleMsg() {
         StringBuffer filterRuleMsg = new StringBuffer();
@@ -117,12 +198,12 @@ public class MacdStockDetailsDataFilter implements StockDetailsDataFilter {
             filterRuleMsg.append("判断当天 macd, ");
         }
 
-        if (daysJudgeRule != null && daysJudgeRule.length > 0) {
-            filterRuleMsg.append("判断[").append(daysJudgeRule.length).append("]天");
-            for (int i = 0; i < daysJudgeRule.length; i++) {
+        if (macdJudgeRule != null && macdJudgeRule.length > 0) {
+            filterRuleMsg.append("判断[").append(macdJudgeRule.length).append("]天");
+            for (int i = 0; i < macdJudgeRule.length; i++) {
                 filterRuleMsg.append(" ,倒数第[").append(i + 1).append("]天")
                         .append("呈现[")
-                        .append(daysJudgeRule[i].tendString)
+                        .append(macdJudgeRule[i].tendString)
                         .append("趋势]");
             }
         }

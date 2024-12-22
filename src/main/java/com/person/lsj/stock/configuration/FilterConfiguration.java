@@ -112,6 +112,24 @@ public class FilterConfiguration {
         return stockDetailsDataFilterChain;
     }
 
+    @Bean(name = "stockDetailsDataFilterChain_KDJ_MACDLargeThanZero")
+    public StockDetailsDataFilterChain stockDetailsDataFilterChain_KDJ_MACDLargeThanZero() {
+        MainMoneyFlowDataFilter moneyFlowDataFilter = new MainMoneyFlowDataFilter(new TREND[]{TREND.TEND_RANDOM, TREND.TEND_RANDOM, TREND.TEND_RANDOM}, 5000000);
+
+        MacdStockDetailsDataFilter macdStockDetailsDataFilter = new MacdStockDetailsDataFilter(new TREND[]{TREND.TEND_RANDOM, TREND.TEND_RANDOM}, new TREND[]{TREND.TEND_UP, TREND.TEND_UP}, TREND.TEND_RANDOM, TREND.TEND_UP);
+        KdjStockDetailsDataFilter kdjStockDetailsDataFilter = new KdjStockDetailsDataFilter(20, 50, new TREND[]{TREND.TEND_UP, TREND.TEND_UP});
+        CciStockDetailsDataFilter cciStockDetailsDataFilter = new CciStockDetailsDataFilter(20, 80, new TREND[]{TREND.TEND_UP, TREND.TEND_UP});
+        List<StockDetailsDataFilter> filters = new ArrayList<StockDetailsDataFilter>();
+        filters.add(macdStockDetailsDataFilter);
+        filters.add(kdjStockDetailsDataFilter);
+        filters.add(cciStockDetailsDataFilter);
+
+        StockDetailsDataFilterChain stockDetailsDataFilterChain = new StockDetailsDataFilterChain(filters);
+        stockDetailsDataFilterChain.setTaskId("Task_0000_KDJ_MACDLargeThanZero");
+        stockDetailsDataFilterChain.setMoneyFlowDataFilter(moneyFlowDataFilter);
+        return stockDetailsDataFilterChain;
+    }
+
     @Bean(name = "stockDetailsDataFilterChain3DaysMoneyFlow3000w")
     public StockDetailsDataFilterChain stockDetailsDataFilterChain2() {
         // 3 day`s main money flow are all increased

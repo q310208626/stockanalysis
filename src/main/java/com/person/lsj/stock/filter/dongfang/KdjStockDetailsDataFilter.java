@@ -34,6 +34,10 @@ public class KdjStockDetailsDataFilter implements StockDetailsDataFilter {
 
     private int targetAbsJ = -1;
 
+    private int minJ = -100;
+
+    private int maxJ = 200;
+
     public KdjStockDetailsDataFilter(TREND[] jJudgeRule, int targetAbsJ, TREND[] kJudgeRule, TREND[] dJudgeRule, float dValueBtwnKD) {
         this.jJudgeRule = jJudgeRule;
         this.kJudgeRule = kJudgeRule;
@@ -48,6 +52,12 @@ public class KdjStockDetailsDataFilter implements StockDetailsDataFilter {
 
     public KdjStockDetailsDataFilter(int targetAbsJ, TREND[] jJudgeRule) {
         this(jJudgeRule, targetAbsJ, null, null, IGNORE_VALUE_FLOAT);
+    }
+
+    public KdjStockDetailsDataFilter(int minJ, int maxJ, TREND[] jJudgeRule) {
+        this.minJ = minJ;
+        this.maxJ = maxJ;
+        this.jJudgeRule = jJudgeRule;
     }
 
     public KdjStockDetailsDataFilter(TREND[] jJudgeRule) {
@@ -95,7 +105,12 @@ public class KdjStockDetailsDataFilter implements StockDetailsDataFilter {
                         matchJudgeRule = false;
                     }
 
-                    if (stockDataEntity.getKdjK() > 30 || stockDataEntity.getKdjD() > 30 || dValueBtwnKD > 0 && !(Math.abs(stockDataEntity.getKdjK() - stockDataEntity.getKdjD()) <= dValueBtwnKD)) {
+                    if (stockDataEntity.getKdjJ() < minJ || stockDataEntity.getKdjJ() > maxJ) {
+                        matchJudgeRule = false;
+                    }
+
+                    // if dValue large then 0 ,k and d should be small then 30
+                    if (dValueBtwnKD > 0 && (stockDataEntity.getKdjK() > 30 || stockDataEntity.getKdjD() > 30 || !(Math.abs(stockDataEntity.getKdjK() - stockDataEntity.getKdjD()) <= dValueBtwnKD))) {
                         matchJudgeRule = false;
                     }
                 }
