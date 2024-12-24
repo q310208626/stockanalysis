@@ -323,6 +323,10 @@ public class DongFangStockDataCapturerServiceImpl implements StockDataCapturerSe
             List<FutureTask<StockDetailsData>> futureTaskList = new ArrayList<>();
             CountDownLatch countDownLatch = new CountDownLatch(stockCodes.size());
             for (String stockCode : stockCodes) {
+                if (stockCode == null) {
+                    countDownLatch.countDown();
+                    continue;
+                }
                 uriBuilder.setParameter("secid", getRequestSecid(stockCode));
                 HttpGet httpGet = new HttpGet(uriBuilder.build());
                 FutureTask<StockDetailsData> futureTask = new FutureTask<>(new GetStockCodeV6Details(stockCode, httpGet, countDownLatch, redisOpsService, useRedisCache));

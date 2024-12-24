@@ -74,7 +74,11 @@ public class CurrentDayDataResultJob implements Job {
                 Map<String, StockDetailsData> stockCodesV6DetailMap = new HashMap<>();
                 while (targetStockCodeIterator.hasNext()) {
                     String stockCode = targetStockCodeIterator.next();
-                    if (tempStockDetailsDataMap.get(stockCode) == null) {
+                    if (stockCode == null) {
+                        continue;
+                    }
+
+                    if (tempStockDetailsDataMap.get(stockCode) == null){
                         stockCodeToQuery.add(stockCode);
                     } else {
                         stockCodesV6DetailMap.put(stockCode, tempStockDetailsDataMap.get(stockCode));
