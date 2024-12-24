@@ -603,6 +603,9 @@ public class DongFangStockDataCapturerServiceImpl implements StockDataCapturerSe
             List<StockMoneyFlowBean> stockMoneyFlowTodayData = getStockMoneyFlowTodayData(stockCodes);
             Map<String, StockMoneyFlowBean> stockMoneyFlowTodayDataMap = stockMoneyFlowTodayData.stream().distinct().collect(Collectors.toMap(x -> x.getStockCode(), x -> x));
             for (StockMoneyFlowBean stockMoneyFlowBean : stockMoneyFlowBeanList) {
+                if (stockMoneyFlowBean.getDatas() == null) {
+                    continue;
+                }
                 StockMoneyFlowData lastStockMoneyFlowData = stockMoneyFlowBean.getDatas().getFirst();
                 String stockCode = stockMoneyFlowBean.getStockCode();
                 StockMoneyFlowBean toDayStockMoneyFlowData = stockMoneyFlowTodayDataMap.get(stockCode);
