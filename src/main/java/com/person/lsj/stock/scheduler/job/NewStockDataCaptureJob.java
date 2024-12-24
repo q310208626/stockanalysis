@@ -38,50 +38,55 @@ public class NewStockDataCaptureJob implements Job {
 
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
-        LOGGER.debug("NewStockDataCaptureJob start[" + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME) + "]");
+        LOGGER.info("NewStockDataCaptureJob start[" + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME) + "]");
 
-        // judege market status, if close, dont continue the task
-        Integer stockStatus = stockDataCapturerService.getStockStatus(null);
-        if (StockStatus.CLOSED.status == stockStatus.intValue()) {
-            LOGGER.info("NewStockDataCaptureJob stop due to market is closed [" + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME) + "]");
-            return;
-        }
-
-        List<String> allStockCodes = stockDataCapturerService.getAllStockCodes();
-        if (CollectionUtils.isEmpty(allStockCodes)) {
-            LOGGER.debug("NewStockDataCaptureJob End With Empty Stock Codes");
-            return;
-        }
-
-        // get money flow data
-        List<StockMoneyFlowBean> stockMoneyFlowDataList = stockDataCapturerService.getStockMoneyFlowData(allStockCodes);
-        for (String taskId : stockDataFilterTasks.getStockFilterTasksMap().keySet()) {
-            StockDetailsDataFilterChain stockDetailsDataFilterChain = stockDataFilterTasks.getStockFilterTasksMap().get(taskId);
-
-            // check if task for stock code
-            if (stockDetailsDataFilterChain.getFlag() != Constant.TASK_FLAG_STOCK_CODE) {
-                continue;
+        try {
+            // judege market status, if close, dont continue the task
+            Integer stockStatus = stockDataCapturerService.getStockStatus(null);
+            if (StockStatus.CLOSED.status == stockStatus.intValue()) {
+                LOGGER.info("NewStockDataCaptureJob stop due to market is closed [" + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME) + "]");
+                return;
             }
 
-            // money flow filter
-            stockDetailsDataFilterChain.setStockMoneyFlowBeanList(stockMoneyFlowDataList);
-            List<StockMoneyFlowBean> targetMoneyFlowBeanList = stockDetailsDataFilterChain.doFilterMoneyFlow();
-            List<String> targetStockCodeList = targetMoneyFlowBeanList.stream().map(x -> x.getStockCode()).collect(Collectors.toList());
-            for (int i = targetMoneyFlowBeanList.size() - 1; i >= 0; i--) {
-                StockMoneyFlowBean stockMoneyFlowBean = targetMoneyFlowBeanList.get(i);
-                if (stockMoneyFlowBean.getStockCode() == null) {
-                    System.out.println("stockCode is null" + i + ":" + stockMoneyFlowBean.getStockCode());
+            List<String> allStockCodes = stockDataCapturerService.getAllStockCodes();
+            if (CollectionUtils.isEmpty(allStockCodes)) {
+                LOGGER.debug("NewStockDataCaptureJob End With Empty Stock Codes");
+                return;
+            }
+
+            // get money flow data
+            List<StockMoneyFlowBean> stockMoneyFlowDataList = stockDataCapturerService.getStockMoneyFlowData(allStockCodes);
+            for (String taskId : stockDataFilterTasks.getStockFilterTasksMap().keySet()) {
+                StockDetailsDataFilterChain stockDetailsDataFilterChain = stockDataFilterTasks.getStockFilterTasksMap().get(taskId);
+
+                // check if task for stock code
+                if (stockDetailsDataFilterChain.getFlag() != Constant.TASK_FLAG_STOCK_CODE) {
+                    continue;
                 }
+
+                // money flow filter
+                stockDetailsDataFilterChain.setStockMoneyFlowBeanList(stockMoneyFlowDataList);
+                List<StockMoneyFlowBean> targetMoneyFlowBeanList = stockDetailsDataFilterChain.doFilterMoneyFlow();
+                List<String> targetStockCodeList = targetMoneyFlowBeanList.stream().map(x -> x.getStockCode()).collect(Collectors.toList());
+                for (int i = targetMoneyFlowBeanList.size() - 1; i >= 0; i--) {
+                    StockMoneyFlowBean stockMoneyFlowBean = targetMoneyFlowBeanList.get(i);
+                    if (stockMoneyFlowBean.getStockCode() == null) {
+                        System.out.println("stockCode is null" + i + ":" + stockMoneyFlowBean.getStockCode());
+                    }
+                }
+
+                // v6 details filter
+                Map<String, StockDetailsData> stockCodesV6DetailMap = stockDataCapturerService.getStockCodesV6Detail(targetStockCodeList);
+                stockDetailsDataFilterChain.setStockDetailsDataMap(stockCodesV6DetailMap);
             }
+            stockDataFilterTasks.processTasks(Constant.TASK_FLAG_STOCK_CODE);
 
-            // v6 details filter
-            Map<String, StockDetailsData> stockCodesV6DetailMap = stockDataCapturerService.getStockCodesV6Detail(targetStockCodeList);
-            stockDetailsDataFilterChain.setStockDetailsDataMap(stockCodesV6DetailMap);
+            Map<String, StockDataResultSum> stockFilterTasksResultMap = stockDataFilterTasks.getStockFilterTasksResultMap();
+            stockDataResultService.addStockDataResult(stockFilterTasksResultMap);
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
+            throw new RuntimeException(e);
         }
-        stockDataFilterTasks.processTasks(Constant.TASK_FLAG_STOCK_CODE);
-
-        Map<String, StockDataResultSum> stockFilterTasksResultMap = stockDataFilterTasks.getStockFilterTasksResultMap();
-        stockDataResultService.addStockDataResult(stockFilterTasksResultMap);
-        LOGGER.debug("NewStockDataCaptureJob End Normally");
+        LOGGER.info("NewStockDataCaptureJob End Normally");
     }
 }
