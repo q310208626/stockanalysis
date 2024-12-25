@@ -30,7 +30,8 @@ public class QuartzConfiguration {
                 .newTrigger()
                 .forJob(stockDataResultJob())
                 .withIdentity(JobConstants.JOB_NAME_STOCK_DATA_RESULT_JOB)
-                .withSchedule(CronScheduleBuilder.cronSchedule("0 30 15 * * ? *"))
+                .withSchedule(CronScheduleBuilder.cronSchedule("0 0 16 * * ? *"))
+                .startNow()
                 .build();
     }
 
@@ -40,7 +41,7 @@ public class QuartzConfiguration {
                 .newTrigger()
                 .forJob(currentDayDataResultJob())
                 .withIdentity(JobConstants.JOB_NAME_CURRENT_DAY_DATA_RESULT)
-                .withSchedule(CronScheduleBuilder.cronSchedule("0 0/30 10-15 * * ? *"))
+                .withSchedule(CronScheduleBuilder.cronSchedule("0 0/30 10-14 * * ? *"))
                 .build();
     }
 
@@ -50,7 +51,7 @@ public class QuartzConfiguration {
                 .newTrigger()
                 .forJob(currentStockBoardIndustryResultJob())
                 .withIdentity(JobConstants.JOB_NAME_CURRENT_DAY_BOARD_INDUSTRY_RESULT_JOB)
-                .withSchedule(CronScheduleBuilder.cronSchedule("0 0/10 10-15 * * ? *"))
+                .withSchedule(CronScheduleBuilder.cronSchedule("0 0/10 10-14 * * ? *"))
                 .build();
     }
 
