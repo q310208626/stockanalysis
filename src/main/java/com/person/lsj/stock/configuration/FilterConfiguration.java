@@ -385,133 +385,51 @@ public class FilterConfiguration {
         return stockDetailsDataFilterChain;
     }
 
-    @Bean(name = "stockBoardMacdJudgeFilterChain1")
-    public StockDetailsDataFilterChain stockBoardMacdJudgeFilterChain1() {
-        MacdStockDetailsDataFilter macdStockDetailsDataFilter = new MacdStockDetailsDataFilter(new TREND[]{TREND.TEND_UP, TREND.TEND_DOWN, TREND.TEND_DOWN}, TREND.TEND_RANDOM);
+    @Bean(name = "stockBoardMacdJudgeFilterChain_KDJ_Down")
+    public StockDetailsDataFilterChain stockBoardMacdJudgeFilterChain_KDJ_Down() {
+        KdjStockDetailsDataFilter macdStockDetailsDataFilter = new KdjStockDetailsDataFilter(150, new TREND[]{TREND.TEND_DOWN, TREND.TEND_DOWN, TREND.TEND_DOWN});
+        CciStockDetailsDataFilter cciStockDetailsDataFilter = new CciStockDetailsDataFilter(80, 300, new TREND[]{TREND.TEND_DOWN});
         List<StockDetailsDataFilter> filters = new ArrayList<StockDetailsDataFilter>();
         filters.add(macdStockDetailsDataFilter);
+        filters.add(cciStockDetailsDataFilter);
 
         StockDetailsDataFilterChain stockDetailsDataFilterChain = new StockDetailsDataFilterChain(filters);
-        stockDetailsDataFilterChain.setTaskId("Task_boards_0001");
+        stockDetailsDataFilterChain.setTaskId("Task_boards_0001_回调标志");
         stockDetailsDataFilterChain.setFlag(Constant.TASK_FLAG_STOCK_BOARD);
         return stockDetailsDataFilterChain;
     }
 
     @Bean(name = "stockBoardMacdJudgeFilterChain2")
     public StockDetailsDataFilterChain stockBoardMacdJudgeFilterChain2() {
-
-        MacdStockDetailsDataFilter macdStockDetailsDataFilter = new MacdStockDetailsDataFilter(new TREND[]{TREND.TEND_UP, TREND.TEND_DOWN}, TREND.TEND_RANDOM);
+        VolumeTrendDetailsFilter volumeDetailsFilter = new VolumeTrendDetailsFilter(new TREND[]{TREND.TEND_DOWN, TREND.TEND_DOWN,TREND.TEND_DOWN}, false, false);
         List<StockDetailsDataFilter> filters = new ArrayList<StockDetailsDataFilter>();
-        filters.add(macdStockDetailsDataFilter);
+        filters.add(volumeDetailsFilter);
 
         StockDetailsDataFilterChain stockDetailsDataFilterChain = new StockDetailsDataFilterChain(filters);
-        stockDetailsDataFilterChain.setTaskId("Task_boards_0002");
+        stockDetailsDataFilterChain.setTaskId("Task_boards_0002_交易量3天下降");
         stockDetailsDataFilterChain.setFlag(Constant.TASK_FLAG_STOCK_BOARD);
         return stockDetailsDataFilterChain;
     }
 
-    @Bean(name = "stockBoardMacdJudgeFilterChain3")
-    public StockDetailsDataFilterChain stockBoardMacdJudgeFilterChain3() {
-
-        MacdStockDetailsDataFilter macdStockDetailsDataFilter = new MacdStockDetailsDataFilter(new TREND[]{TREND.TEND_UP, TREND.TEND_UP}, TREND.TEND_DOWN);
-        List<StockDetailsDataFilter> filters = new ArrayList<StockDetailsDataFilter>();
-        filters.add(macdStockDetailsDataFilter);
-
-        StockDetailsDataFilterChain stockDetailsDataFilterChain = new StockDetailsDataFilterChain(filters);
-        stockDetailsDataFilterChain.setTaskId("Task_boards_0003");
-        stockDetailsDataFilterChain.setFlag(Constant.TASK_FLAG_STOCK_BOARD);
-        return stockDetailsDataFilterChain;
-    }
-
-    @Bean(name = "stockBoardMacdAndKdjJudgeFilterChain")
-    public StockDetailsDataFilterChain stockBoardMacdAndKdjJudgeFilterChain() {
-        MacdStockDetailsDataFilter macdStockDetailsDataFilter = new MacdStockDetailsDataFilter(new TREND[]{TREND.TEND_UP, TREND.TEND_DOWN, TREND.TEND_DOWN}, TREND.TEND_DOWN);
-        KdjStockDetailsDataFilter kdjStockDetailsDataFilter = new KdjStockDetailsDataFilter(25, new TREND[]{TREND.TEND_RANDOM, TREND.TEND_DOWN, TREND.TEND_DOWN});
-        List<StockDetailsDataFilter> filters = new ArrayList<StockDetailsDataFilter>();
-        filters.add(macdStockDetailsDataFilter);
-        filters.add(kdjStockDetailsDataFilter);
-
-        StockDetailsDataFilterChain stockDetailsDataFilterChain = new StockDetailsDataFilterChain(filters);
-        stockDetailsDataFilterChain.setTaskId("Task_boards_0004");
-        stockDetailsDataFilterChain.setFlag(Constant.TASK_FLAG_STOCK_BOARD);
-        return stockDetailsDataFilterChain;
-    }
-
-    @Bean(name = "stockBoardMacdAndKdjJudgeFilterChain2")
-    public StockDetailsDataFilterChain stockBoardMacdAndKdjJudgeFilterChain2() {
-        MacdStockDetailsDataFilter macdStockDetailsDataFilter = new MacdStockDetailsDataFilter(new TREND[]{TREND.TEND_UP, TREND.TEND_DOWN, TREND.TEND_DOWN}, TREND.TEND_DOWN);
-        KdjStockDetailsDataFilter kdjStockDetailsDataFilter = new KdjStockDetailsDataFilter(50, new TREND[]{TREND.TEND_RANDOM, TREND.TEND_DOWN, TREND.TEND_DOWN});
-        List<StockDetailsDataFilter> filters = new ArrayList<StockDetailsDataFilter>();
-        filters.add(macdStockDetailsDataFilter);
-        filters.add(kdjStockDetailsDataFilter);
-
-        StockDetailsDataFilterChain stockDetailsDataFilterChain = new StockDetailsDataFilterChain(filters);
-        stockDetailsDataFilterChain.setTaskId("Task_boards_0005");
-        stockDetailsDataFilterChain.setFlag(Constant.TASK_FLAG_STOCK_BOARD);
-        return stockDetailsDataFilterChain;
-    }
-
-    @Bean(name = "stockBoardMacdAndKdjJudgeFilterChain3")
-    public StockDetailsDataFilterChain stockBoardMacdAndKdjJudgeFilterChain3() {
-        MacdStockDetailsDataFilter macdStockDetailsDataFilter = new MacdStockDetailsDataFilter(new TREND[]{TREND.TEND_UP, TREND.TEND_UP}, TREND.TEND_DOWN);
-        KdjStockDetailsDataFilter kdjStockDetailsDataFilter = new KdjStockDetailsDataFilter(25, new TREND[]{TREND.TEND_RANDOM, TREND.TEND_DOWN, TREND.TEND_DOWN});
-        List<StockDetailsDataFilter> filters = new ArrayList<StockDetailsDataFilter>();
-        filters.add(macdStockDetailsDataFilter);
-        filters.add(kdjStockDetailsDataFilter);
-
-        StockDetailsDataFilterChain stockDetailsDataFilterChain = new StockDetailsDataFilterChain(filters);
-        stockDetailsDataFilterChain.setTaskId("Task_boards_0006");
-        stockDetailsDataFilterChain.setFlag(Constant.TASK_FLAG_STOCK_BOARD);
-        return stockDetailsDataFilterChain;
-    }
-
-    @Bean(name = "stockBoardMacdAndKdjJudgeFilterChain4")
-    public StockDetailsDataFilterChain stockBoardMacdAndKdjJudgeFilterChain4() {
-        MacdStockDetailsDataFilter macdStockDetailsDataFilter = new MacdStockDetailsDataFilter(new TREND[]{TREND.TEND_UP, TREND.TEND_UP}, TREND.TEND_DOWN);
-        KdjStockDetailsDataFilter kdjStockDetailsDataFilter = new KdjStockDetailsDataFilter(50, new TREND[]{TREND.TEND_RANDOM, TREND.TEND_DOWN, TREND.TEND_DOWN});
-        List<StockDetailsDataFilter> filters = new ArrayList<StockDetailsDataFilter>();
-        filters.add(macdStockDetailsDataFilter);
-        filters.add(kdjStockDetailsDataFilter);
-
-        StockDetailsDataFilterChain stockDetailsDataFilterChain = new StockDetailsDataFilterChain(filters);
-        stockDetailsDataFilterChain.setTaskId("Task_boards_0007");
-        stockDetailsDataFilterChain.setFlag(Constant.TASK_FLAG_STOCK_BOARD);
-        return stockDetailsDataFilterChain;
-    }
-
-    @Bean(name = "stockBoardMacdAndKdjJudgeFilterChain5")
-    public StockDetailsDataFilterChain stockBoardMacdAndKdjJudgeFilterChain5() {
-        MacdStockDetailsDataFilter macdStockDetailsDataFilter = new MacdStockDetailsDataFilter(new TREND[]{TREND.TEND_DOWN, TREND.TEND_DOWN, TREND.TEND_DOWN}, TREND.TEND_RANDOM);
-        KdjStockDetailsDataFilter kdjStockDetailsDataFilter = new KdjStockDetailsDataFilter(60, new TREND[]{TREND.TEND_UP});
-        List<StockDetailsDataFilter> filters = new ArrayList<StockDetailsDataFilter>();
-        filters.add(macdStockDetailsDataFilter);
-        filters.add(kdjStockDetailsDataFilter);
-
-        StockDetailsDataFilterChain stockDetailsDataFilterChain = new StockDetailsDataFilterChain(filters);
-        stockDetailsDataFilterChain.setTaskId("Task_boards_0008");
-        stockDetailsDataFilterChain.setFlag(Constant.TASK_FLAG_STOCK_BOARD);
-        return stockDetailsDataFilterChain;
-    }
-
-    @Bean(name = "stockBoardMainMoneyFlow2Up")
-    public StockDetailsDataFilterChain stockBoardMainMoneyFlow2Up() {
-        MainMoneyFlowDataFilter moneyFlowDataFilter = new MainMoneyFlowDataFilter(new TREND[]{TREND.TEND_UP,TREND.TEND_UP},300000000);
+    @Bean(name = "stockBoardMainMoneyFlow2Up5")
+    public StockDetailsDataFilterChain stockBoardMainMoneyFlow2Up5() {
+        MainMoneyFlowDataFilter moneyFlowDataFilter = new MainMoneyFlowDataFilter(new TREND[]{TREND.TEND_UP, TREND.TEND_UP, TREND.TEND_DOWN}, 500000000);
         List<StockDetailsDataFilter> filters = new ArrayList<StockDetailsDataFilter>();
 
         StockDetailsDataFilterChain stockDetailsDataFilterChain = new StockDetailsDataFilterChain(filters);
-        stockDetailsDataFilterChain.setTaskId("Task_boards_0009_主力资金2天流入3亿");
+        stockDetailsDataFilterChain.setTaskId("Task_boards_0001_主力资金2天流入5亿");
         stockDetailsDataFilterChain.setFlag(Constant.TASK_FLAG_STOCK_BOARD);
         stockDetailsDataFilterChain.setMoneyFlowDataFilter(moneyFlowDataFilter);
         return stockDetailsDataFilterChain;
     }
 
-    @Bean(name = "stockBoardMainMoneyFlow_FirstUp")
-    public StockDetailsDataFilterChain stockBoardMainMoneyFlow_FirstUp() {
-        MainMoneyFlowDataFilter moneyFlowDataFilter = new MainMoneyFlowDataFilter(new TREND[]{TREND.TEND_UP, TREND.TEND_DOWN, TREND.TEND_DOWN}, 100000000);
+    @Bean(name = "stockBoardMainMoneyFlow2Up")
+    public StockDetailsDataFilterChain stockBoardMainMoneyFlow2Up() {
+        MainMoneyFlowDataFilter moneyFlowDataFilter = new MainMoneyFlowDataFilter(new TREND[]{TREND.TEND_UP, TREND.TEND_UP, TREND.TEND_DOWN}, 300000000);
         List<StockDetailsDataFilter> filters = new ArrayList<StockDetailsDataFilter>();
 
         StockDetailsDataFilterChain stockDetailsDataFilterChain = new StockDetailsDataFilterChain(filters);
-        stockDetailsDataFilterChain.setTaskId("Task_boards_0009_主力资金_两次出逃后再加入");
+        stockDetailsDataFilterChain.setTaskId("Task_boards_0001_主力资金2天流入3亿");
         stockDetailsDataFilterChain.setFlag(Constant.TASK_FLAG_STOCK_BOARD);
         stockDetailsDataFilterChain.setMoneyFlowDataFilter(moneyFlowDataFilter);
         return stockDetailsDataFilterChain;
