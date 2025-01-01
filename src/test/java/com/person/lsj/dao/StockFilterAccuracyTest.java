@@ -43,7 +43,7 @@ public class StockFilterAccuracyTest {
 
     private int testDay = 60;
 
-    private int countDays = 2;
+    private int countDays = 3;
 
     @Test
     public void testStockCode() {

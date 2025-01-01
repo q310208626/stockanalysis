@@ -32,7 +32,7 @@ public class MacdStockDetailsDataFilter implements StockDetailsDataFilter {
     private int maxDiff = 200;
 
     public MacdStockDetailsDataFilter(TREND[] macdJudgeRule) {
-        this(macdJudgeRule, TREND.TEND_DOWN);
+        this(macdJudgeRule, TREND.TEND_RANDOM   );
     }
 
     public MacdStockDetailsDataFilter(TREND[] macdJudgeRule, TREND diffLargeThenDea) {
@@ -64,7 +64,7 @@ public class MacdStockDetailsDataFilter implements StockDetailsDataFilter {
     @Override
     public Map<String, StockDetailsData> filter(Map<String, StockDetailsData> stockDetailsDataMap, int fewDaysAgo) {
         LOGGER.debug("enter filter,size:" + stockDetailsDataMap.size());
-        if (ArrayUtils.isEmpty(macdJudgeRule) || CollectionUtils.isEmpty(stockDetailsDataMap)) {
+        if ((ArrayUtils.isEmpty(macdJudgeRule) && ArrayUtils.isEmpty(diffJudgeRule)) || CollectionUtils.isEmpty(stockDetailsDataMap)) {
             return stockDetailsDataMap;
         }
 
@@ -75,7 +75,8 @@ public class MacdStockDetailsDataFilter implements StockDetailsDataFilter {
             Map.Entry<String, StockDetailsData> stockDetailsEntry = stockDetailsIterator.next();
             String stockCode = stockDetailsEntry.getKey();
             StockDetailsData stockDetailsData = stockDetailsEntry.getValue();
-            int judgeDay = stockDetailsData.getStockDataEntities().size() - fewDaysAgo <= macdJudgeRule.length ? stockDetailsData.getStockDataEntities().size() - 1 - fewDaysAgo : macdJudgeRule.length;
+            int maxJudgeRule = Math.max(macdJudgeRule == null ? 0 : macdJudgeRule.length, diffJudgeRule == null ? 0 : diffJudgeRule.length);
+            int judgeDay = stockDetailsData.getStockDataEntities().size() - fewDaysAgo <= maxJudgeRule ? stockDetailsData.getStockDataEntities().size() - 1 - fewDaysAgo : maxJudgeRule;
             boolean matchJudgeRule = true;
             if (judgeDay == 0) {
                 matchJudgeRule = false;
@@ -213,18 +214,46 @@ public class MacdStockDetailsDataFilter implements StockDetailsDataFilter {
                 filterRuleMsg.append("大于");
             }
             filterRuleMsg.append(" macdDiff, ");
-        } else {
-            filterRuleMsg.append("判断当天 macd, ");
+        }
+
+        filterRuleMsg.append("判断当天 diff 范围[");
+        filterRuleMsg.append(minDiff).append("< diff <").append(maxDiff);
+        filterRuleMsg.append("], ");
+
+        if (!isDiffLargeThenZero.equals(TREND.TEND_RANDOM)) {
+            filterRuleMsg.append("判断当天 diff ");
+            if (isDiffLargeThenZero.equals(TREND.TEND_UP)) {
+                filterRuleMsg.append("小于");
+            } else {
+                filterRuleMsg.append("大于");
+            }
+            filterRuleMsg.append("零, ");
         }
 
         if (macdJudgeRule != null && macdJudgeRule.length > 0) {
+            filterRuleMsg.append("判断macd趋势,");
             filterRuleMsg.append("判断[").append(macdJudgeRule.length).append("]天");
             for (int i = 0; i < macdJudgeRule.length; i++) {
                 filterRuleMsg.append(" ,倒数第[").append(i + 1).append("]天")
                         .append("呈现[")
                         .append(macdJudgeRule[i].tendString)
-                        .append("趋势]");
+                        .append("趋势], ");
             }
+        }
+
+        if (diffJudgeRule != null && diffJudgeRule.length > 0) {
+            filterRuleMsg.append("判断diff趋势,");
+            filterRuleMsg.append("判断[").append(diffJudgeRule.length).append("]天");
+            for (int i = 0; i < diffJudgeRule.length; i++) {
+                filterRuleMsg.append(" ,倒数第[").append(i + 1).append("]天")
+                        .append("呈现[")
+                        .append(diffJudgeRule[i].tendString)
+                        .append("趋势], ");
+            }
+        }
+
+        if (filterRuleMsg.lastIndexOf(",") == filterRuleMsg.length() - 1) {
+            filterRuleMsg.deleteCharAt(filterRuleMsg.length() - 1);
         }
         return filterRuleMsg.toString();
     }

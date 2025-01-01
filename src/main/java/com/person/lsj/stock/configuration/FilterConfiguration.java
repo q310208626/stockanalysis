@@ -30,6 +30,19 @@ public class FilterConfiguration {
         return stockDetailsDataFilterChain;
     }
 
+    @Bean(name = "stockDetailsDataFilterChain_MacdlargeThenZero_KdjUp2")
+    public StockDetailsDataFilterChain stockDetailsDataFilterChain_MacdlargeThenZero_KdjUp2() {
+        MacdStockDetailsDataFilter macdStockDetailsDataFilter = new MacdStockDetailsDataFilter(new TREND[]{TREND.TEND_RANDOM}, new TREND[]{TREND.TEND_UP}, TREND.TEND_RANDOM, TREND.TEND_UP);
+        KdjStockDetailsDataFilter kdjStockDetailsDataFilter = new KdjStockDetailsDataFilter(-10, 10, new TREND[]{TREND.TEND_UP, TREND.TEND_DOWN});
+        List<StockDetailsDataFilter> filters = new ArrayList<StockDetailsDataFilter>();
+        filters.add(macdStockDetailsDataFilter);
+        filters.add(kdjStockDetailsDataFilter);
+
+        StockDetailsDataFilterChain stockDetailsDataFilterChain = new StockDetailsDataFilterChain(filters);
+        stockDetailsDataFilterChain.setTaskId("Task_boards_0001_大盘即将拉升趋势");
+        return stockDetailsDataFilterChain;
+    }
+
     @Bean(name = "stockDetailsDataFilterChain_KDJ_MACD_MainMoney3000")
     public StockDetailsDataFilterChain stockDetailsDataFilterChain_KDJ_MACD_MainMoney3000() {
         MainMoneyFlowDataFilter moneyFlowDataFilter = new MainMoneyFlowDataFilter(new TREND[]{TREND.TEND_RANDOM, TREND.TEND_RANDOM, TREND.TEND_RANDOM}, 10000000);
@@ -116,7 +129,7 @@ public class FilterConfiguration {
     public StockDetailsDataFilterChain stockDetailsDataFilterChain_KDJ_MACDLargeThanZero() {
         MainMoneyFlowDataFilter moneyFlowDataFilter = new MainMoneyFlowDataFilter(new TREND[]{TREND.TEND_RANDOM, TREND.TEND_RANDOM, TREND.TEND_RANDOM}, 5000000);
 
-        MacdStockDetailsDataFilter macdStockDetailsDataFilter = new MacdStockDetailsDataFilter(new TREND[]{TREND.TEND_RANDOM, TREND.TEND_RANDOM}, new TREND[]{TREND.TEND_UP, TREND.TEND_UP}, TREND.TEND_RANDOM, TREND.TEND_UP);
+        MacdStockDetailsDataFilter macdStockDetailsDataFilter = new MacdStockDetailsDataFilter(new TREND[]{TREND.TEND_RANDOM, TREND.TEND_RANDOM}, new TREND[]{TREND.TEND_UP, TREND.TEND_UP}, TREND.TEND_UP, TREND.TEND_UP);
         KdjStockDetailsDataFilter kdjStockDetailsDataFilter = new KdjStockDetailsDataFilter(20, 50, new TREND[]{TREND.TEND_UP, TREND.TEND_UP});
         CciStockDetailsDataFilter cciStockDetailsDataFilter = new CciStockDetailsDataFilter(20, 80, new TREND[]{TREND.TEND_UP, TREND.TEND_UP});
         List<StockDetailsDataFilter> filters = new ArrayList<StockDetailsDataFilter>();
@@ -135,7 +148,7 @@ public class FilterConfiguration {
 //        MainMoneyFlowDataFilter moneyFlowDataFilter = new MainMoneyFlowDataFilter(new TREND[]{TREND.TEND_RANDOM, TREND.TEND_RANDOM, TREND.TEND_RANDOM}, 5000000);
 
         MacdStockDetailsDataFilter macdStockDetailsDataFilter = new MacdStockDetailsDataFilter(new TREND[]{TREND.TEND_UP, TREND.TEND_UP}, -20, 0);
-        KdjStockDetailsDataFilter kdjStockDetailsDataFilter = new KdjStockDetailsDataFilter(20, 30, new TREND[]{TREND.TEND_UP, TREND.TEND_UP});
+        KdjStockDetailsDataFilter kdjStockDetailsDataFilter = new KdjStockDetailsDataFilter(10, 30, new TREND[]{TREND.TEND_UP, TREND.TEND_UP});
         List<StockDetailsDataFilter> filters = new ArrayList<StockDetailsDataFilter>();
         filters.add(macdStockDetailsDataFilter);
         filters.add(kdjStockDetailsDataFilter);
@@ -432,6 +445,18 @@ public class FilterConfiguration {
         stockDetailsDataFilterChain.setTaskId("Task_boards_0001_主力资金2天流入3亿");
         stockDetailsDataFilterChain.setFlag(Constant.TASK_FLAG_STOCK_BOARD);
         stockDetailsDataFilterChain.setMoneyFlowDataFilter(moneyFlowDataFilter);
+        return stockDetailsDataFilterChain;
+    }
+
+    @Bean(name = "stockBoardMacdJudgeFilterChain_Macd_Up2_largeThenZero")
+    public StockDetailsDataFilterChain stockBoardMacdJudgeFilterChain_Macd_Up2_largeThenZero() {
+        MacdStockDetailsDataFilter macdStockDetailsDataFilter = new MacdStockDetailsDataFilter(new TREND[]{TREND.TEND_RANDOM}, new TREND[]{TREND.TEND_UP, TREND.TEND_UP, TREND.TEND_DOWN}, TREND.TEND_UP, TREND.TEND_UP);
+        List<StockDetailsDataFilter> filters = new ArrayList<StockDetailsDataFilter>();
+        filters.add(macdStockDetailsDataFilter);
+
+        StockDetailsDataFilterChain stockDetailsDataFilterChain = new StockDetailsDataFilterChain(filters);
+        stockDetailsDataFilterChain.setTaskId("Task_boards_0001_板块处于上升趋势");
+        stockDetailsDataFilterChain.setFlag(Constant.TASK_FLAG_STOCK_BOARD);
         return stockDetailsDataFilterChain;
     }
 }
