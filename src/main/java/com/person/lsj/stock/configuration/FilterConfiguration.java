@@ -39,7 +39,7 @@ public class FilterConfiguration {
         filters.add(kdjStockDetailsDataFilter);
 
         StockDetailsDataFilterChain stockDetailsDataFilterChain = new StockDetailsDataFilterChain(filters);
-        stockDetailsDataFilterChain.setTaskId("Task_boards_0001_大盘即将拉升趋势");
+        stockDetailsDataFilterChain.setTaskId("Task_0001_大盘即将拉升趋势");
         return stockDetailsDataFilterChain;
     }
 
