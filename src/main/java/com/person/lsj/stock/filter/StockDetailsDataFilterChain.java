@@ -52,6 +52,7 @@ public class StockDetailsDataFilterChain {
             temp = stockDetailsDataFilter.filter(temp, fewDaysAgo);
         }
 
+        stockDetailsDataMap.clear();
         return temp;
     }
 
