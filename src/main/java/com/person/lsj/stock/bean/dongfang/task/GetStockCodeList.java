@@ -89,7 +89,7 @@ public class GetStockCodeList implements Callable<List<String>> {
                         .filter(x -> x.getStatus() != StockStatus.DELISTED.status)
                         .filter(x -> x.getStatus() != StockStatus.SUSPEND_LISTING.status)
                         .filter(x -> x.getStatus() != StockStatus.NOT_LISTING.status)
-//                        .filter(x -> x.getStatus() != StockStatus.CLOSED.status)
+                        .filter(x -> x.getStatus() != StockStatus.CLOSED.status)
                         .filter(x -> {
                             if (x.getStockCode() == null) {
                                 LOGGER.debug("This Status " + x.getStatus() + " has no stock code");
