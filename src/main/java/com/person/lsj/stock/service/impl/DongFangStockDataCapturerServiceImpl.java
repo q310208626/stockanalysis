@@ -6,6 +6,9 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.person.lsj.stock.bean.dongfang.HomePageBean;
 import com.person.lsj.stock.bean.dongfang.StockField;
 import com.person.lsj.stock.bean.dongfang.data.*;
+import com.person.lsj.stock.bean.dongfang.financial.balance.ApiBalanceResponse;
+import com.person.lsj.stock.bean.dongfang.financial.balance.BalanceDataItem;
+import com.person.lsj.stock.bean.dongfang.financial.balance.Result;
 import com.person.lsj.stock.bean.dongfang.moneyflow.StockMoneyFlowBean;
 import com.person.lsj.stock.bean.dongfang.moneyflow.StockMoneyFlowData;
 import com.person.lsj.stock.bean.dongfang.moneyflow.StockMoneyFlowDeserializer;
@@ -845,5 +848,49 @@ public class DongFangStockDataCapturerServiceImpl implements StockDataCapturerSe
             throw new RuntimeException(e);
         }
         return stockDetailsDataMap;
+    }
+
+    @Override
+    public Map<String, List<BalanceDataItem>> getStockFinancialDataBalance(List<String> stockCodes) {
+        LOGGER.debug("Enter getStockFinancialDataBalance");
+
+        Map<String, List<BalanceDataItem>> balanceItemMap = new HashMap<>();
+        try {
+            CountDownLatch countDownLatch = new CountDownLatch(stockCodes.size());
+            List<FutureTask<ApiBalanceResponse>> futureTaskArrayList = new ArrayList<>();
+            for (String stockCode : stockCodes) {
+                LOGGER.debug("start get financial balance msg:" + stockCode);
+                FutureTask<ApiBalanceResponse> stockMoneyFlowBeanFutureTask = new FutureTask<>(new GetStockFinancialData(stockCode, countDownLatch));
+                futureTaskArrayList.add(stockMoneyFlowBeanFutureTask);
+                threadPool.execute(stockMoneyFlowBeanFutureTask);
+                LOGGER.debug("end financial balance msg:" + stockCode);
+            }
+
+            countDownLatch.await();
+
+            for (FutureTask<ApiBalanceResponse> apiResponseFutureTask : futureTaskArrayList) {
+                ApiBalanceResponse apiResponse = apiResponseFutureTask.get(20, TimeUnit.MILLISECONDS);
+                if (apiResponse == null) {
+                    continue;
+                }
+                Result result = apiResponse.getResult();
+
+                if (result == null || result.getCount() == 0) {
+                    continue;
+                }
+
+                balanceItemMap.put(result.getData().get(0).getSecurityCode(), result.getData());
+            }
+
+
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        } catch (TimeoutException e) {
+            throw new RuntimeException(e);
+        }
+        LOGGER.debug("Exit getStockFinancialDataBalance");
+        return balanceItemMap;
     }
 }

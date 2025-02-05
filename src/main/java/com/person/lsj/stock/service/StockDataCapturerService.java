@@ -4,6 +4,7 @@ package com.person.lsj.stock.service;
 import com.person.lsj.stock.bean.dongfang.data.StockBoardBean;
 import com.person.lsj.stock.bean.dongfang.data.StockCurDetailsData;
 import com.person.lsj.stock.bean.dongfang.data.StockDetailsData;
+import com.person.lsj.stock.bean.dongfang.financial.balance.BalanceDataItem;
 import com.person.lsj.stock.bean.dongfang.moneyflow.StockMoneyFlowBean;
 import com.person.lsj.stock.bean.dongfang.result.StockDataResultDetails;
 
@@ -134,4 +135,12 @@ public interface StockDataCapturerService {
      * @return Map<String, StockDetailsData>
      */
     Map<String, StockDetailsData> getStockBoardsV6Details(int boardType);
+
+    /**
+     * 获取股票的资产负债表
+     *
+     * @param stockCodes
+     * @return
+     */
+    Map<String, List<BalanceDataItem>> getStockFinancialDataBalance(List<String> stockCodes);
 }

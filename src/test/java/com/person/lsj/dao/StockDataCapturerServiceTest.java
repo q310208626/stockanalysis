@@ -4,6 +4,7 @@ import com.person.lsj.stock.ApplicationStarter;
 import com.person.lsj.stock.bean.dongfang.data.StockBoardBean;
 import com.person.lsj.stock.bean.dongfang.data.StockCurDetailsData;
 import com.person.lsj.stock.bean.dongfang.data.StockDetailsData;
+import com.person.lsj.stock.bean.dongfang.financial.balance.BalanceDataItem;
 import com.person.lsj.stock.bean.dongfang.moneyflow.StockMoneyFlowBean;
 import com.person.lsj.stock.constant.Constant;
 import com.person.lsj.stock.enumeration.TREND;
@@ -110,5 +111,13 @@ public class StockDataCapturerServiceTest {
         Map<String, StockDetailsData> stockCodesV6Detail = stockDataCapturerService.getStockCodesV6Detail(stockCodeList);
         Map<String, StockDetailsData> filterRet = mdiStockDetailsDataFilter.filter(stockCodesV6Detail);
         Assert.assertNotNull(filterRet);
+    }
+
+    @Test
+    public void getStockFinancialData(){
+        ArrayList<String> stockCodeList = new ArrayList<>();
+        stockCodeList.add("600938");
+        Map<String, List<BalanceDataItem>> stockFinancialDataBalance = stockDataCapturerService.getStockFinancialDataBalance(stockCodeList);
+        Assert.assertNotNull(stockFinancialDataBalance);
     }
 }
