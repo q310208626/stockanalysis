@@ -30,6 +30,23 @@ public class FilterConfiguration {
         return stockDetailsDataFilterChain;
     }
 
+    @Bean(name = "stockDetailsDataFilterChain_WRLarget80")
+    public StockDetailsDataFilterChain stockDetailsDataFilterChain_WRLarget80() {
+        MainMoneyFlowDataFilter moneyFlowDataFilter = new MainMoneyFlowDataFilter();
+        List<StockDetailsDataFilter> filters = new ArrayList<StockDetailsDataFilter>();
+        WRStockDetailsDataFilter wrStockDetailsDataFilter = new WRStockDetailsDataFilter(80, new TREND[]{TREND.TEND_RANDOM}, 85, new TREND[]{TREND.TEND_UP});
+        KdjStockDetailsDataFilter kdjStockDetailsDataFilter = new KdjStockDetailsDataFilter(-10, 15, new TREND[]{TREND.TEND_DOWN});
+        MacdStockDetailsDataFilter macdStockDetailsDataFilter = new MacdStockDetailsDataFilter(new TREND[]{TREND.TEND_RANDOM}, TREND.TEND_UP);
+        filters.add(wrStockDetailsDataFilter);
+        filters.add(kdjStockDetailsDataFilter);
+        filters.add(macdStockDetailsDataFilter);
+
+        StockDetailsDataFilterChain stockDetailsDataFilterChain = new StockDetailsDataFilterChain(filters);
+        stockDetailsDataFilterChain.setTaskId("Task_0000_WR大于80");
+        stockDetailsDataFilterChain.setMoneyFlowDataFilter(moneyFlowDataFilter);
+        return stockDetailsDataFilterChain;
+    }
+
     @Bean(name = "stockDetailsDataFilterChain_MacdlargeThenZero_KdjUp2")
     public StockDetailsDataFilterChain stockDetailsDataFilterChain_MacdlargeThenZero_KdjUp2() {
         MacdStockDetailsDataFilter macdStockDetailsDataFilter = new MacdStockDetailsDataFilter(new TREND[]{TREND.TEND_RANDOM}, new TREND[]{TREND.TEND_UP}, TREND.TEND_RANDOM, TREND.TEND_UP);
@@ -394,23 +411,6 @@ public class FilterConfiguration {
 
         StockDetailsDataFilterChain stockDetailsDataFilterChain = new StockDetailsDataFilterChain(filters);
         stockDetailsDataFilterChain.setTaskId("Task_0016_交易量3天上升_涨幅不大");
-        stockDetailsDataFilterChain.setMoneyFlowDataFilter(moneyFlowDataFilter);
-        return stockDetailsDataFilterChain;
-    }
-
-    @Bean(name = "stockDetailsDataFilterChain_WRLarget80")
-    public StockDetailsDataFilterChain stockDetailsDataFilterChain_WRLarget80() {
-        MainMoneyFlowDataFilter moneyFlowDataFilter = new MainMoneyFlowDataFilter();
-        List<StockDetailsDataFilter> filters = new ArrayList<StockDetailsDataFilter>();
-        WRStockDetailsDataFilter wrStockDetailsDataFilter = new WRStockDetailsDataFilter(80, new TREND[]{TREND.TEND_RANDOM}, 85, new TREND[]{TREND.TEND_UP});
-        KdjStockDetailsDataFilter kdjStockDetailsDataFilter = new KdjStockDetailsDataFilter(-10, 15, new TREND[]{TREND.TEND_DOWN});
-        MacdStockDetailsDataFilter macdStockDetailsDataFilter = new MacdStockDetailsDataFilter(new TREND[]{TREND.TEND_RANDOM}, TREND.TEND_UP);
-        filters.add(wrStockDetailsDataFilter);
-        filters.add(kdjStockDetailsDataFilter);
-        filters.add(macdStockDetailsDataFilter);
-
-        StockDetailsDataFilterChain stockDetailsDataFilterChain = new StockDetailsDataFilterChain(filters);
-        stockDetailsDataFilterChain.setTaskId("Task_0000_WR大于80");
         stockDetailsDataFilterChain.setMoneyFlowDataFilter(moneyFlowDataFilter);
         return stockDetailsDataFilterChain;
     }
