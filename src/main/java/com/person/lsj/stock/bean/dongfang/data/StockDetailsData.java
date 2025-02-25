@@ -65,6 +65,9 @@ public class StockDetailsData {
                 // CCI
                 setCci(stockDataEntities, i);
 
+                // WR
+                setWR(stockDataEntities, i);
+
                 // MACD
                 if (i == 0) {
                     stockDataEntities.get(i).setMacdAx(stockDataEntities.get(i).getClose());
@@ -314,6 +317,36 @@ public class StockDetailsData {
             if (sum != 0) {
                 stockDataEntities.get(i).setCci((stockDataEntities.get(i).getCciTyp() - CCI_TYP_MA) / (0.015f * (sum / 14)));
             }
+        }
+    }
+
+    private void setWR(List<StockDataEntity> stockDataEntities, int i) {
+        float LLV = stockDataEntities.get(i).getLow();
+        float HHV = stockDataEntities.get(i).getHigh();
+        for (var j = 0; j < 10 && j < i + 1; j++) {
+            if (HHV < stockDataEntities.get(i - j).getHigh()) {
+                HHV = stockDataEntities.get(i - j).getHigh();
+            }
+            if (LLV > stockDataEntities.get(i - j).getLow()) {
+                LLV = stockDataEntities.get(i - j).getLow();
+            }
+        }
+        if (HHV != LLV) {
+            stockDataEntities.get(i).setWrA(100 * (HHV - stockDataEntities.get(i).getClose()) / (HHV - LLV));
+        }
+
+        LLV = stockDataEntities.get(i).getLow();
+        HHV = stockDataEntities.get(i).getHigh();
+        for (var j = 0; j < 6 && j < i + 1; j++) {
+            if (HHV < stockDataEntities.get(i - j).getHigh()) {
+                HHV = stockDataEntities.get(i - j).getHigh();
+            }
+            if (LLV > stockDataEntities.get(i - j).getLow()) {
+                LLV = stockDataEntities.get(i - j).getLow();
+            }
+        }
+        if (HHV != LLV) {
+            stockDataEntities.get(i).setWrB(100 * (HHV - stockDataEntities.get(i).getClose()) / (HHV - LLV));
         }
     }
 

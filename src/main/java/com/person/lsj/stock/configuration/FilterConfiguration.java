@@ -398,6 +398,23 @@ public class FilterConfiguration {
         return stockDetailsDataFilterChain;
     }
 
+    @Bean(name = "stockDetailsDataFilterChain_WRLarget80")
+    public StockDetailsDataFilterChain stockDetailsDataFilterChain_WRLarget80() {
+        MainMoneyFlowDataFilter moneyFlowDataFilter = new MainMoneyFlowDataFilter();
+        List<StockDetailsDataFilter> filters = new ArrayList<StockDetailsDataFilter>();
+        WRStockDetailsDataFilter wrStockDetailsDataFilter = new WRStockDetailsDataFilter(80, new TREND[]{TREND.TEND_RANDOM}, 85, new TREND[]{TREND.TEND_UP});
+        KdjStockDetailsDataFilter kdjStockDetailsDataFilter = new KdjStockDetailsDataFilter(-10, 15, new TREND[]{TREND.TEND_DOWN});
+        MacdStockDetailsDataFilter macdStockDetailsDataFilter = new MacdStockDetailsDataFilter(new TREND[]{TREND.TEND_RANDOM}, TREND.TEND_UP);
+        filters.add(wrStockDetailsDataFilter);
+        filters.add(kdjStockDetailsDataFilter);
+        filters.add(macdStockDetailsDataFilter);
+
+        StockDetailsDataFilterChain stockDetailsDataFilterChain = new StockDetailsDataFilterChain(filters);
+        stockDetailsDataFilterChain.setTaskId("Task_0000_WR大于80");
+        stockDetailsDataFilterChain.setMoneyFlowDataFilter(moneyFlowDataFilter);
+        return stockDetailsDataFilterChain;
+    }
+
     @Bean(name = "stockBoardMacdJudgeFilterChain_KDJ_Down")
     public StockDetailsDataFilterChain stockBoardMacdJudgeFilterChain_KDJ_Down() {
         KdjStockDetailsDataFilter macdStockDetailsDataFilter = new KdjStockDetailsDataFilter(150, new TREND[]{TREND.TEND_DOWN, TREND.TEND_DOWN, TREND.TEND_DOWN});
