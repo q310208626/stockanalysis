@@ -47,6 +47,38 @@ public class FilterConfiguration {
         return stockDetailsDataFilterChain;
     }
 
+    @Bean(name = "stockDetailsDataFilterChain_KDJ_MACDDiffUp2Days")
+    public StockDetailsDataFilterChain stockDetailsDataFilterChain_KDJ_MACDDiffUp2Days() {
+//        MainMoneyFlowDataFilter moneyFlowDataFilter = new MainMoneyFlowDataFilter(new TREND[]{TREND.TEND_RANDOM, TREND.TEND_RANDOM, TREND.TEND_RANDOM}, 5000000);
+
+        MacdStockDetailsDataFilter macdStockDetailsDataFilter = new MacdStockDetailsDataFilter(new TREND[]{TREND.TEND_UP, TREND.TEND_UP}, -20, 0);
+        KdjStockDetailsDataFilter kdjStockDetailsDataFilter = new KdjStockDetailsDataFilter(10, 30, new TREND[]{TREND.TEND_UP, TREND.TEND_UP});
+        List<StockDetailsDataFilter> filters = new ArrayList<StockDetailsDataFilter>();
+        filters.add(macdStockDetailsDataFilter);
+        filters.add(kdjStockDetailsDataFilter);
+
+        StockDetailsDataFilterChain stockDetailsDataFilterChain = new StockDetailsDataFilterChain(filters);
+        stockDetailsDataFilterChain.setTaskId("Task_0000_KDJ_MACDDiffUp2Days");
+//        stockDetailsDataFilterChain.setMoneyFlowDataFilter(moneyFlowDataFilter);
+        return stockDetailsDataFilterChain;
+    }
+
+    @Bean(name = "stockDetailsDataFilterChain_Volume1Up3Down")
+    public StockDetailsDataFilterChain stockDetailsDataFilterChain_Volume1Up3Down() {
+        List<StockDetailsDataFilter> filters = new ArrayList<StockDetailsDataFilter>();
+        IncreaseRateDataFilter increaseRateDataFilter = new IncreaseRateDataFilter(new TREND[]{TREND.TEND_DOWN, TREND.TEND_DOWN, TREND.TEND_DOWN, TREND.TEND_DOWN, TREND.TEND_UP}, new float[]{0f, 0f, 0f, 0f, 3.0f});
+        VolumeTrendDetailsFilter volumeDetailsFilter = new VolumeTrendDetailsFilter(new TREND[]{TREND.TEND_RANDOM, TREND.TEND_RANDOM, TREND.TEND_RANDOM, TREND.TEND_RANDOM, TREND.TEND_UP}, new TREND[]{TREND.TEND_RANDOM}, new TREND[]{TREND.TEND_RANDOM},
+                false, false, 2.0f);
+        MacdStockDetailsDataFilter macdStockDetailsDataFilter = new MacdStockDetailsDataFilter(new TREND[]{TREND.TEND_RANDOM}, TREND.TEND_UP);
+        filters.add(volumeDetailsFilter);
+        filters.add(increaseRateDataFilter);
+        filters.add(macdStockDetailsDataFilter);
+
+        StockDetailsDataFilterChain stockDetailsDataFilterChain = new StockDetailsDataFilterChain(filters);
+        stockDetailsDataFilterChain.setTaskId("Task_0000_交易量倍量上涨1天后连跌3天");
+        return stockDetailsDataFilterChain;
+    }
+
     @Bean(name = "stockDetailsDataFilterChain_MacdlargeThenZero_KdjUp2")
     public StockDetailsDataFilterChain stockDetailsDataFilterChain_MacdlargeThenZero_KdjUp2() {
         MacdStockDetailsDataFilter macdStockDetailsDataFilter = new MacdStockDetailsDataFilter(new TREND[]{TREND.TEND_RANDOM}, new TREND[]{TREND.TEND_UP}, TREND.TEND_RANDOM, TREND.TEND_UP);
@@ -157,22 +189,6 @@ public class FilterConfiguration {
         StockDetailsDataFilterChain stockDetailsDataFilterChain = new StockDetailsDataFilterChain(filters);
         stockDetailsDataFilterChain.setTaskId("Task_0000_KDJ_MACDLargeThanZero");
         stockDetailsDataFilterChain.setMoneyFlowDataFilter(moneyFlowDataFilter);
-        return stockDetailsDataFilterChain;
-    }
-
-    @Bean(name = "stockDetailsDataFilterChain_KDJ_MACDDiffUp2Days")
-    public StockDetailsDataFilterChain stockDetailsDataFilterChain_KDJ_MACDDiffUp2Days() {
-//        MainMoneyFlowDataFilter moneyFlowDataFilter = new MainMoneyFlowDataFilter(new TREND[]{TREND.TEND_RANDOM, TREND.TEND_RANDOM, TREND.TEND_RANDOM}, 5000000);
-
-        MacdStockDetailsDataFilter macdStockDetailsDataFilter = new MacdStockDetailsDataFilter(new TREND[]{TREND.TEND_UP, TREND.TEND_UP}, -20, 0);
-        KdjStockDetailsDataFilter kdjStockDetailsDataFilter = new KdjStockDetailsDataFilter(10, 30, new TREND[]{TREND.TEND_UP, TREND.TEND_UP});
-        List<StockDetailsDataFilter> filters = new ArrayList<StockDetailsDataFilter>();
-        filters.add(macdStockDetailsDataFilter);
-        filters.add(kdjStockDetailsDataFilter);
-
-        StockDetailsDataFilterChain stockDetailsDataFilterChain = new StockDetailsDataFilterChain(filters);
-        stockDetailsDataFilterChain.setTaskId("Task_0000_KDJ_MACDDiffUp2Days");
-//        stockDetailsDataFilterChain.setMoneyFlowDataFilter(moneyFlowDataFilter);
         return stockDetailsDataFilterChain;
     }
 

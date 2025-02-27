@@ -26,21 +26,28 @@ public class VolumeTrendDetailsFilter implements StockDetailsDataFilter {
 
     private TREND[] volume10JudgeRule;
 
+    private float judgeFirstDayVolume = -1;
+
     public VolumeTrendDetailsFilter(TREND[] volumeJudgeRule, boolean isTodayLargeThen5, boolean isTodayLargeThen10) {
         this(volumeJudgeRule, null, null, isTodayLargeThen5, isTodayLargeThen10);
     }
 
     public VolumeTrendDetailsFilter(TREND[] volumeJudgeRule, TREND[] volume5JudgeRule, TREND[] volume10JudgeRule, boolean isTodayLargeThen5, boolean isTodayLargeThen10) {
+        this(volumeJudgeRule, volume5JudgeRule, volume10JudgeRule, isTodayLargeThen5, isTodayLargeThen10, -1.0f);
+    }
+
+    public VolumeTrendDetailsFilter(TREND[] volumeJudgeRule, TREND[] volume5JudgeRule, TREND[] volume10JudgeRule, boolean isTodayLargeThen5, boolean isTodayLargeThen10, float judgeFirstDayVolume) {
+        this.isTodayLargeThen5 = isTodayLargeThen5;
+        this.isTodayLargeThen10 = isTodayLargeThen10;
         this.volumeJudgeRule = volumeJudgeRule;
         this.volume5JudgeRule = volume5JudgeRule;
         this.volume10JudgeRule = volume10JudgeRule;
-        this.isTodayLargeThen5 = isTodayLargeThen5;
-        this.isTodayLargeThen10 = isTodayLargeThen10;
+        this.judgeFirstDayVolume = judgeFirstDayVolume;
     }
 
     @Override
     public Map<String, StockDetailsData> filter(Map<String, StockDetailsData> stockDetailsDataMap) {
-        return Map.of();
+        return filter(stockDetailsDataMap, 0);
     }
 
     @Override
@@ -80,6 +87,13 @@ public class VolumeTrendDetailsFilter implements StockDetailsDataFilter {
                     }
 
                     if (isTodayLargeThen10 && stockDataEntity.getVolume() < stockDataEntity.getVolume10()) {
+                        matchJudgeRule = false;
+                    }
+                }
+
+                // judge first day
+                if (curReverseDayNum == judgeDay) {
+                    if (judgeFirstDayVolume > 0 && stockDataEntity.getVolume() / stockDataEntity.getVolume5() < judgeFirstDayVolume) {
                         matchJudgeRule = false;
                     }
                 }
